@@ -1,0 +1,157 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Vigor Fructus Color Palette */
+  --bg-page: #EDE8D8;
+  --bg-hero: #2D3D1C;
+  --bg-card: #3A4E22;
+  --bg-dark: #1E2A0E;
+  --lime: #9DC518;
+  --cream: #E8E0C8;
+  --terra: #8B5E1A;
+  
+  /* Border colors */
+  --border-light: #C8BFA0;
+  --border-card: #4A5E28;
+  --border-muted: #6B7A3A;
+  
+  /* Text colors */
+  --text-body-light: #D4C9A8;
+  --text-muted: #6B7A48;
+  --text-nav: #2D3D1C;
+  --text-nav-hover: #5C7A1A;
+  
+  /* Standard tokens mapped to palette */
+  --background: #EDE8D8;
+  --foreground: #1E2A0E;
+  --card: #3A4E22;
+  --card-foreground: #E8E0C8;
+  --popover: #2D3D1C;
+  --popover-foreground: #E8E0C8;
+  --primary: #EDE8D8;
+  --primary-foreground: #1E2A0E;
+  --secondary: #2D3D1C;
+  --secondary-foreground: #E8E0C8;
+  --muted: #3A4E22;
+  --muted-foreground: #D4C9A8;
+  --accent: #9DC518;
+  --accent-foreground: #1E2A0E;
+  --destructive: #8B5E1A;
+  --destructive-foreground: #EDE8D8;
+  --border: #C8BFA0;
+  --input: #3A4E22;
+  --ring: #9DC518;
+  --radius: 0.375rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-mono: 'Geist Mono', monospace;
+  
+  /* Custom colors */
+  --color-bg-page: var(--bg-page);
+  --color-bg-hero: var(--bg-hero);
+  --color-bg-card: var(--bg-card);
+  --color-bg-dark: var(--bg-dark);
+  --color-lime: var(--lime);
+  --color-cream: var(--cream);
+  --color-terra: var(--terra);
+  --color-border-light: var(--border-light);
+  --color-border-card: var(--border-card);
+  --color-border-muted: var(--border-muted);
+  --color-text-body-light: var(--text-body-light);
+  --color-text-muted: var(--text-muted);
+  --color-text-nav: var(--text-nav);
+  --color-text-nav-hover: var(--text-nav-hover);
+  
+  /* Standard tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border-light outline-ring/50;
+  }
+  body {
+    @apply bg-bg-page text-foreground;
+  }
+}
+
+/* Custom animations */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-card-hover {
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+  }
+  .animate-card-hover:hover {
+    transform: translateY(-3px);
+  }
+  .animate-image-hover {
+    transition: transform 300ms ease-out;
+  }
+  .animate-image-hover:hover {
+    transform: scale(1.04);
+  }
+  .animate-price-fade {
+    transition: opacity 150ms ease;
+  }
+  .animate-modal {
+    animation: modalIn 200ms ease-out;
+  }
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-badge-bounce {
+    animation: badgeBounce 300ms ease-out;
+  }
+  @keyframes badgeBounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+}
+
+/* Form input styles */
+.input-vigor {
+  @apply bg-bg-card border-[1.5px] border-border-card rounded text-cream placeholder:text-text-muted;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.input-vigor:focus {
+  @apply border-lime outline-none;
+  box-shadow: 0 0 0 3px rgba(157, 197, 24, 0.15);
+}
