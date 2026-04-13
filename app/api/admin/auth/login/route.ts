@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const isValid = verifyAdminCredentials(identifier, password)
+    const isValid = await verifyAdminCredentials(identifier, password)
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }

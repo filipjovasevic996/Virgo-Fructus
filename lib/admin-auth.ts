@@ -1,8 +1,13 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
+import { compare, hash } from 'bcryptjs'
+import { eq } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { adminUsersTable } from '@/lib/db/schema'
 
 export const ADMIN_SESSION_COOKIE = 'vf_admin_session'
-const SESSION_DURATION_MS = 1000 * 60 * 60 * 8 // 8 hours
+const SESSION_DURATION_MS = 1000 * 60 * 60 * 2 // 2 hours
+const BCRYPT_ROUNDS = 12
 
 function getAdminSecret() {
   const secret = process.env.ADMIN_SESSION_SECRET
@@ -52,28 +57,23 @@ export async function isAdminAuthenticated() {
   return verifySessionToken(token)
 }
 
-export function verifyAdminCredentials(identifier: string, password: string) {
-  const adminLogin = process.env.ADMIN_LOGIN
-  const adminEmail = process.env.ADMIN_EMAIL
-  const adminPassword = process.env.ADMIN_PASSWORD
+export async function verifyAdminCredentials(identifier: string, password: string) {
+  const normalizedEmail = identifier.trim().toLowerCase()
 
-  if (!adminPassword || (!adminLogin && !adminEmail)) {
-    throw new Error(
-      'Missing admin credentials env vars. Set ADMIN_PASSWORD and ADMIN_LOGIN or ADMIN_EMAIL.'
-    )
-  }
+  const user = await db
+    .select()
+    .from(adminUsersTable)
+    .where(eq(adminUsersTable.email, normalizedEmail))
+    .limit(1)
+    .then((rows) => rows[0])
 
-  const normalizedIdentifier = identifier.trim().toLowerCase()
-  const allowedIdentifiers = [adminLogin, adminEmail]
-    .filter((value): value is string => Boolean(value))
-    .map((value) => value.trim().toLowerCase())
+  if (!user) return false
 
-  const validIdentifier = allowedIdentifiers.some((value) =>
-    safeCompare(value, normalizedIdentifier)
-  )
+  return compare(password, user.passwordHash)
+}
 
-  const validPassword = safeCompare(adminPassword, password)
-  return validIdentifier && validPassword
+export async function hashPassword(password: string) {
+  return hash(password, BCRYPT_ROUNDS)
 }
 
 export function sessionCookieConfig() {
