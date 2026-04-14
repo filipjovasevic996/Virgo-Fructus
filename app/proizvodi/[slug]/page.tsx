@@ -15,7 +15,6 @@ async function getProduct(slug: string) {
     const [product] = await db
       .select()
       .from(productsTable)
-      // @ts-expect-error — dual drizzle-orm instances from pnpm hoisting
       .where(sql`${productsTable.slug} = ${slug} AND ${productsTable.status} = 'active'`)
       .limit(1)
     return product ?? null

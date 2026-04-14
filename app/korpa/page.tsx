@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Minus, Plus, X, ShoppingBasket, CreditCard, Banknote, Check, Loader2 } from 'lucide-react'
+import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, Check, Loader2, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
@@ -209,58 +209,59 @@ export default function CartPage() {
                 {items.map((item) => (
                   <div
                     key={`${item.id}-${item.weight}`}
-                    className="flex items-center gap-4 p-4 bg-cream rounded-lg"
+                    className="p-3 sm:p-4 bg-cream rounded-lg"
                   >
-                    <div className="w-20 h-20 bg-bg-page rounded flex items-center justify-center text-4xl flex-shrink-0 overflow-hidden relative">
-                      {item.image.startsWith('http') || item.image.startsWith('/') ? (
-                        <Image src={item.image} alt={item.name} fill className="object-cover" />
-                      ) : (
-                        item.image
-                      )}
-                    </div>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-bg-page rounded flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 overflow-hidden relative">
+                        {item.image.startsWith('http') || item.image.startsWith('/') ? (
+                          <Image src={item.image} alt={item.name} fill className="object-cover" />
+                        ) : (
+                          item.image
+                        )}
+                      </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-serif font-semibold text-base sm:text-lg text-bg-dark truncate">
-                        {item.name}
-                      </h3>
-                      <p className="font-sans text-sm text-text-nav">
-                        {item.weight}
-                      </p>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-serif font-semibold text-base sm:text-lg text-bg-dark truncate">
+                          {item.name}
+                        </h3>
+                        <p className="font-sans text-sm text-text-nav">
+                          {item.weight}
+                        </p>
+                      </div>
 
-                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => updateQuantity(item.id, item.weight, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded border border-border-light text-text-nav hover:border-text-nav-hover transition-colors"
-                        aria-label={t('cart.decreaseQty')}
+                        onClick={() => removeItem(item.id, item.weight)}
+                        className="p-1.5 sm:p-2 text-text-nav hover:text-terra transition-colors cursor-pointer"
+                        aria-label={t('cart.removeProduct')}
                       >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-sans font-medium text-bg-dark">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.weight, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded border border-border-light text-text-nav hover:border-text-nav-hover transition-colors"
-                        aria-label={t('cart.increaseQty')}
-                      >
-                        <Plus className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     </div>
 
-                    <div className="w-24 text-right">
-                      <span className="font-sans font-bold text-lg text-bg-dark">
+                    <div className="mt-3 pt-3 border-t border-border-light/70 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.weight, item.quantity - 1)}
+                          className="w-8 h-8 flex items-center justify-center rounded border border-border-light text-text-nav hover:border-text-nav-hover transition-colors cursor-pointer"
+                          aria-label={t('cart.decreaseQty')}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-8 text-center font-sans font-medium text-bg-dark">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.weight, item.quantity + 1)}
+                          className="w-8 h-8 flex items-center justify-center rounded border border-border-light text-text-nav hover:border-text-nav-hover transition-colors cursor-pointer"
+                          aria-label={t('cart.increaseQty')}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <span className="font-sans font-bold text-base sm:text-lg text-bg-dark text-right break-words">
                         {item.price * item.quantity} {t('common.currency')}
                       </span>
                     </div>
-
-                    <button
-                      onClick={() => removeItem(item.id, item.weight)}
-                      className="p-2 text-text-nav hover:text-terra transition-colors"
-                      aria-label={t('cart.removeProduct')}
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -307,7 +308,7 @@ export default function CartPage() {
 
                 <button
                   onClick={() => setStep('details')}
-                  className="mt-6 w-full py-4 px-6 bg-bg-page text-bg-dark font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"
+                  className="mt-6 w-full py-4 px-6 bg-bg-page text-bg-dark font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors cursor-pointer"
                 >
                   {t('cart.proceedToPayment')}
                 </button>
@@ -542,7 +543,7 @@ export default function CartPage() {
                   {items.map((item) => (
                     <div
                       key={`${item.id}-${item.weight}`}
-                      className="flex items-center gap-3 font-sans text-sm text-text-body-light"
+                      className="flex items-center gap-2 sm:gap-3 font-sans text-sm text-text-body-light"
                     >
                       <div className="w-8 h-8 rounded bg-bg-card flex items-center justify-center text-lg flex-shrink-0 overflow-hidden relative">
                         {item.image.startsWith('http') || item.image.startsWith('/') ? (
@@ -551,9 +552,9 @@ export default function CartPage() {
                           <span className="text-sm">{item.image}</span>
                         )}
                       </div>
-                      <span className="flex-1 truncate">{item.name}</span>
-                      <span className="text-text-body-light/60 text-xs">{item.weight} × {item.quantity}</span>
-                      <span className="text-cream font-medium w-20 text-right">
+                      <span className="flex-1 min-w-0 truncate">{item.name}</span>
+                      <span className="text-text-body-light/60 text-xs whitespace-nowrap">{item.weight} × {item.quantity}</span>
+                      <span className="text-cream font-medium text-right whitespace-nowrap">
                         {item.price * item.quantity} {t('common.currency')}
                       </span>
                     </div>

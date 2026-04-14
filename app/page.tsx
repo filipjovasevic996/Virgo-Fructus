@@ -6,8 +6,7 @@ import { getBestSellers } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
 import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
-
-const HERO_VIDEO_URL = 'https://res.cloudinary.com/dfpdrglba/video/upload/q_auto/f_auto/v1776112042/13977269-uhd_3840_2160_25fps_d4lvh2.mp4'
+import { HERO_VIDEO_URL } from './constants/constants'
 
 export default function HomePage() {
   const bestSellers = getBestSellers()
