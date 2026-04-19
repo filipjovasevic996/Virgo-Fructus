@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useI18n } from '@/lib/i18n'
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useI18n()
@@ -90,5 +90,29 @@ export default function AdminLoginPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="min-h-screen bg-bg-dark flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-bg-hero border border-border-card rounded-xl p-8 animate-pulse">
+        <div className="h-8 bg-bg-card rounded w-2/3 mb-4" />
+        <div className="h-4 bg-bg-card rounded w-full mb-6" />
+        <div className="space-y-4">
+          <div className="h-10 bg-bg-card rounded" />
+          <div className="h-10 bg-bg-card rounded" />
+          <div className="h-10 bg-lime/30 rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <AdminLoginForm />
+    </Suspense>
   )
 }
