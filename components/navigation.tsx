@@ -40,7 +40,7 @@ export function Navigation() {
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink-0 -my-1"
+            className="flex items-center gap-2 md:gap-3 min-w-0 shrink-0 -my-1"
           >
             <Image
               src="/logo.png"
@@ -70,14 +70,14 @@ export function Navigation() {
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
             <LanguageSwitcher />
             <Link
               href="/korpa"
               className="relative p-2 text-text-nav hover:text-text-nav-hover transition-colors"
               aria-label={`${t('nav.cart')} (${totalItems})`}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-3.5 w-3.5 md:h-5 md:w-5" />
               {totalItems > 0 && (
                 <span
                   className={cn(

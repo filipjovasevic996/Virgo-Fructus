@@ -23,8 +23,8 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
           }`}
           aria-label={`Switch to ${loc.label}`}
         >
-          <span className="mr-1">{loc.flag}</span>
-          {loc.label}
+          <span className="mr-0 sm:mr-1">{loc.flag}</span>
+          <span className="hidden sm:inline">{loc.label}</span>
         </button>
       ))}
     </div>
