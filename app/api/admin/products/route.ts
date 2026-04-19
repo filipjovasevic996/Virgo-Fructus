@@ -1,7 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { productsTable } from '@/lib/db/schema'
 import { eq, desc } from 'drizzle-orm'
+
+/** Bust ISR for listing pages; optionally the product detail page when slug is known */
+function revalidateStorefront(productSlug?: string | null) {
+  revalidatePath('/')
+  revalidatePath('/prodavnica')
+  if (productSlug) {
+    revalidatePath(`/proizvodi/${productSlug}`)
+  }
+}
 
 function ensureLocalized(value: unknown): { sr: string; en: string } {
   if (typeof value === 'string') return { sr: value, en: '' }
@@ -50,6 +60,8 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
+    revalidateStorefront(product.slug)
+
     return NextResponse.json({ product }, { status: 201 })
   } catch (error) {
     console.error('Error creating product:', error)
@@ -88,6 +100,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
+    revalidateStorefront(product.slug)
+
     return NextResponse.json({ product })
   } catch (error) {
     console.error('Error updating product:', error)
@@ -112,6 +126,8 @@ export async function DELETE(request: NextRequest) {
     if (!deleted) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
+
+    revalidateStorefront(deleted.slug)
 
     return NextResponse.json({ success: true })
   } catch (error) {

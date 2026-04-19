@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { CartProvider } from '@/components/cart-context'
-import { I18nProvider, type Locale } from '@/lib/i18n'
+import { I18nProvider } from '@/lib/i18n'
 import { ConditionalNavigation } from '@/components/conditional-navigation'
 import { ConditionalFooter } from '@/components/conditional-footer'
 
@@ -119,20 +118,13 @@ const organizationJsonLd = {
   },
 }
 
-function resolveLocaleFromCookie(raw: string | undefined): Locale {
-  return raw === 'en' || raw === 'sr' ? raw : 'sr'
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const initialLocale = resolveLocaleFromCookie(cookieStore.get('vf_locale')?.value)
-
   return (
-    <html lang={initialLocale} className={`${cormorant.variable} ${jost.variable} bg-bg-page`}>
+    <html lang="sr" className={`${cormorant.variable} ${jost.variable} bg-bg-page`}>
       <head>
         <script
           type="application/ld+json"
@@ -140,7 +132,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <I18nProvider initialLocale={initialLocale}>
+        <I18nProvider>
           <CartProvider>
             <ConditionalNavigation />
             <main>{children}</main>

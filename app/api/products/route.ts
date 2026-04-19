@@ -12,6 +12,10 @@ function localizeProduct(product: typeof productsTable.$inferSelect, locale: Sup
   }
 }
 
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -32,9 +36,10 @@ export async function GET(request: Request) {
         .orderBy(desc(productsTable.createdAt))
         .limit(4)
 
-      return NextResponse.json({
-        products: rows.map((p) => localizeProduct(p, locale)),
-      })
+      return NextResponse.json(
+        { products: rows.map((p) => localizeProduct(p, locale)) },
+        { headers: CACHE_HEADERS },
+      )
     }
 
     if (slug) {
@@ -44,9 +49,31 @@ export async function GET(request: Request) {
         .where(and(eq(productsTable.slug, slug), eq(productsTable.status, 'active')))
         .limit(1)
 
-      return NextResponse.json({
-        product: product ? localizeProduct(product, locale) : null,
-      })
+      let similarProducts: typeof productsTable.$inferSelect[] = []
+      if (product) {
+        similarProducts = await db
+          .select()
+          .from(productsTable)
+          .where(
+            and(
+              eq(productsTable.status, 'active'),
+              eq(productsTable.category, product.category),
+            ),
+          )
+          .orderBy(desc(productsTable.createdAt))
+          .limit(5)
+      }
+
+      return NextResponse.json(
+        {
+          product: product ? localizeProduct(product, locale) : null,
+          similarProducts: similarProducts
+            .filter((p) => !product || p.id !== product.id)
+            .slice(0, 4)
+            .map((p) => localizeProduct(p, locale)),
+        },
+        { headers: CACHE_HEADERS },
+      )
     }
 
     let query = db.select().from(productsTable).$dynamic()
@@ -58,9 +85,10 @@ export async function GET(request: Request) {
     }
 
     const products = await query.orderBy(productsTable.createdAt)
-    return NextResponse.json({
-      products: products.map((p) => localizeProduct(p, locale)),
-    })
+    return NextResponse.json(
+      { products: products.map((p) => localizeProduct(p, locale)) },
+      { headers: CACHE_HEADERS },
+    )
   } catch (error) {
     console.error('Error fetching products:', error)
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ordersTable, productsTable } from '@/lib/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 
 export async function GET() {
   try {
@@ -9,42 +9,24 @@ export async function GET() {
       .select({ count: sql<number>`count(*)::int` })
       .from(productsTable)
 
-    const [orderCount] = await db
-      .select({ count: sql<number>`count(*)::int` })
+    const [orderStats] = await db
+      .select({
+        totalOrders: sql<number>`count(*)::int`,
+        pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'PENDING')::int`,
+        paidOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'PAID')::int`,
+        shippedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'SHIPPED')::int`,
+        cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'CANCELLED')::int`,
+        totalRevenue: sql<string>`coalesce(sum(${ordersTable.totalAmount}::numeric) filter (where ${ordersTable.status} = 'PAID'), 0)`,
+      })
       .from(ordersTable)
-
-    const [pendingOrders] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(ordersTable)
-      .where(eq(ordersTable.status, 'PENDING'))
-
-    const [paidOrders] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(ordersTable)
-      .where(eq(ordersTable.status, 'PAID'))
-
-    const [shippedOrders] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(ordersTable)
-      .where(eq(ordersTable.status, 'SHIPPED'))
-
-    const [cancelledOrders] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(ordersTable)
-      .where(eq(ordersTable.status, 'CANCELLED'))
-
-    const [totalRevenue] = await db
-      .select({ total: sql<string>`coalesce(sum(total_amount::numeric), 0)` })
-      .from(ordersTable)
-      .where(eq(ordersTable.status, 'PAID'))
 
     return NextResponse.json({
-      totalRevenue: Number(totalRevenue?.total ?? 0),
-      totalOrders: orderCount?.count ?? 0,
-      pendingOrders: pendingOrders?.count ?? 0,
-      paidOrders: paidOrders?.count ?? 0,
-      shippedOrders: shippedOrders?.count ?? 0,
-      cancelledOrders: cancelledOrders?.count ?? 0,
+      totalRevenue: Number(orderStats?.totalRevenue ?? 0),
+      totalOrders: orderStats?.totalOrders ?? 0,
+      pendingOrders: orderStats?.pendingOrders ?? 0,
+      paidOrders: orderStats?.paidOrders ?? 0,
+      shippedOrders: orderStats?.shippedOrders ?? 0,
+      cancelledOrders: orderStats?.cancelledOrders ?? 0,
       totalProducts: productCount?.count ?? 0,
     })
   } catch (error) {

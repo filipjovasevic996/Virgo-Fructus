@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { ordersTable, orderItemsTable } from '@/lib/db/schema'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, inArray } from 'drizzle-orm'
 
 export async function GET() {
   try {
@@ -10,15 +10,26 @@ export async function GET() {
       .from(ordersTable)
       .orderBy(desc(ordersTable.createdAt))
 
-    const ordersWithItems = await Promise.all(
-      orders.map(async (order) => {
-        const items = await db
-          .select()
-          .from(orderItemsTable)
-          .where(eq(orderItemsTable.orderId, order.id))
-        return { ...order, items }
-      })
-    )
+    const orderIds = orders.map((order) => order.id)
+    const allItems =
+      orderIds.length > 0
+        ? await db
+            .select()
+            .from(orderItemsTable)
+            .where(inArray(orderItemsTable.orderId, orderIds))
+        : []
+
+    const itemsByOrderId = new Map<string, typeof allItems>()
+    for (const item of allItems) {
+      const current = itemsByOrderId.get(item.orderId)
+      if (current) current.push(item)
+      else itemsByOrderId.set(item.orderId, [item])
+    }
+
+    const ordersWithItems = orders.map((order) => ({
+      ...order,
+      items: itemsByOrderId.get(order.id) ?? [],
+    }))
 
     return NextResponse.json({ orders: ordersWithItems })
   } catch (error) {

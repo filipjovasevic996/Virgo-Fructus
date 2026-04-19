@@ -55,7 +55,10 @@ export default function ProductDetail() {
   const params = useParams()
   const slug = params.slug as string
   const { t, locale } = useI18n()
-  const { data: productData, isLoading, error } = useSWR<{ product: Product | null }>(
+  const { data: productData, isLoading, error } = useSWR<{
+    product: Product | null
+    similarProducts: Product[]
+  }>(
     `/api/products?slug=${encodeURIComponent(slug)}&locale=${locale}`,
     fetcher
   )
@@ -70,10 +73,7 @@ export default function ProductDetail() {
   const sliderRef = useRef<HTMLDivElement>(null)
   const { addItem } = useCart()
 
-  const { data: listData } = useSWR<{ products: Product[] }>(`/api/products?locale=${locale}`, fetcher)
-  const similarProducts = (listData?.products ?? [])
-    .filter((p) => product && p.id !== product.id && p.category === product.category)
-    .slice(0, 4)
+  const similarProducts = productData?.similarProducts ?? []
 
   const productImages = product?.images?.length ? product.images : product?.image ? [product.image] : []
   const hasPriceOptions = Boolean(product?.prices?.length)
