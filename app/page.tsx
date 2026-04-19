@@ -54,14 +54,14 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative z-10 mx-auto max-w-[900px] px-5 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-28 text-center">
-          <span className="inline-block font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-lime">
+          <span className="inline-block font-sans text-[12px] sm:text-[14px] font-semibold uppercase tracking-[0.2em] text-lime">
             {t('home.tagline')}
           </span>
 
           <h1 className="mt-4 sm:mt-5 font-serif font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[60px] text-white leading-tight drop-shadow-lg">
             {t('home.headline')}
           </h1>
-          <p className="mt-3 sm:mt-4 font-sans font-light text-sm sm:text-[15px] text-white/70 leading-relaxed max-w-2xl mx-auto">
+          <p className="mt-3 sm:mt-4 font-sans font-normal text-sm sm:text-[16px] md:text-[18px] text-white/70 leading-relaxed max-w-2xl mx-auto">
             {t('home.description')}
           </p>
 
@@ -97,33 +97,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-page py-12 sm:py-16 lg:py-20">
+      <section className="bg-bg-page py-4 md:py-6 lg:py-8">
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
-          <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
-            {t('home.bestSellers')}
-          </span>
-          <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
-            {t('home.bestSellersSubtitle')}
-          </h2>
+          <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
+                {t('home.bestSellers')}
+              </span>
+              <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
+                {t('home.bestSellersSubtitle')}
+              </h2>
+            </div>
+            <Link
+              href="/prodavnica"
+              className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end"
+            >
+              {t('home.viewAllProducts')}
+            </Link>
+          </div>
 
           <div className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {bestSellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-
-          <div className="mt-10 text-center">
-            <Link
-              href="/prodavnica"
-              className="inline-flex items-center px-7 py-3.5 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors"
-            >
-              {t('home.viewAllProducts')}
-            </Link>
-          </div>
         </div>
       </section>
 
-      <section className="bg-bg-page py-12 sm:py-16 lg:py-20">
+      <section className="bg-bg-page py-4 sm:pt-6 lg:pt-8 pb-12">
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-[55%_45%] gap-8 lg:gap-12 items-center">
             <div>
@@ -154,15 +155,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-bg-dark py-12 sm:py-16 lg:py-20">
+      <section className="bg-bg-hero py-12 sm:py-16">
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-cream">
             {t('home.whyUs')}
           </h2>
 
-          <div className="mt-8 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="mt-4 sm:mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-hero">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark">
                 <Sun className="w-7 h-7 sm:w-8 sm:h-8 text-lime" />
               </div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">
@@ -174,7 +175,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-hero">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark">
                 <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-lime" />
               </div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">
@@ -186,7 +187,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-hero">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark">
                 <Droplets className="w-7 h-7 sm:w-8 sm:h-8 text-lime" />
               </div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">
@@ -197,17 +198,6 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="bg-bg-hero py-12 sm:py-16">
-        <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-serif font-semibold text-2xl sm:text-3xl text-cream">
-            {t('home.ctaHeadline')}
-          </h2>
-          <p className="mt-3 sm:mt-4 font-sans text-sm sm:text-base text-text-body-light max-w-md mx-auto">
-            {t('home.ctaDescription')}
-          </p>
           <Link
             href="/prodavnica"
             className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"

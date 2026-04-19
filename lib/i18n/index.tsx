@@ -10,6 +10,12 @@ const messages: Record<Locale, Record<string, Record<string, string>>> = { sr, e
 
 const STORAGE_KEY = 'vf_locale'
 const DEFAULT_LOCALE: Locale = 'sr'
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
+
+function setLocaleCookie(locale: Locale) {
+  if (typeof document === 'undefined') return
+  document.cookie = `${STORAGE_KEY}=${locale};path=/;max-age=${COOKIE_MAX_AGE};SameSite=Lax`
+}
 
 interface I18nContextValue {
   locale: Locale
@@ -36,16 +42,27 @@ function getSavedLocale(): Locale {
   return DEFAULT_LOCALE
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE)
+export function I18nProvider({
+  children,
+  initialLocale = DEFAULT_LOCALE,
+}: {
+  children: ReactNode
+  /** From server cookies — must match first client render to avoid hydration mismatches */
+  initialLocale?: Locale
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
   useEffect(() => {
-    setLocaleState(getSavedLocale())
+    const saved = getSavedLocale()
+    setLocaleState(saved)
+    document.documentElement.lang = saved
+    setLocaleCookie(saved)
   }, [])
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)
     localStorage.setItem(STORAGE_KEY, newLocale)
+    setLocaleCookie(newLocale)
     document.documentElement.lang = newLocale
   }, [])
 
