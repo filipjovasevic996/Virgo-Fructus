@@ -4,7 +4,7 @@ import { productsTable, resolveLocalized } from '@/lib/db/schema'
 import { sql } from 'drizzle-orm'
 import ProductDetail from '@/components/product-detail'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vigorfructus.rs'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
 
 type Props = {
   params: Promise<{ slug: string }>

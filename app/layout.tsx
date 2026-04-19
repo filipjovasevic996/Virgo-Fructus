@@ -7,7 +7,7 @@ import { I18nProvider } from '@/lib/i18n'
 import { ConditionalNavigation } from '@/components/conditional-navigation'
 import { ConditionalFooter } from '@/components/conditional-footer'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vigorfructus.rs'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
