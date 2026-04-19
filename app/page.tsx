@@ -8,6 +8,9 @@ import { ProductCard } from '@/components/product-card'
 import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { HERO_VIDEO_URL } from './constants/constants'
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
+
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -213,6 +216,8 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+      <SpeedInsights />
+      <Analytics />
     </>
   )
 }
