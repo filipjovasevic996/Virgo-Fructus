@@ -148,7 +148,7 @@ export function customerOrderEmail(data: OrderEmailData): string {
             </div>
 
             <p style="margin: 0; font-family: sans-serif; font-size: 13px; color: #999; text-align: center;">
-              Kontaktirajte nas na info@vigorfructus.rs za sva pitanja.
+              Kontaktirajte nas na vigorfructus@gmail.com za sva pitanja.
             </p>
           </td>
         </tr>

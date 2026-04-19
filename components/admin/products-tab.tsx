@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
-import useSWR, { mutate } from 'swr'
+import useSWR, { useSWRConfig, mutate } from 'swr'
 import {
   Plus,
   Pencil,
@@ -14,11 +14,12 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Globe,
+  Star,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { AdminProduct, LocalizedField } from '@/lib/admin-store'
+import { cn } from '@/lib/utils'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -31,15 +32,15 @@ const categories = [
 const badges = [
   { value: '', label: 'Bez oznake' },
   { value: 'new', label: 'Novo' },
-  { value: 'limited', label: 'Limitirano' },
+  { value: 'limited', label: 'Ograničena ponuda' },
   { value: 'sale', label: 'Akcija' },
 ]
 
 const statuses = [
   { value: 'active', label: 'Aktivan', color: 'bg-lime/20 text-lime' },
-  { value: 'draft', label: 'Nacrt', color: 'bg-cream/20 text-cream' },
   { value: 'hidden', label: 'Sakriven', color: 'bg-terra/20 text-terra' },
 ]
+
 
 const localeTabs = [
   { value: 'sr' as const, label: 'Srpski', flag: '🇷🇸' },
@@ -70,10 +71,12 @@ function toLocalizedField(field: unknown): LocalizedField {
 }
 
 export function ProductsTab() {
+  const { mutate: revalidateByKey } = useSWRConfig()
   const { data, isLoading } = useSWR('/api/admin/products', fetcher)
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [togglingFavoriteId, setTogglingFavoriteId] = useState<string | null>(null)
 
   const products: AdminProduct[] = data?.products || []
 
@@ -113,6 +116,30 @@ export function ProductsTab() {
     }
   }
 
+  const handleToggleFavorite = async (product: AdminProduct) => {
+    setTogglingFavoriteId(product.id)
+    try {
+      await fetch('/api/admin/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: product.id,
+          isFavorite: !product.isFavorite,
+        }),
+      })
+      await mutate('/api/admin/products')
+      await revalidateByKey(
+        (key) => typeof key === 'string' && key.includes('bestSellers=1'),
+        undefined,
+        { revalidate: true },
+      )
+    } catch (error) {
+      console.error('Toggle favorite error:', error)
+    } finally {
+      setTogglingFavoriteId(null)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -123,18 +150,19 @@ export function ProductsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-text-body-light">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-text-body-light text-sm sm:text-base">
           Ukupno {products.length} proizvoda
         </p>
-        <Button onClick={handleAdd} className="bg-lime text-bg-dark hover:bg-lime/90">
+        <Button onClick={handleAdd} className="bg-lime text-bg-dark hover:bg-lime/90 w-full sm:w-auto shrink-0">
           <Plus className="w-4 h-4 mr-2" />
           Dodaj proizvod
         </Button>
       </div>
 
-      <div className="bg-bg-hero rounded-lg border border-border-card overflow-hidden">
-        <table className="w-full">
+      <div className="bg-bg-hero rounded-lg border border-border-card overflow-hidden -mx-1 sm:mx-0">
+        <div className="overflow-x-auto [&_th]:px-3 [&_th]:py-3 [&_td]:px-3 [&_td]:py-3 sm:[&_th]:px-6 sm:[&_th]:py-4 sm:[&_td]:px-6 sm:[&_td]:py-4">
+        <table className="w-full min-w-[920px]">
           <thead>
             <tr className="border-b border-border-card">
               <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
@@ -145,6 +173,9 @@ export function ProductsTab() {
               </th>
               <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
                 Kategorija
+              </th>
+              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+                Najprodavanije
               </th>
               <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
                 Status
@@ -204,6 +235,43 @@ export function ProductsTab() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFavorite(product)}
+                      disabled={togglingFavoriteId === product.id}
+                      title={
+                        product.isFavorite
+                          ? 'Ukloni sa početne (najprodavanije)'
+                          : 'Dodaj na početnu (najprodavanije)'
+                      }
+                      aria-label={
+                        product.isFavorite
+                          ? 'Ukloni sa početne'
+                          : 'Označi kao najprodavanije na početnoj'
+                      }
+                      aria-pressed={Boolean(product.isFavorite)}
+                      className={cn(
+                        'p-1.5 rounded-md transition-colors disabled:opacity-50',
+                        product.isFavorite
+                          ? 'text-lime hover:bg-lime/15'
+                          : 'text-text-muted hover:text-lime hover:bg-bg-card',
+                      )}
+                    >
+                      {togglingFavoriteId === product.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-lime" />
+                      ) : (
+                        <Star
+                          className={cn(
+                            'w-4 h-4',
+                            product.isFavorite
+                              ? 'fill-current'
+                              : 'fill-none stroke-current stroke-[1.5]',
+                          )}
+                        />
+                      )}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4">
                     {(() => {
                       const cfg = getStatusConfig(statusVal)
                       return (
@@ -236,14 +304,18 @@ export function ProductsTab() {
                   </td>
                   <td className="px-6 py-4">
                     {hasEnglish ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-lime/20 text-lime">
-                        
-                        🇬🇧 EN
+                      <span className="inline-flex flex-nowrap items-center gap-1 whitespace-nowrap px-2 py-1 rounded text-xs font-medium bg-lime/20 text-lime">
+                        <span className="shrink-0" aria-hidden>
+                          🇬🇧
+                        </span>
+                        <span>EN</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-terra/10 text-terra/70">
-                        
-                        🇷🇸 SR
+                      <span className="inline-flex flex-nowrap items-center gap-1 whitespace-nowrap px-1 py-0 rounded text-xs font-medium bg-terra/10 text-terra/70">
+                        <span className="shrink-0" aria-hidden>
+                          🇷🇸
+                        </span>
+                        <span>SR</span>
                       </span>
                     )}
                   </td>
@@ -284,6 +356,7 @@ export function ProductsTab() {
             })}
           </tbody>
         </table>
+        </div>
 
         {products.length === 0 && (
           <div className="py-12 text-center">
@@ -328,9 +401,10 @@ export function ProductsTab() {
             </div>
             <div className="flex justify-end gap-3">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setDeleteConfirm(null)}
-                className="border-border-card text-cream hover:bg-bg-card"
+                className="min-w-[7rem] border-2 border-cream/55 bg-bg-page text-bg-dark hover:bg-cream hover:border-cream hover:text-bg-dark font-semibold shadow-sm"
               >
                 Otkaži
               </Button>
@@ -370,6 +444,7 @@ function ProductModal({
     description: toLocalizedField(product?.description),
     badge: product?.badge || '',
     status: product?.status || 'active',
+    isFavorite: Boolean(product?.isFavorite),
     images: product?.images || [],
     prices: product?.prices || [
       { weight: '50g', price: 0 },
@@ -647,6 +722,49 @@ function ProductModal({
             </div>
           </div>
 
+          <div className="rounded-xl border-2 border-lime/35 bg-bg-dark/50 px-4 py-3.5 ring-1 ring-lime/10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p id="favorite-heading" className="text-sm font-semibold text-cream">
+                  Najprodavanije (početna)
+                </p>
+                <p className="text-xs text-text-body-light/80 mt-0.5">
+                  Prikaži proizvod u sekciji „Najprodavanije“ na naslovnoj strani
+                </p>
+              </div>
+              <fieldset
+                aria-labelledby="favorite-heading"
+                className="shrink-0 border-0 p-0 m-0 flex flex-row flex-nowrap items-center gap-4 sm:gap-6 alig"
+              >
+                <legend className="sr-only">Najprodavanije na početnoj</legend>
+                <label className="inline-flex items-center gap-2.5 cursor-pointer text-sm text-cream select-none whitespace-nowrap">
+                  <input
+                    type="radio"
+                    name="product-is-favorite"
+                    checked={formData.isFavorite}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isFavorite: true }))
+                    }
+                    className="size-4 shrink-0 accent-lime border-border-card bg-bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-hero"
+                  />
+                  Da
+                </label>
+                <label className="inline-flex items-center gap-2.5 cursor-pointer text-sm text-text-body-light select-none whitespace-nowrap">
+                  <input
+                    type="radio"
+                    name="product-is-favorite"
+                    checked={!formData.isFavorite}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isFavorite: false }))
+                    }
+                    className="size-4 shrink-0 accent-lime border-border-card bg-bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-hero"
+                  />
+                  Ne
+                </label>
+              </fieldset>
+            </div>
+          </div>
+
           {/* Short Description */}
           <div className="space-y-2">
             <label className="text-sm text-text-body-light">
@@ -796,7 +914,7 @@ function ProductModal({
               type="button"
               variant="outline"
               onClick={onClose}
-              className="border-border-card text-cream hover:bg-bg-card"
+              className="min-w-[7rem] border-2 border-cream/55 bg-bg-page text-bg-dark hover:bg-cream hover:border-cream hover:text-bg-dark font-semibold shadow-sm"
             >
               Otkaži
             </Button>

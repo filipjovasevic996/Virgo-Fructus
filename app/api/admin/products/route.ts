@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
         badge: body.badge || null,
         status: body.status || 'active',
         prices: body.prices || [],
+        isFavorite: Boolean(body.isFavorite),
       })
       .returning()
 
@@ -75,6 +76,7 @@ export async function PUT(request: NextRequest) {
     if (body.badge !== undefined) updates.badge = body.badge || null
     if (body.status !== undefined) updates.status = body.status
     if (body.prices !== undefined) updates.prices = body.prices
+    updates.isFavorite = Boolean(body.isFavorite)
 
     const [product] = await db
       .update(productsTable)

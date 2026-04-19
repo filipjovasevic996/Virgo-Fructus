@@ -67,7 +67,7 @@ export default function ContactPage() {
                   {t('contact.phone')}
                 </h3>
                 <p className="mt-1 font-sans font-bold text-lg sm:text-xl text-text-nav">
-                  +381 11 123 4567
+                  +381 69 302 3828
                 </p>
                 <p className="mt-1 font-sans text-sm text-text-nav/70">
                   {t('contact.phoneDesc')}
@@ -84,7 +84,7 @@ export default function ContactPage() {
                   {t('contact.email')}
                 </h3>
                 <p className="mt-1 font-sans font-bold text-lg sm:text-xl text-text-nav break-all sm:break-normal">
-                  info@vigorfructus.rs
+                  vigorfructus@gmail.com
                 </p>
                 <p className="mt-1 font-sans text-sm text-text-nav/70">
                   {t('contact.emailDesc')}

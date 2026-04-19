@@ -374,7 +374,7 @@ export default function CartPage() {
                         }
                       }}
                       className="input-vigor w-full px-4 py-3"
-                      placeholder="+381 60 123 4567"
+                      placeholder="+381 69 302 3828"
                     />
                     {errors.phone && <p className="mt-1 text-sm text-terra">{errors.phone}</p>}
                   </div>

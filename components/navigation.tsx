@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -39,9 +40,19 @@ export function Navigation() {
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="font-serif font-bold text-lg sm:text-xl md:text-[22px] text-bg-dark tracking-[0.06em]"
+            className="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink-0 -my-1"
           >
-            VIGOR FRUCTUS
+            <Image
+              src="/logo.png"
+              alt=""
+              width={200}
+              height={200}
+              className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"
+              priority
+            />
+            <span className="font-serif font-bold text-base sm:text-lg md:text-[22px] text-bg-dark tracking-[0.06em] truncate">
+              VIGOR FRUCTUS
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">

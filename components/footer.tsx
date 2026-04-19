@@ -43,10 +43,10 @@ export function Footer() {
 
           <div className="text-right">
             <p className="font-sans text-sm text-text-body-light/50">
-              info@vigorfructus.rs
+              vigorfructus@gmail.com
             </p>
             <p className="font-sans text-sm text-text-body-light/50 mt-1">
-              +381 11 123 4567
+              +381 69 302 3828
             </p>
           </div>
         </div>

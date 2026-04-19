@@ -2,15 +2,26 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getBestSellers } from '@/lib/products'
+import useSWR from 'swr'
+import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
 import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { HERO_VIDEO_URL } from './constants/constants'
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Failed to load products')
+  return res.json()
+}
+
 export default function HomePage() {
-  const bestSellers = getBestSellers()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const { data } = useSWR<{ products: Product[] }>(
+    `/api/products?bestSellers=true&locale=${locale}`,
+    fetcher,
+  )
+  const bestSellers = data?.products ?? []
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

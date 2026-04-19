@@ -4,8 +4,8 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { CartProvider } from '@/components/cart-context'
 import { I18nProvider } from '@/lib/i18n'
-import { Navigation } from '@/components/navigation'
-import { Footer } from '@/components/footer'
+import { ConditionalNavigation } from '@/components/conditional-navigation'
+import { ConditionalFooter } from '@/components/conditional-footer'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vigorfructus.rs'
 
@@ -87,12 +87,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
+    icon: [{ url: '/logo.png', type: 'image/png', sizes: 'any' }],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
   alternates: {
     canonical: SITE_URL,
@@ -114,8 +111,8 @@ const organizationJsonLd = {
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+381-11-123-4567',
-    email: 'info@vigorfructus.rs',
+    telephone: '+381 69 302 3828',
+    email: 'vigorfructus@gmail.com',
     contactType: 'customer service',
     availableLanguage: ['Serbian', 'English'],
   },
@@ -137,9 +134,9 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <I18nProvider>
           <CartProvider>
-            <Navigation />
+            <ConditionalNavigation />
             <main>{children}</main>
-            <Footer />
+            <ConditionalFooter />
           </CartProvider>
         </I18nProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

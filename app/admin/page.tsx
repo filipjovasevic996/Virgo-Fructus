@@ -15,6 +15,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Menu,
+  X,
 } from 'lucide-react'
 import { ProductsTab } from '@/components/admin/products-tab'
 import { OrdersTab } from '@/components/admin/orders-tab'
@@ -36,6 +38,7 @@ export default function AdminPage() {
   const router = useRouter()
   const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const { data: stats, isLoading } = useSWR('/api/admin/stats', fetcher, {
     refreshInterval: 30000,
   })
@@ -58,63 +61,97 @@ export default function AdminPage() {
     }
   }
 
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-bg-hero border-r border-border-card flex flex-col">
-        {/* <div className="p-6 border-b border-border-card">
-          <h1 className="font-serif text-2xl text-cream">Vigor Fructus</h1>
-          <p className="text-sm text-text-body-light mt-1">Admin Panel</p>
-        </div> */}
-        
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {tabs.map((tab) => (
-              <li key={tab.id}>
-                <button
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-lime text-bg-dark font-medium'
-                      : 'text-text-body-light hover:bg-bg-card hover:text-cream'
-                  }`}
-                >
-                  <tab.icon className="w-5 h-5" />
-                  {tab.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+  const selectTab = (tab: Tab) => {
+    setActiveTab(tab)
+    setMobileNavOpen(false)
+  }
 
-        <div className="p-4 border-t border-border-card">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-text-body-light hover:text-lime transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t('admin.backToSite')}
-          </Link>
-        </div>
+  const NavInner = (
+    <>
+      <nav className="flex-1 p-4">
+        <ul className="space-y-2">
+          {tabs.map((tab) => (
+            <li key={tab.id}>
+              <button
+                type="button"
+                onClick={() => selectTab(tab.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-left ${
+                  activeTab === tab.id
+                    ? 'bg-lime text-bg-dark font-medium'
+                    : 'text-text-body-light hover:bg-bg-card hover:text-cream'
+                }`}
+              >
+                <tab.icon className="w-5 h-5 shrink-0" />
+                {tab.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="p-4 border-t border-border-card">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-text-body-light hover:text-lime transition-colors text-sm sm:text-base"
+          onClick={() => setMobileNavOpen(false)}
+        >
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          {t('admin.backToSite')}
+        </Link>
+      </div>
+    </>
+  )
+
+  return (
+    <div className="flex min-h-screen min-w-0">
+      {/* Mobile overlay */}
+      {mobileNavOpen && (
+        <button
+          type="button"
+          aria-label="Zatvori meni"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — drawer on mobile, fixed column on lg */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(18rem,88vw)] max-w-sm flex-col bg-bg-hero border-r border-border-card shadow-xl transition-transform duration-200 ease-out lg:static lg:z-0 lg:w-64 lg:max-w-none lg:translate-x-0 lg:shadow-none ${
+          mobileNavOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        {NavInner}
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-bg-hero border-b border-border-card px-8 py-6">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl font-serif text-cream">
-              {tabs.find((t) => t.id === activeTab)?.label}
-            </h2>
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col overflow-auto lg:min-h-screen">
+        <header className="sticky top-0 z-30 bg-bg-hero border-b border-border-card px-4 py-4 sm:px-6 sm:py-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                aria-expanded={mobileNavOpen}
+                aria-label={mobileNavOpen ? 'Zatvori meni' : 'Otvori meni'}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border-card text-cream hover:bg-bg-card lg:hidden"
+                onClick={() => setMobileNavOpen((open) => !open)}
+              >
+                {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+              <h2 className="truncate text-lg font-serif text-cream sm:text-2xl">
+                {tabs.find((tb) => tb.id === activeTab)?.label}
+              </h2>
+            </div>
             <button
+              type="button"
               onClick={handleLogout}
-              className="px-4 py-2 rounded border border-border-card text-text-body-light hover:text-cream hover:bg-bg-card transition-colors"
+              className="shrink-0 px-3 py-2 rounded border border-border-card text-sm text-text-body-light hover:text-cream hover:bg-bg-card transition-colors sm:px-4"
             >
               {t('admin.logout')}
             </button>
           </div>
         </header>
 
-        <div className="p-8">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8">
           {activeTab === 'dashboard' && (
             <DashboardContent stats={stats} isLoading={isLoading} onNavigate={setActiveTab} />
           )}

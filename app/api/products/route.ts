@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { productsTable, resolveLocalized, type SupportedLocale, supportedLocales } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, desc } from 'drizzle-orm'
 
 function localizeProduct(product: typeof productsTable.$inferSelect, locale: SupportedLocale) {
   return {
@@ -21,6 +21,21 @@ export async function GET(request: Request) {
     const locale: SupportedLocale = supportedLocales.includes(localeParam as SupportedLocale)
       ? (localeParam as SupportedLocale)
       : 'sr'
+
+    if (searchParams.get('bestSellers') === 'true') {
+      const rows = await db
+        .select()
+        .from(productsTable)
+        .where(
+          and(eq(productsTable.status, 'active'), eq(productsTable.isFavorite, true)),
+        )
+        .orderBy(desc(productsTable.createdAt))
+        .limit(4)
+
+      return NextResponse.json({
+        products: rows.map((p) => localizeProduct(p, locale)),
+      })
+    }
 
     if (slug) {
       const [product] = await db
