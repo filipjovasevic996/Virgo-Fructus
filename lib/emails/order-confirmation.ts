@@ -20,16 +20,33 @@ interface OrderEmailData {
   paymentMethod: string
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function safeTelHref(phone: string): string {
+  return phone.replace(/[^\d+]/g, '')
+}
+
+function safeMailHref(email: string): string {
+  return encodeURIComponent(email.trim())
+}
+
 function itemsTableRows(items: OrderItem[]): string {
   return items
     .map(
       (item) => `
       <tr>
         <td style="padding: 12px 16px; border-bottom: 1px solid #e8e0d0; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">
-          ${item.name}
+          ${escapeHtml(item.name)}
         </td>
         <td style="padding: 12px 16px; border-bottom: 1px solid #e8e0d0; font-family: sans-serif; font-size: 14px; color: #666; text-align: center;">
-          ${item.weight}
+          ${escapeHtml(item.weight)}
         </td>
         <td style="padding: 12px 16px; border-bottom: 1px solid #e8e0d0; font-family: sans-serif; font-size: 14px; color: #666; text-align: center;">
           ${item.quantity}
@@ -43,6 +60,14 @@ function itemsTableRows(items: OrderItem[]): string {
 }
 
 export function customerOrderEmail(data: OrderEmailData): string {
+  const customerName = escapeHtml(data.customerName)
+  const customerPhone = escapeHtml(data.customerPhone)
+  const customerEmail = escapeHtml(data.customerEmail)
+  const address = escapeHtml(data.address)
+  const city = escapeHtml(data.city)
+  const note = data.note ? escapeHtml(data.note) : ''
+  const paymentLabel = data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'
+
   return `
 <!DOCTYPE html>
 <html lang="sr">
@@ -121,28 +146,28 @@ export function customerOrderEmail(data: OrderEmailData): string {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999; width: 100px;">Ime</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.customerName}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${customerName}</td>
                 </tr>
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Telefon</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.customerPhone}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${customerPhone}</td>
                 </tr>
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Email</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.customerEmail}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${customerEmail}</td>
                 </tr>
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Adresa</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.address}, ${data.city}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${address}, ${city}</td>
                 </tr>
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Plaćanje</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${paymentLabel}</td>
                 </tr>
                 ${data.note ? `
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Napomena</td>
-                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${data.note}</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${note}</td>
                 </tr>` : ''}
               </table>
             </div>
@@ -170,6 +195,16 @@ export function customerOrderEmail(data: OrderEmailData): string {
 }
 
 export function supplierOrderEmail(data: OrderEmailData): string {
+  const customerName = escapeHtml(data.customerName)
+  const customerPhone = escapeHtml(data.customerPhone)
+  const customerEmail = escapeHtml(data.customerEmail)
+  const address = escapeHtml(data.address)
+  const city = escapeHtml(data.city)
+  const note = data.note ? escapeHtml(data.note) : ''
+  const paymentLabel = data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'
+  const telHref = safeTelHref(data.customerPhone)
+  const mailHref = safeMailHref(data.customerEmail)
+
   return `
 <!DOCTYPE html>
 <html lang="sr">
@@ -198,32 +233,32 @@ export function supplierOrderEmail(data: OrderEmailData): string {
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px; background-color: #f9f9f9; border-radius: 6px; padding: 16px;">
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999; width: 100px;">Ime</td>
-                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a; font-weight: 600;">${data.customerName}</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a; font-weight: 600;">${customerName}</td>
               </tr>
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Telefon</td>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">
-                  <a href="tel:${data.customerPhone}" style="color: #1a1a1a;">${data.customerPhone}</a>
+                  <a href="tel:${telHref}" style="color: #1a1a1a;">${customerPhone}</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Email</td>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">
-                  <a href="mailto:${data.customerEmail}" style="color: #1a1a1a;">${data.customerEmail}</a>
+                  <a href="mailto:${mailHref}" style="color: #1a1a1a;">${customerEmail}</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Adresa</td>
-                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${data.address}, ${data.city}</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${address}, ${city}</td>
               </tr>
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Plaćanje</td>
-                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'}</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${paymentLabel}</td>
               </tr>
               ${data.note ? `
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Napomena</td>
-                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #c0392b; font-weight: 600;">${data.note}</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #c0392b; font-weight: 600;">${note}</td>
               </tr>` : ''}
             </table>
 
