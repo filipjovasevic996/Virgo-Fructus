@@ -1,7 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import { eq, inArray, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { ordersTable } from '@/lib/db/schema/orders'
 import { orderItemsTable } from '@/lib/db/schema/order-items'
+import { productsTable } from '@/lib/db/schema/products'
+import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { kgToDecigrams, parseStockKg } from '@/lib/stock-kg'
 import { resend, FROM_EMAIL, SUPPLIER_EMAIL } from '@/lib/resend'
 import { customerOrderEmail, supplierOrderEmail } from '@/lib/emails/order-confirmation'
 
@@ -12,11 +17,24 @@ function generateOrderNumber(): string {
   return `VF-${datePart}-${random}`
 }
 
+type OrderItemInput = {
+  id: string
+  name: string
+  weight: string
+  quantity: number
+  price: number
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { customer, items, paymentMethod, deliveryFee } = body
+    const { customer, items, paymentMethod, deliveryFee } = body as {
+      customer: Record<string, unknown>
+      items: OrderItemInput[]
+      paymentMethod?: string
+      deliveryFee?: number
+    }
 
     if (!customer?.name || !customer?.email || !customer?.phone || !customer?.city || !customer?.address) {
       return NextResponse.json({ error: 'Missing customer details' }, { status: 400 })
@@ -27,47 +45,20 @@ export async function POST(request: NextRequest) {
     }
 
     const subtotal = items.reduce(
-      (sum: number, item: { price: number; quantity: number }) => sum + item.price * item.quantity,
-      0
+      (sum: number, item: OrderItemInput) => sum + item.price * item.quantity,
+      0,
     )
     const total = subtotal + (deliveryFee ?? 0)
     const orderNumber = generateOrderNumber()
 
-    const [order] = await db
-      .insert(ordersTable)
-      .values({
-        customerName: customer.name,
-        customerEmail: customer.email,
-        phone: customer.phone,
-        city: customer.city,
-        address: customer.address,
-        postalCode: customer.postalCode || '',
-        notes: customer.note || null,
-        totalAmount: total.toString(),
-        status: 'PENDING',
-      })
-      .returning()
-
-    if (order) {
-      const orderItems = items.map((item: { id: string; name: string; weight: string; quantity: number; price: number }) => ({
-        orderId: order.id,
-        productId: item.id,
-        productName: `${item.name} (${item.weight})`,
-        quantity: item.quantity,
-        price: item.price.toString(),
-      }))
-
-      await db.insert(orderItemsTable).values(orderItems)
-    }
-
     const emailData = {
       orderNumber,
-      customerName: customer.name,
-      customerEmail: customer.email,
-      customerPhone: customer.phone,
-      city: customer.city,
-      address: customer.address,
-      note: customer.note,
+      customerName: String(customer.name),
+      customerEmail: String(customer.email),
+      customerPhone: String(customer.phone),
+      city: String(customer.city),
+      address: String(customer.address),
+      note: customer.note ? String(customer.note) : undefined,
       items,
       subtotal,
       deliveryFee: deliveryFee ?? 0,
@@ -75,15 +66,123 @@ export async function POST(request: NextRequest) {
       paymentMethod: paymentMethod || 'cash',
     }
 
+    let orderId: string | undefined
+
+    try {
+      await db.transaction(async (tx) => {
+        const productIds = [...new Set(items.map((i) => i.id))]
+
+        const productRows = await tx
+          .select({
+            id: productsTable.id,
+            stockKg: productsTable.stockKg,
+          })
+          .from(productsTable)
+          .where(inArray(productsTable.id, productIds))
+          .for('update')
+
+        if (productRows.length !== productIds.length) {
+          throw new Error('PRODUCT_NOT_FOUND')
+        }
+
+        const stockById = new Map(
+          productRows.map((r) => [r.id, kgToDecigrams(parseStockKg(r.stockKg))]),
+        )
+
+        const gramsNeeded = new Map<string, number>()
+        for (const item of items) {
+          const perPack = parseWeightToGrams(item.weight)
+          if (!perPack) {
+            throw new Error('INVALID_WEIGHT')
+          }
+          gramsNeeded.set(
+            item.id,
+            (gramsNeeded.get(item.id) ?? 0) + perPack * item.quantity,
+          )
+        }
+
+        for (const [id, grams] of gramsNeeded) {
+          const availDg = stockById.get(id)
+          const neededDg = grams * 10
+          if (availDg === undefined || neededDg > availDg) {
+            throw new Error('INSUFFICIENT_STOCK')
+          }
+        }
+
+        const [order] = await tx
+          .insert(ordersTable)
+          .values({
+            customerName: String(customer.name),
+            customerEmail: String(customer.email),
+            phone: String(customer.phone),
+            city: String(customer.city),
+            address: String(customer.address),
+            postalCode: customer.postalCode ? String(customer.postalCode) : '',
+            notes: customer.note ? String(customer.note) : null,
+            totalAmount: total.toString(),
+            status: 'PENDING',
+          })
+          .returning()
+
+        if (!order) {
+          throw new Error('ORDER_INSERT_FAILED')
+        }
+
+        orderId = order.id
+
+        const orderItems = items.map((item) => ({
+          orderId: order.id,
+          productId: item.id,
+          productName: `${item.name} (${item.weight})`,
+          quantity: item.quantity,
+          price: item.price.toString(),
+        }))
+
+        await tx.insert(orderItemsTable).values(orderItems)
+
+        for (const [id, grams] of gramsNeeded) {
+          await tx
+            .update(productsTable)
+            .set({
+              stockKg: sql`${productsTable.stockKg} - (${grams}::numeric / 1000.0)`,
+              updatedAt: new Date(),
+            })
+            .where(eq(productsTable.id, id))
+        }
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : ''
+      if (msg === 'INSUFFICIENT_STOCK') {
+        return NextResponse.json(
+          {
+            error:
+              'Nema dovoljno zaliha za jedan ili više proizvoda. Osvežite korpu i pokušajte ponovo.',
+          },
+          { status: 409 },
+        )
+      }
+      if (msg === 'PRODUCT_NOT_FOUND') {
+        return NextResponse.json({ error: 'Nepoznat proizvod u porudžbini.' }, { status: 400 })
+      }
+      if (msg === 'INVALID_WEIGHT') {
+        return NextResponse.json({ error: 'Neispravna gramaža u porudžbini.' }, { status: 400 })
+      }
+      console.error('Order transaction error:', e)
+      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+    }
+
+    revalidatePath('/prodavnica')
+    revalidatePath('/')
+
     const emailPromises: Promise<unknown>[] = []
 
     emailPromises.push(
       resend.emails.send({
         from: FROM_EMAIL,
-        to: customer.email,
+        to: String(customer.email),
         subject: `Potvrda porudžbine #${orderNumber} — Vigor Fructus`,
         html: customerOrderEmail(emailData),
-      })
+      }),
     )
 
     if (SUPPLIER_EMAIL) {
@@ -91,9 +190,9 @@ export async function POST(request: NextRequest) {
         resend.emails.send({
           from: FROM_EMAIL,
           to: SUPPLIER_EMAIL,
-          subject: `Nova porudžbina #${orderNumber} — ${customer.name}`,
+          subject: `Nova porudžbina #${orderNumber} — ${String(customer.name)}`,
           html: supplierOrderEmail(emailData),
-        })
+        }),
       )
     }
 
@@ -106,13 +205,16 @@ export async function POST(request: NextRequest) {
       console.error('Email sending errors:', emailErrors)
     }
 
-    return NextResponse.json({
-      success: true,
-      orderNumber,
-      orderId: order?.id,
-      emailsSent: emailResults.filter((r) => r.status === 'fulfilled').length,
-      emailErrors: emailErrors.length > 0 ? emailErrors : undefined,
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        success: true,
+        orderNumber,
+        orderId,
+        emailsSent: emailResults.filter((r) => r.status === 'fulfilled').length,
+        emailErrors: emailErrors.length > 0 ? emailErrors : undefined,
+      },
+      { status: 201 },
+    )
   } catch (error) {
     console.error('Order creation error:', error)
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })

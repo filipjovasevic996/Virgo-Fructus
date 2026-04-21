@@ -35,7 +35,7 @@
     "aboutUs": "About Us",
     "aboutSubtitle": "Tradition and quality in every bite",
     "bestSellers": "Best Sellers",
-    "bestSellersSubtitle": "Favourite products",
+    "bestSellersSubtitle": "Recommended products",
     "viewAllProducts": "View All Products",
     "whyUs": "Why Vigor Fructus?",
     "natural": "100% Natural",
@@ -81,7 +81,9 @@
     "similarSubtitle": "You might also like",
     "badgeNew": "New",
     "badgeLimited": "Limited edition",
-    "badgeSale": "Sale"
+    "badgeSale": "Sale",
+    "outOfStock": "Out of stock",
+    "stockRemainingKg": "In stock total: {kg} kg"
   },
   "contact": {
     "title": "Contact",
@@ -161,6 +163,8 @@
     "confirmOrder": "Confirm order →",
     "processing": "Processing...",
     "orderFailed": "Something went wrong. Please try again.",
+    "cartAdjusted": "Quantities were adjusted to match current inventory.",
+    "addToCartBlocked": "Can't add more — you've reached the available stock for this pack size.",
     "orderNumber": "Order #{number}",
     "errorName": "Name is required",
     "errorPhone": "Phone is required",

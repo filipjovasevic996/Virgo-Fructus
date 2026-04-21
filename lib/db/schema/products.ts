@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, jsonb, boolean, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -23,6 +23,9 @@ export const productsTable = pgTable("products", {
   status: text("status").notNull().default("active"),
   prices: jsonb("prices").notNull().default([]),
   isFavorite: boolean("is_favorite").notNull().default(false),
+  stockKg: numeric("stock_kg", { precision: 14, scale: 4 })
+    .notNull()
+    .default("0"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

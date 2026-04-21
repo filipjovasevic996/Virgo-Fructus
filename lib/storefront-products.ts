@@ -7,6 +7,7 @@ import {
   type SupportedLocale,
 } from '@/lib/db/schema'
 import type { Product } from '@/lib/products'
+import { parseStockKg } from '@/lib/stock-kg'
 
 function normalizeLocale(locale: string): SupportedLocale {
   return supportedLocales.includes(locale as SupportedLocale)
@@ -19,7 +20,9 @@ function localizeProduct(
   locale: SupportedLocale,
 ): Product {
   return {
-    ...product,
+    id: product.id,
+    slug: product.slug,
+    category: product.category as Product['category'],
     name: resolveLocalized(product.name, locale),
     description: resolveLocalized(product.description, locale),
     shortDescription: resolveLocalized(product.shortDescription, locale),
@@ -27,7 +30,10 @@ function localizeProduct(
     images: (product.images as string[]) ?? [],
     prices:
       (product.prices as { weight: string; price: number; salePrice?: number }[]) ?? [],
-  } as Product
+    badge: product.badge as Product['badge'],
+    isFavorite: product.isFavorite,
+    stockKg: parseStockKg(product.stockKg),
+  }
 }
 
 export async function getStorefrontProducts(

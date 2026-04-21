@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import type { DragEvent } from 'react'
 import Image from 'next/image'
 import useSWR, { useSWRConfig, mutate } from 'swr'
 import {
@@ -15,11 +16,14 @@ import {
   Eye,
   EyeOff,
   Star,
+  GripVertical,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { AdminProduct, LocalizedField } from '@/lib/admin-store'
 import { cn } from '@/lib/utils'
+import { formatKgFixed4, parseStockKg, roundKgUp4 } from '@/lib/stock-kg'
+import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -162,7 +166,7 @@ export function ProductsTab() {
 
       <div className="bg-bg-hero rounded-lg border border-border-card overflow-hidden -mx-1 sm:mx-0">
         <div className="overflow-x-auto [&_th]:px-3 [&_th]:py-3 [&_td]:px-3 [&_td]:py-3 sm:[&_th]:px-6 sm:[&_th]:py-4 sm:[&_td]:px-6 sm:[&_td]:py-4">
-        <table className="w-full min-w-[920px]">
+        <table className="w-full min-w-[980px]">
           <thead>
             <tr className="border-b border-border-card">
               <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
@@ -210,7 +214,7 @@ export function ProductsTab() {
                     {product.images.length > 0 ? (
                       <div className="w-12 h-12 rounded-md overflow-hidden bg-bg-card">
                         <Image
-                          src={product.images[0]}
+                          src={cloudinaryProductImageUrl(product.images[0])}
                           alt={productName}
                           width={48}
                           height={48}
@@ -433,8 +437,15 @@ function ProductModal({
   const [uploadingImages, setUploadingImages] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const [dragOver, setDragOver] = useState(false)
+  const [draggingImageIndex, setDraggingImageIndex] = useState<number | null>(
+    null,
+  )
+  const [dropTargetImageIndex, setDropTargetImageIndex] = useState<
+    number | null
+  >(null)
   const [activeLocale, setActiveLocale] = useState<'sr' | 'en'>('sr')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const internalImageReorderDragRef = useRef(false)
 
   const [formData, setFormData] = useState({
     name: toLocalizedField(product?.name),
@@ -452,6 +463,9 @@ function ProductModal({
       { weight: '1kg', price: 0 },
       { weight: '3kg', price: 0 },
     ],
+    stockKg: product
+      ? roundKgUp4(parseStockKg(product.stockKg))
+      : 1000,
   })
 
   const uploadFiles = async (files: File[]) => {
@@ -498,9 +512,62 @@ function ProductModal({
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const IMAGE_REORDER_MIME = 'application/x-vf-image-reorder'
+
+  const moveImage = (from: number, to: number) => {
+    if (from === to) return
+    setFormData((prev) => {
+      const next = [...prev.images]
+      const [removed] = next.splice(from, 1)
+      next.splice(to, 0, removed)
+      return { ...prev, images: next }
+    })
+  }
+
+  const handleThumbnailDragStart = (index: number, e: DragEvent) => {
+    internalImageReorderDragRef.current = true
+    setDraggingImageIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData(IMAGE_REORDER_MIME, String(index))
+    e.dataTransfer.setData('text/plain', String(index))
+  }
+
+  const handleThumbnailDragEnd = () => {
+    internalImageReorderDragRef.current = false
+    setDraggingImageIndex(null)
+    setDropTargetImageIndex(null)
+  }
+
+  const handleThumbnailDragOver = (index: number, e: DragEvent) => {
+    if (!internalImageReorderDragRef.current) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDropTargetImageIndex(index)
+  }
+
+  const handleThumbnailDragLeave = () => {
+    setDropTargetImageIndex(null)
+  }
+
+  const handleThumbnailDrop = (index: number, e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+    const fromStr =
+      e.dataTransfer.getData(IMAGE_REORDER_MIME) ||
+      e.dataTransfer.getData('text/plain')
+    const from = parseInt(fromStr, 10)
+    handleThumbnailDragEnd()
+    if (Number.isNaN(from)) return
+    moveImage(from, index)
+  }
+
+  const handleDrop = async (e: DragEvent) => {
     e.preventDefault()
     setDragOver(false)
+    if (e.dataTransfer.getData(IMAGE_REORDER_MIME) !== '') {
+      return
+    }
     const files = Array.from(e.dataTransfer.files).filter((f) =>
       f.type.startsWith('image/')
     )
@@ -722,6 +789,34 @@ function ProductModal({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <label className="text-sm text-text-body-light">Na stanju (kg, do 4 decimale)</label>
+            <Input
+              type="number"
+              min={0}
+              step={0.0001}
+              value={formData.stockKg}
+              onChange={(e) => {
+                const raw = Number(e.target.value)
+                setFormData((prev) => ({
+                  ...prev,
+                  stockKg: Number.isFinite(raw) ? Math.max(0, raw) : 0,
+                }))
+              }}
+              onBlur={() =>
+                setFormData((prev) => ({
+                  ...prev,
+                  stockKg: roundKgUp4(prev.stockKg),
+                }))
+              }
+              className="input-vigor tabular-nums"
+            />
+            <p className="text-xs text-text-body-light/70">
+              Jedna količina u kilogramima za sve veličine pakovanja; pri čuvanju se zaokružuje naviše na 4 decimale.
+              Porudžbina oduzima masu po izabranoj gramaži × količina.
+            </p>
+          </div>
+
           <div className="rounded-xl border-2 border-lime/35 bg-bg-dark/50 px-4 py-3.5 ring-1 ring-lime/10">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
@@ -812,24 +907,48 @@ function ProductModal({
               <div className="grid grid-cols-4 gap-4">
                 {formData.images.map((image, index) => (
                   <div
-                    key={index}
-                    className="relative aspect-square rounded-md overflow-hidden bg-bg-card group"
+                    key={image}
+                    draggable
+                    onDragStart={(e) => handleThumbnailDragStart(index, e)}
+                    onDragEnd={handleThumbnailDragEnd}
+                    onDragOver={(e) => handleThumbnailDragOver(index, e)}
+                    onDragLeave={handleThumbnailDragLeave}
+                    onDrop={(e) => handleThumbnailDrop(index, e)}
+                    className={cn(
+                      'relative aspect-square rounded-md overflow-hidden bg-bg-card group cursor-grab active:cursor-grabbing border-2 transition-colors',
+                      draggingImageIndex === index && 'opacity-50 ring-2 ring-lime/60',
+                      dropTargetImageIndex === index &&
+                        draggingImageIndex !== index &&
+                        'border-lime ring-2 ring-lime/40',
+                      dropTargetImageIndex !== index &&
+                        draggingImageIndex !== index &&
+                        'border-transparent',
+                    )}
+                    title="Prevucite da promenite redosled"
                   >
                     <Image
-                      src={image}
+                      src={cloudinaryProductImageUrl(image)}
                       alt={`Product ${index + 1}`}
                       fill
-                      className="object-cover"
+                      draggable={false}
+                      className="object-cover pointer-events-none select-none"
                     />
+                    <div
+                      className="absolute bottom-1 left-1 flex items-center gap-0.5 rounded bg-bg-dark/75 px-1 py-0.5 text-text-body-light pointer-events-none"
+                      aria-hidden
+                    >
+                      <GripVertical className="w-3.5 h-3.5 shrink-0" />
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
-                      className="absolute top-2 right-2 p-1 bg-bg-dark/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="absolute top-2 right-2 p-1 bg-bg-dark/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
                     >
                       <X className="w-4 h-4 text-cream" />
                     </button>
                     {index === 0 && (
-                      <span className="absolute bottom-2 left-2 px-1.5 py-0.5 text-[9px] font-semibold uppercase bg-lime text-bg-dark rounded">
+                      <span className="absolute bottom-2 left-8 px-1.5 py-0.5 text-[9px] font-semibold uppercase bg-lime text-bg-dark rounded pointer-events-none">
                         Glavna
                       </span>
                     )}
@@ -876,7 +995,8 @@ function ProductModal({
               className="hidden"
             />
             <p className="text-xs text-text-body-light/50">
-              JPEG, PNG, WebP, AVIF · Maks. 5MB po slici · Prva slika je glavna
+              JPEG, PNG, WebP, AVIF · Maks. 5MB po slici · Prva slika je glavna ·
+              prevucite slike da promenite redosled
             </p>
           </div>
 

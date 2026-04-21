@@ -35,7 +35,7 @@
     "aboutUs": "O Nama",
     "aboutSubtitle": "Tradicija i kvalitet u svakom zalogaju",
     "bestSellers": "Najprodavanije",
-    "bestSellersSubtitle": "Omiljeni proizvodi",
+    "bestSellersSubtitle": "Preporučeni proizvodi",
     "viewAllProducts": "Pogledaj Sve Proizvode",
     "whyUs": "Zašto Vigor Fructus?",
     "natural": "100% Prirodno",
@@ -81,7 +81,9 @@
     "similarSubtitle": "Možda vam se svidi",
     "badgeNew": "Novo",
     "badgeLimited": "Ograničena ponuda",
-    "badgeSale": "Akcija"
+    "badgeSale": "Akcija",
+    "outOfStock": "Nema na stanju",
+    "stockRemainingKg": "Na stanju ukupno: {kg} kg"
   },
   "contact": {
     "title": "Kontakt",
@@ -161,6 +163,8 @@
     "confirmOrder": "Potvrdi porudžbinu →",
     "processing": "Obrađujem...",
     "orderFailed": "Došlo je do greške. Pokušajte ponovo.",
+    "cartAdjusted": "Količine u korpi su usklađene sa trenutnim stanjem zaliha.",
+    "addToCartBlocked": "Ne možete dodati više — dostignuto je dostupno stanje za ovu gramažu.",
     "orderNumber": "Porudžbina #{number}",
     "errorName": "Ime je obavezno",
     "errorPhone": "Telefon je obavezan",

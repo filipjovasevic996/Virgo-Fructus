@@ -42,7 +42,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="bg-bg-page min-h-screen py-8 sm:py-12 lg:py-20">
+    <div className="bg-bg-page min-h-screen py-4 sm:py-8 lg:py-12">
       <div className="mx-auto max-w-[1100px] px-5 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
@@ -57,7 +57,7 @@ export default function ContactPage() {
         </div>
 
         <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-12">
-          <div className="space-y-8">
+          <div className="space-y-8 lg:pt-20">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-bg-hero flex items-center justify-center flex-shrink-0">
                 <Phone className="w-5 h-5 text-lime" />
@@ -68,9 +68,6 @@ export default function ContactPage() {
                 </h3>
                 <p className="mt-1 font-sans font-bold text-lg sm:text-xl text-text-nav">
                   +381 69 302 3828
-                </p>
-                <p className="mt-1 font-sans text-sm text-text-nav/70">
-                  {t('contact.phoneDesc')}
                 </p>
               </div>
             </div>
@@ -92,7 +89,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            {/* <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-bg-hero flex items-center justify-center flex-shrink-0">
                 <Clock className="w-5 h-5 text-lime" />
               </div>
@@ -110,7 +107,7 @@ export default function ContactPage() {
                   {t('contact.sunday')}
                 </p>
               </div>
-            </div>
+            </div> */}
 
             <div className="p-6 bg-cream rounded-lg">
               <h3 className="font-serif font-semibold text-lg text-bg-dark">

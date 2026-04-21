@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, Check, Loader2, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
+import { maxQuantityForCartLine } from '@/lib/product-stock'
+import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 
 const FREE_DELIVERY_THRESHOLD = 2000
 const DELIVERY_FEE = 300
@@ -30,6 +32,42 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderError, setOrderError] = useState('')
   const [orderNumber, setOrderNumber] = useState('')
+  const [stockMap, setStockMap] = useState<Record<string, number>>({})
+  const [cartNotice, setCartNotice] = useState('')
+
+  useEffect(() => {
+    const ids = [...new Set(items.map((i) => i.id))]
+    if (ids.length === 0) {
+      setStockMap({})
+      return
+    }
+    let cancelled = false
+    fetch(`/api/products/stock?ids=${encodeURIComponent(ids.join(','))}`)
+      .then((r) => r.json())
+      .then((data: { stock?: Record<string, number> }) => {
+        if (!cancelled && data.stock) setStockMap(data.stock)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [items])
+
+  useEffect(() => {
+    if (items.length === 0) return
+    const ready = items.every((i) => stockMap[i.id] !== undefined)
+    if (!ready) return
+    let adjusted = false
+    for (const item of items) {
+      const stock = stockMap[item.id] ?? 0
+      const max = maxQuantityForCartLine(item.id, item.weight, stock, items)
+      if (item.quantity > max) {
+        adjusted = true
+        updateQuantity(item.id, item.weight, Math.max(0, max))
+      }
+    }
+    if (adjusted) setCartNotice(t('cart.cartAdjusted'))
+  }, [items, stockMap, updateQuantity, t])
 
   const isBelgrade = formData.city.toLowerCase().includes('beograd')
   const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD && isBelgrade
@@ -88,7 +126,9 @@ export default function CartPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setOrderError(data.error || t('cart.orderFailed'))
+        setOrderError(
+          typeof data.error === 'string' ? data.error : t('cart.orderFailed'),
+        )
         return
       }
 
@@ -204,9 +244,22 @@ export default function CartPage() {
               {t('cart.yourCart')}
             </h1>
 
+            {cartNotice && (
+              <p className="mb-4 rounded-lg border border-lime/40 bg-lime/10 px-4 py-3 text-sm text-bg-dark">
+                {cartNotice}
+              </p>
+            )}
+
             <div className="grid lg:grid-cols-[1fr_400px] gap-6 sm:gap-8">
               <div className="space-y-4">
-                {items.map((item) => (
+                {items.map((item) => {
+                  const lineMax = maxQuantityForCartLine(
+                    item.id,
+                    item.weight,
+                    stockMap[item.id] ?? 0,
+                    items,
+                  )
+                  return (
                   <div
                     key={`${item.id}-${item.weight}`}
                     className="p-3 sm:p-4 bg-cream rounded-lg"
@@ -214,7 +267,12 @@ export default function CartPage() {
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-bg-page rounded flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 overflow-hidden relative">
                         {item.image.startsWith('http') || item.image.startsWith('/') ? (
-                          <Image src={item.image} alt={item.name} fill className="object-cover" />
+                          <Image
+                            src={cloudinaryProductImageUrl(item.image)}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
                         ) : (
                           item.image
                         )}
@@ -251,8 +309,21 @@ export default function CartPage() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.weight, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center rounded border border-border-light text-text-nav hover:border-text-nav-hover transition-colors cursor-pointer"
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(
+                              item.id,
+                              item.weight,
+                              Math.min(item.quantity + 1, lineMax),
+                            )
+                          }
+                          disabled={item.quantity >= lineMax}
+                          className={cn(
+                            'w-8 h-8 flex items-center justify-center rounded border border-border-light transition-colors',
+                            item.quantity >= lineMax
+                              ? 'cursor-not-allowed opacity-40 text-text-nav/50'
+                              : 'text-text-nav hover:border-text-nav-hover cursor-pointer',
+                          )}
                           aria-label={t('cart.increaseQty')}
                         >
                           <Plus className="w-4 h-4" />
@@ -263,7 +334,8 @@ export default function CartPage() {
                       </span>
                     </div>
                   </div>
-                ))}
+                  )
+                })}
               </div>
 
               <div className="bg-bg-hero rounded-lg p-6 h-fit">
@@ -547,7 +619,12 @@ export default function CartPage() {
                     >
                       <div className="w-8 h-8 rounded bg-bg-card flex items-center justify-center text-lg flex-shrink-0 overflow-hidden relative">
                         {item.image.startsWith('http') || item.image.startsWith('/') ? (
-                          <Image src={item.image} alt={item.name} fill className="object-cover" />
+                          <Image
+                            src={cloudinaryProductImageUrl(item.image)}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
                         ) : (
                           <span className="text-sm">{item.image}</span>
                         )}

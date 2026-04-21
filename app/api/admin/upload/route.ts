@@ -30,11 +30,10 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const base64 = `data:${file.type};base64,${Buffer.from(bytes).toString('base64')}`
 
+    // Nemoj raditi fetch_format/auto na uploadu — može PNG/WebP alfu pretvoriti u JPEG (bela pozadina).
+    // Kvalitet i format pri prikazu zadajemo u delivery URL-u (vidi lib/cloudinary-delivery-url.ts).
     const result = await cloudinary.uploader.upload(base64, {
       folder: 'vigor-fructus/products',
-      transformation: [
-        { quality: 'auto', fetch_format: 'auto' },
-      ],
     })
 
     return NextResponse.json({

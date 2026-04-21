@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { productsTable, resolveLocalized, type SupportedLocale, supportedLocales } from '@/lib/db/schema'
+import { parseStockKg } from '@/lib/stock-kg'
 import { eq, and, desc } from 'drizzle-orm'
 
 function localizeProduct(product: typeof productsTable.$inferSelect, locale: SupportedLocale) {
@@ -9,6 +10,7 @@ function localizeProduct(product: typeof productsTable.$inferSelect, locale: Sup
     name: resolveLocalized(product.name, locale),
     description: resolveLocalized(product.description, locale),
     shortDescription: resolveLocalized(product.shortDescription, locale),
+    stockKg: parseStockKg(product.stockKg),
   }
 }
 

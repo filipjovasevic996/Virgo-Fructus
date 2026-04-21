@@ -6,6 +6,7 @@ import { CartProvider } from '@/components/cart-context'
 import { I18nProvider } from '@/lib/i18n'
 import { ConditionalNavigation } from '@/components/conditional-navigation'
 import { ConditionalFooter } from '@/components/conditional-footer'
+import { AppToaster } from '@/components/app-toaster'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
 
@@ -61,9 +62,7 @@ export const metadata: Metadata = {
       'Premium dehidrirano voće za koktele, dekoraciju pića i zdravu užinu. Prirodno, sušeno, zdravo.',
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/logo.png',
         alt: 'Vigor Fructus – Premium dehidrirano voće',
       },
     ],
@@ -73,7 +72,7 @@ export const metadata: Metadata = {
     title: 'Vigor Fructus | Premium Dehidrirano Voće',
     description:
       'Premium dehidrirano voće za koktele i zdravu užinu. 100% prirodno, bez aditiva.',
-    images: ['/og-image.png'],
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
@@ -101,7 +100,8 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: 'Vigor Fructus',
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.svg`,
+  logo: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/logo.png`,
   description:
     'Premium dehidrirano voće za koktele, dekoraciju pića i zdravu užinu.',
   address: {
@@ -137,6 +137,7 @@ export default function RootLayout({
             <ConditionalNavigation />
             <main>{children}</main>
             <ConditionalFooter />
+            <AppToaster />
           </CartProvider>
         </I18nProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

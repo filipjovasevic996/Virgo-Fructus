@@ -24,6 +24,8 @@ export interface AdminProduct {
   createdAt: string
   updatedAt: string
   isFavorite: boolean
+  /** Available inventory in kg (API may return numeric as string) */
+  stockKg?: number | string
 }
 
 export interface Order {

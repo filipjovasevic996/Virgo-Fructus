@@ -1,3 +1,5 @@
+import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
+
 /**
  * Turns stored product image values into absolute URLs for SEO (sitemap, OG, JSON-LD).
  * Supports full URLs, site-relative paths, and bare Cloudinary public IDs (folder paths).
@@ -26,11 +28,15 @@ export function resolveProductImageUrl(
   const s = src.trim()
   if (!s) return undefined
   const base = siteUrl.replace(/\/+$/, '')
-  if (s.startsWith('https://') || s.startsWith('http://')) return s
+  if (s.startsWith('https://') || s.startsWith('http://')) {
+    return cloudinaryProductImageUrl(s)
+  }
   if (s.startsWith('/')) return `${base}${s}`
   const cloud = cloudinaryCloudName()
   if (cloud && looksLikeCloudinaryPublicId(s)) {
-    return `https://res.cloudinary.com/${cloud}/image/upload/f_auto,q_auto/${s}`
+    return cloudinaryProductImageUrl(
+      `https://res.cloudinary.com/${cloud}/image/upload/f_auto,q_auto/${s}`,
+    )
   }
   return undefined
 }

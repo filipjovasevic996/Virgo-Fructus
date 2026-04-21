@@ -14,4 +14,5 @@ export interface Product {
     salePrice?: number
   }[]
   isFavorite: boolean
+  stockKg: number
 }

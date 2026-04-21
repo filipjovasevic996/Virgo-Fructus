@@ -13,6 +13,18 @@ function revalidateStorefront(productSlug?: string | null) {
   }
 }
 
+function normalizeStockKg(value: unknown): string {
+  const raw =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number.parseFloat(value)
+        : Number.NaN
+  const kg = Number.isFinite(raw) ? Math.max(0, raw) : 1000
+  const rounded = Math.ceil(kg * 10000) / 10000
+  return rounded.toFixed(4)
+}
+
 function ensureLocalized(value: unknown): { sr: string; en: string } {
   if (typeof value === 'string') return { sr: value, en: '' }
   if (value && typeof value === 'object') {
@@ -57,6 +69,7 @@ export async function POST(request: NextRequest) {
         status: body.status || 'active',
         prices: body.prices || [],
         isFavorite: Boolean(body.isFavorite),
+        stockKg: normalizeStockKg(body.stockKg ?? body.stockGrams),
       })
       .returning()
 
@@ -88,7 +101,10 @@ export async function PUT(request: NextRequest) {
     if (body.badge !== undefined) updates.badge = body.badge || null
     if (body.status !== undefined) updates.status = body.status
     if (body.prices !== undefined) updates.prices = body.prices
-    updates.isFavorite = Boolean(body.isFavorite)
+    if (body.stockKg !== undefined || body.stockGrams !== undefined) {
+      updates.stockKg = normalizeStockKg(body.stockKg ?? body.stockGrams)
+    }
+    if (body.isFavorite !== undefined) updates.isFavorite = Boolean(body.isFavorite)
 
     const [product] = await db
       .update(productsTable)

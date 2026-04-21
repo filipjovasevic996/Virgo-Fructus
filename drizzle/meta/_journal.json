@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1776810421502,
+      "tag": "0000_add_product_stock_grams",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776810621502,
+      "tag": "0001_stock_kg_column",
+      "breakpoints": true
+    }
+  ]
+}

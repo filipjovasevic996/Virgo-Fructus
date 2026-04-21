@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -11,6 +11,11 @@ import { ProductCard } from '@/components/product-card'
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/lib/products'
+import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { maxQuantityForCartLine } from '@/lib/product-stock'
+import { formatKgFixed4 } from '@/lib/stock-kg'
+import { toast } from 'sonner'
+import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 
 function isImageUrl(src: string) {
   return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')
@@ -35,14 +40,6 @@ const categoryLabelKey: Record<Product['category'], string> = {
   citrus: 'shop.citrus',
   jagodičasto: 'shop.berries',
   egzotično: 'shop.exotic',
-}
-
-function parseWeightToGrams(weight: string) {
-  const value = Number(weight.replace(',', '.').replace(/[^\d.]/g, ''))
-  if (!Number.isFinite(value) || value <= 0) return null
-  if (/kg/i.test(weight)) return value * 1000
-  if (/g/i.test(weight)) return value
-  return null
 }
 
 function getPricePer100g(price: number, weight: string) {
@@ -71,7 +68,7 @@ export default function ProductDetail() {
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
   const sliderRef = useRef<HTMLDivElement>(null)
-  const { addItem } = useCart()
+  const { addItem, items: cartItems } = useCart()
 
   const similarProducts = productData?.similarProducts ?? []
 
@@ -85,21 +82,52 @@ export default function ProductDetail() {
     : 0
   const pricePer100g = currentPrice ? getPricePer100g(displayPrice, currentPrice.weight) : null
 
+  const weightMaxQty = useMemo(() => {
+    if (!product?.prices?.length) return []
+    return product.prices.map((po) =>
+      maxQuantityForCartLine(product.id, po.weight, product.stockKg ?? 0, cartItems),
+    )
+  }, [product, cartItems])
+
+  useEffect(() => {
+    if (!weightMaxQty.length) return
+    if (weightMaxQty[selectedWeight] >= 1) return
+    const next = weightMaxQty.findIndex((m) => m >= 1)
+    if (next >= 0) setSelectedWeight(next)
+  }, [weightMaxQty, selectedWeight])
+
   useEffect(() => {
     setIsAdded(false)
   }, [selectedWeight])
 
+  const maxQty =
+    product && currentPrice
+      ? maxQuantityForCartLine(
+        product.id,
+          currentPrice.weight,
+          product.stockKg ?? 0,
+          cartItems,
+        )
+      : 0
+
   const handleAddToCart = () => {
     if (!product || !currentPrice) return
-    addItem({
-      id: product.id,
-      name: product.name,
-      weight: currentPrice.weight,
-      price: displayPrice,
-      image: product.image,
-    })
+    const added = addItem(
+      {
+        id: product.id,
+        name: product.name,
+        weight: currentPrice.weight,
+        price: displayPrice,
+        image: product.image,
+      },
+      { maxQuantity: maxQty },
+    )
+    if (!added) {
+      toast.error(t('cart.addToCartBlocked'))
+      return
+    }
     setIsAdded(true)
-    setTimeout(() => setIsAdded(false), 500)
+    setTimeout(() => setIsAdded(false), 1000)
   }
 
   const nextImage = () => {
@@ -209,7 +237,7 @@ export default function ProductDetail() {
                   <div key={index} className="shrink-0 w-full h-full relative">
                     {isImageUrl(img) ? (
                       <Image
-                        src={img}
+                        src={cloudinaryProductImageUrl(img)}
                         alt={`${product.name} - ${index + 1}`}
                         fill
                         className="object-contain pointer-events-none"
@@ -281,7 +309,13 @@ export default function ProductDetail() {
                     )}
                   >
                     {isImageUrl(img) ? (
-                      <Image src={img} alt="" width={96} height={96} className="w-full h-full object-cover" />
+                      <Image
+                        src={cloudinaryProductImageUrl(img)}
+                        alt=""
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <span className="text-4xl">{img}</span>
                     )}
@@ -366,33 +400,56 @@ export default function ProductDetail() {
                   {t('product.chooseWeight')}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {product.prices.map((priceOption, index) => (
-                    <button
-                      key={priceOption.weight}
-                      onClick={() => setSelectedWeight(index)}
-                      className={cn(
-                        'cursor-pointer px-4 py-2.5 text-sm font-medium rounded border transition-colors',
-                        selectedWeight === index
-                          ? 'bg-lime text-bg-dark border-lime'
-                          : 'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50'
-                      )}
-                    >
-                      {priceOption.weight}
-                    </button>
-                  ))}
+                  {product.prices.map((priceOption, index) => {
+                    const optMax = weightMaxQty[index] ?? 0
+                    const unavailable = optMax < 1
+                    return (
+                      <button
+                        key={priceOption.weight}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => !unavailable && setSelectedWeight(index)}
+                        className={cn(
+                          'px-4 py-2.5 text-sm font-medium rounded border transition-colors min-w-[4.5rem]',
+                          unavailable &&
+                            'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
+                          !unavailable &&
+                            selectedWeight === index &&
+                            'bg-lime text-bg-dark border-lime cursor-pointer',
+                          !unavailable &&
+                            selectedWeight !== index &&
+                            'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50 cursor-pointer',
+                        )}
+                      >
+                        {priceOption.weight}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
+
+              {currentPrice && (
+                <div className="mt-4 font-sans text-sm text-text-nav">
+                  {maxQty < 1 ? (
+                    <span className="text-terra">{t('product.outOfStock')}</span>
+                  ) : (
+                    <p className="leading-relaxed">
+                      {t('product.stockRemainingKg', { kg: formatKgFixed4(product.stockKg) })}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Add to Cart with Feedback */}
               <div className="mt-6 relative">
                 <button
                   onClick={handleAddToCart}
-                  disabled={isAdded || !currentPrice}
+                  disabled={isAdded || !currentPrice || maxQty < 1}
                   className={cn(
                     'cursor-pointer w-full py-4 px-6 font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded-lg transition-all duration-300 flex items-center justify-center gap-2',
                     isAdded
                       ? 'bg-lime text-bg-dark'
-                      : currentPrice
+                      : currentPrice && maxQty >= 1
                         ? 'bg-bg-page text-bg-dark hover:bg-cream'
                         : 'bg-bg-page/40 text-text-body-light/60 cursor-not-allowed'
                   )}

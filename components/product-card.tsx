@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Product } from '@/lib/products'
 import { useCart } from './cart-context'
 import { useI18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
+import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
+import { maxQuantityForCartLine } from '@/lib/product-stock'
+import { toast } from 'sonner'
+import { Check } from 'lucide-react'
 
 function isImageUrl(src: string) {
   return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')
@@ -24,46 +28,88 @@ const badgeKeys: Record<string, string> = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [selectedWeight, setSelectedWeight] = useState(0)
-  const { addItem } = useCart()
+  const [isAdded, setIsAdded] = useState(false)
+  const { addItem, items: cartItems } = useCart()
   const { t } = useI18n()
 
-  const currentPrice = product.prices[selectedWeight]
+  const safeIdx = Math.min(selectedWeight, Math.max(0, product.prices.length - 1))
+  const currentPrice = product.prices[safeIdx]
+
+  const weightMaxQty = useMemo(
+    () =>
+      product.prices.map((po) =>
+        maxQuantityForCartLine(product.id, po.weight, product.stockKg ?? 0, cartItems),
+      ),
+    [product.id, product.stockKg, product.prices, cartItems],
+  )
+
+  useEffect(() => {
+    if (!weightMaxQty.length) return
+    if (weightMaxQty[safeIdx] >= 1) return
+    const next = weightMaxQty.findIndex((m) => m >= 1)
+    if (next >= 0) setSelectedWeight(next)
+  }, [weightMaxQty, safeIdx])
+
+  useEffect(() => {
+    setIsAdded(false)
+  }, [safeIdx])
+
   const displayPrice = currentPrice.salePrice ?? currentPrice.price
 
+  const maxQty = maxQuantityForCartLine(
+    product.id,
+    currentPrice.weight,
+    product.stockKg ?? 0,
+    cartItems,
+  )
+
   const handleAddToCart = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      weight: currentPrice.weight,
-      price: displayPrice,
-      image: product.image,
-    })
+    const added = addItem(
+      {
+        id: product.id,
+        name: product.name,
+        weight: currentPrice.weight,
+        price: displayPrice,
+        image: product.image,
+      },
+      { maxQuantity: maxQty },
+    )
+    if (!added) {
+      toast.error(t('cart.addToCartBlocked'))
+      return
+    }
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 1000)
   }
 
   return (
-    <div className="group border border-border-card rounded-md overflow-hidden animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
+    <div className="group w-full min-h-0 border border-border-card rounded-md overflow-hidden animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
       <Link
         href={`/proizvodi/${product.slug}`}
-        className="relative block bg-bg-card aspect-[4/3] overflow-hidden"
+        className="relative block w-full aspect-[4/3] overflow-hidden rounded-t-md"
       >
+        <span
+          aria-hidden
+          className="absolute inset-0 z-0 bg-bg-card"
+        />
         {isImageUrl(product.image) ? (
           <Image
-            src={product.image}
+            src={cloudinaryProductImageUrl(product.image)}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-300"
+            className="z-[1] object-contain object-center transition-transform duration-300"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-7xl transition-transform duration-300">
+          <div className="absolute inset-0 z-[1] flex items-center justify-center text-7xl transition-transform duration-300">
             {product.image}
           </div>
         )}
-        
+
         {product.badge && (
           <span
             className={cn(
-              'absolute top-3 left-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider rounded',
+              'absolute top-3 left-3 z-[2] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider rounded',
               product.badge === 'new' && 'bg-lime text-bg-dark',
               product.badge === 'limited' && 'bg-bg-dark text-lime',
               product.badge === 'sale' && 'bg-terra text-bg-page'
@@ -74,7 +120,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="bg-bg-hero p-4">
+      <div className="bg-bg-hero p-4 rounded-b-md">
         <Link href={`/proizvodi/${product.slug}`}>
           <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors">
             {product.name}
@@ -85,20 +131,31 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
 
         <div className="flex flex-wrap gap-2 mt-3">
-          {product.prices.map((priceOption, index) => (
-            <button
-              key={priceOption.weight}
-              onClick={() => setSelectedWeight(index)}
-              className={cn(
-                'cursor-pointer px-2 py-1 text-[11px] font-medium rounded border transition-colors',
-                selectedWeight === index
-                  ? 'bg-lime text-bg-dark border-lime'
-                  : 'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50'
-              )}
-            >
-              {priceOption.weight}
-            </button>
-          ))}
+          {product.prices.map((priceOption, index) => {
+            const optMax = weightMaxQty[index] ?? 0
+            const unavailable = optMax < 1
+            return (
+              <button
+                key={priceOption.weight}
+                type="button"
+                disabled={unavailable}
+                onClick={() => !unavailable && setSelectedWeight(index)}
+                className={cn(
+                  'px-2 py-1 text-[11px] font-medium rounded border transition-colors',
+                  unavailable &&
+                    'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
+                  !unavailable &&
+                    safeIdx === index &&
+                    'bg-lime text-bg-dark border-lime cursor-pointer',
+                  !unavailable &&
+                    safeIdx !== index &&
+                    'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
+                )}
+              >
+                {priceOption.weight}
+              </button>
+            )
+          })}
         </div>
 
         <div className="mt-3 flex items-baseline gap-2">
@@ -112,12 +169,43 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          className="cursor-pointer w-full mt-4 py-2.5 px-4 text-xs font-semibold uppercase tracking-wider text-text-body-light border border-border-card rounded bg-transparent transition-all hover:border-lime hover:text-lime hover:bg-lime/[0.08]"
-        >
-          {t('common.addToCart')}
-        </button>
+        <div className="mt-4 relative">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isAdded || maxQty < 1}
+            className={cn(
+              'w-full py-2.5 px-4 text-xs font-semibold uppercase tracking-wider border rounded transition-all duration-300 flex items-center justify-center gap-2',
+              isAdded &&
+                'bg-lime text-bg-dark border-lime cursor-default',
+              !isAdded &&
+                maxQty >= 1 &&
+                'cursor-pointer text-text-body-light bg-transparent border-border-card hover:border-lime hover:text-lime hover:bg-lime/[0.08]',
+              !isAdded &&
+                maxQty < 1 &&
+                'cursor-not-allowed opacity-50 text-text-body-light/50 border-border-card',
+            )}
+          >
+            {isAdded ? (
+              <>
+                <Check className="w-4 h-4 shrink-0" />
+                <span>{t('common.addedToCart')}</span>
+              </>
+            ) : maxQty < 1 ? (
+              t('product.outOfStock')
+            ) : (
+              t('common.addToCart')
+            )}
+          </button>
+          {isAdded && (
+            <div
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime rounded-full flex items-center justify-center animate-bounce shadow-lg pointer-events-none"
+              aria-hidden
+            >
+              <Check className="w-3 h-3 text-bg-dark" />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

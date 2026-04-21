@@ -9,7 +9,7 @@ export default function AboutPage() {
 
   return (
     <div className="bg-bg-page min-h-screen">
-      <section className="py-10 sm:py-16 lg:py-24">
+      <section className="py-4 sm:py-8 lg:py-12">
         <div className="mx-auto max-w-[760px] px-5 sm:px-6">
           <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
             {t('story.title')}
