@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 import { productsTable } from '@/lib/db/schema'
+import { firstResolvedProductImage } from '@/lib/resolve-product-image-url'
 import { desc, eq } from 'drizzle-orm'
 
 /** Cache sitemap generation (reduces DB hits when crawlers poll /sitemap.xml often) */
@@ -13,24 +14,6 @@ function normalizeSiteUrl(raw: string) {
 const SITE_URL = normalizeSiteUrl(
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com',
 )
-
-function resolveAbsoluteImageUrl(src: string): string | undefined {
-  const s = src.trim()
-  if (!s) return undefined
-  if (s.startsWith('https://') || s.startsWith('http://')) return s
-  if (s.startsWith('/')) return `${SITE_URL}${s}`
-  return undefined
-}
-
-function primaryProductImage(images: unknown): string | undefined {
-  if (!Array.isArray(images)) return undefined
-  for (const img of images) {
-    if (typeof img !== 'string') continue
-    const url = resolveAbsoluteImageUrl(img)
-    if (url) return url
-  }
-  return undefined
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
@@ -69,6 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         slug: productsTable.slug,
         updatedAt: productsTable.updatedAt,
         images: productsTable.images,
+        image: productsTable.image,
       })
       .from(productsTable)
       .where(eq(productsTable.status, 'active'))
@@ -82,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly',
         priority: 0.8,
       }
-      const img = primaryProductImage(p.images)
+      const img = firstResolvedProductImage(p.images, p.image, SITE_URL)
       if (img) {
         entry.images = [img]
       }

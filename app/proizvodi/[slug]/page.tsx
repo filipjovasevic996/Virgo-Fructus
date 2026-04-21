@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { productsTable, resolveLocalized } from '@/lib/db/schema'
+import { allResolvedProductImageUrls } from '@/lib/resolve-product-image-url'
 import { sql } from 'drizzle-orm'
 import ProductDetail from '@/components/product-detail'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
+).replace(/\/+$/, '')
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -34,7 +37,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = resolveLocalized(product.name, 'sr')
   const shortDesc = resolveLocalized(product.shortDescription, 'sr')
   const description = resolveLocalized(product.description, 'sr')
-  const images = product.images as string[]
+  const resolvedImages = allResolvedProductImageUrls(
+    product.images,
+    product.image,
+    SITE_URL,
+  )
   const prices = product.prices as { weight: string; price: number; salePrice?: number }[]
   const lowestPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.salePrice ?? p.price)) : 0
 
@@ -52,9 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         `${name} – premium dehidrirano voće za koktele.`,
       url: `/proizvodi/${slug}`,
       type: 'website',
-      images: images
-        .filter((img) => img.startsWith('http'))
-        .map((img) => ({ url: img, alt: name })),
+      images: resolvedImages.map((img) => ({ url: img, alt: name })),
     },
     twitter: {
       card: 'summary_large_image',
@@ -71,7 +76,9 @@ export default async function ProductPage({ params }: Props) {
   const name = resolveLocalized(product?.name, 'sr')
   const description = resolveLocalized(product?.description, 'sr')
   const prices = (product?.prices ?? []) as { weight: string; price: number; salePrice?: number }[]
-  const images = (product?.images ?? []) as string[]
+  const resolvedImages = product
+    ? allResolvedProductImageUrls(product.images, product.image, SITE_URL)
+    : []
 
   const jsonLd = product
     ? {
@@ -79,7 +86,7 @@ export default async function ProductPage({ params }: Props) {
         '@type': 'Product',
         name,
         description,
-        image: images.filter((img) => img.startsWith('http')),
+        image: resolvedImages,
         url: `${SITE_URL}/proizvodi/${slug}`,
         brand: {
           '@type': 'Brand',

@@ -19,9 +19,7 @@ export default function AboutPage() {
           </h1>
 
           <div className="mt-5 sm:mt-8 font-sans text-sm sm:text-base text-text-nav leading-[1.7]">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Nullam quis risus eget urna mollis ornare vel eu leo.
-            </p>
+            <p>{t('story.introLead')}</p>
           </div>
         </div>
       </section>
@@ -50,12 +48,8 @@ export default function AboutPage() {
                 {t('story.beginningTitle')}
               </h2>
               <div className="mt-4 sm:mt-6 font-sans text-sm sm:text-base text-text-nav leading-[1.7] space-y-4">
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.
-                </p>
-                <p>
-                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                </p>
+                <p>{t('story.beginningP1')}</p>
+                <p>{t('story.beginningP2')}</p>
               </div>
             </div>
             <div className="flex justify-center">
@@ -83,12 +77,8 @@ export default function AboutPage() {
                 {t('story.philosophyTitle')}
               </h2>
               <div className="mt-4 sm:mt-6 font-sans text-sm sm:text-base text-text-nav leading-[1.7] space-y-4">
-                <p>
-                  Sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.
-                </p>
-                <p>
-                  Ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
+                <p>{t('story.philosophyP1')}</p>
+                <p>{t('story.philosophyP2')}</p>
               </div>
             </div>
           </div>
