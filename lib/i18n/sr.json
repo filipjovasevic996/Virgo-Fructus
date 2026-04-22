@@ -170,7 +170,9 @@
     "errorPhone": "Telefon je obavezan",
     "errorEmail": "Email je obavezan",
     "errorCity": "Grad je obavezan",
-    "errorAddress": "Adresa je obavezna"
+    "errorAddress": "Adresa je obavezna",
+    "termsAgreementPrefix": "Pročitao/la sam i prihvatam",
+    "termsAgreementLink": "Uslove kupovine"
   },
   "story": {
     "title": "Naša Priča",

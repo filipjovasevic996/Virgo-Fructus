@@ -170,7 +170,9 @@
     "errorPhone": "Phone is required",
     "errorEmail": "Email is required",
     "errorCity": "City is required",
-    "errorAddress": "Address is required"
+    "errorAddress": "Address is required",
+    "termsAgreementPrefix": "I have read and accept the",
+    "termsAgreementLink": "Terms of Purchase"
   },
   "story": {
     "title": "Our Story",

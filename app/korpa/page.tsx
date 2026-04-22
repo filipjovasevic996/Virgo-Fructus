@@ -19,6 +19,7 @@ export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCart()
   const { t } = useI18n()
   const [step, setStep] = useState<CheckoutStep>('cart')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -75,6 +76,11 @@ export default function CartPage() {
   const total = subtotal + deliveryFee
   const progressToFree = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)
   const amountUntilFree = FREE_DELIVERY_THRESHOLD - subtotal
+
+  const handleProceedToDetails = () => {
+    if (!acceptedTerms) return
+    setStep('details')
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -378,9 +384,38 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                <div className="mt-6 rounded-lg border border-border-card/40 bg-bg-dark/30 p-3">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-lime"
+                    />
+                    <span className="font-sans text-sm leading-relaxed text-text-body-light">
+                      {t('cart.termsAgreementPrefix')}{' '}
+                      <Link
+                        href="/uslovi-kupovine"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-lime hover:underline"
+                      >
+                        {t('cart.termsAgreementLink')}
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                </div>
+
                 <button
-                  onClick={() => setStep('details')}
-                  className="mt-6 w-full py-4 px-6 bg-bg-page text-bg-dark font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors cursor-pointer"
+                  onClick={handleProceedToDetails}
+                  disabled={!acceptedTerms}
+                  className={cn(
+                    'mt-4 w-full py-4 px-6 font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded transition-colors',
+                    acceptedTerms
+                      ? 'bg-bg-page text-bg-dark hover:bg-cream cursor-pointer'
+                      : 'bg-bg-page/45 text-bg-dark/50 cursor-not-allowed',
+                  )}
                 >
                   {t('cart.proceedToPayment')}
                 </button>
