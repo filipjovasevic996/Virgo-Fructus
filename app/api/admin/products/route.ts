@@ -8,8 +8,11 @@ import { eq, desc } from 'drizzle-orm'
 function revalidateStorefront(productSlug?: string | null) {
   revalidatePath('/')
   revalidatePath('/prodavnica')
+  revalidatePath('/en')
+  revalidatePath('/en/prodavnica')
   if (productSlug) {
     revalidatePath(`/proizvodi/${productSlug}`)
+    revalidatePath(`/en/proizvodi/${productSlug}`)
   }
 }
 

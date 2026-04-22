@@ -16,6 +16,7 @@ import { formatKgFixed4 } from '@/lib/stock-kg'
 import { toast } from 'sonner'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { Spinner } from '@/components/ui/spinner'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 function isImageUrl(src: string) {
   return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')
@@ -62,6 +63,7 @@ export default function ProductDetail({
   initialSimilarProducts = [],
 }: ProductDetailProps) {
   const { t, locale } = useI18n()
+  const { withLocale } = useLocalizedPath()
   const { data: productData, isLoading, error } = useSWR<{
     product: Product | null
     similarProducts: Product[]
@@ -219,7 +221,7 @@ export default function ProductDetail({
         <nav aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-xs font-sans text-terra">
             <li>
-              <Link href="/prodavnica" className="hover:underline">
+              <Link href={withLocale('/prodavnica')} className="hover:underline">
                 {t('nav.shop')}
               </Link>
             </li>
@@ -498,7 +500,7 @@ export default function ProductDetail({
                 </p>
                 <p className="mt-2 font-sans text-xs text-text-body-light/75 leading-relaxed">
                   {t('product.purchaseNoticeLine2')}{' '}
-                  <Link href="/kontakt" className="text-lime hover:text-cream underline underline-offset-2">
+                  <Link href={withLocale('/kontakt')} className="text-lime hover:text-cream underline underline-offset-2">
                     {t('product.purchaseNoticeFormLink')}
                   </Link>
                   .

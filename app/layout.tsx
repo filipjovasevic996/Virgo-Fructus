@@ -3,10 +3,6 @@ import { Cormorant_Garamond, Jost } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { CartProvider } from '@/components/cart-context'
-import { I18nProvider } from '@/lib/i18n'
-import { ConditionalNavigation } from '@/components/conditional-navigation'
-import { ConditionalFooter } from '@/components/conditional-footer'
-import { AppToaster } from '@/components/app-toaster'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
 
@@ -177,14 +173,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <I18nProvider>
-          <CartProvider>
-            <ConditionalNavigation />
-            <main>{children}</main>
-            <ConditionalFooter />
-            <AppToaster />
-          </CartProvider>
-        </I18nProvider>
+        <CartProvider>{children}</CartProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

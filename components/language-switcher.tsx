@@ -1,6 +1,9 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useI18n, type Locale } from '@/lib/i18n'
+import { localizePath, stripLocalePath } from '@/lib/i18n/routing'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 const locales: { value: Locale; label: string; flag: string }[] = [
   { value: 'sr', label: 'SR', flag: '🇷🇸' },
@@ -8,14 +11,24 @@ const locales: { value: Locale; label: string; flag: string }[] = [
 ]
 
 export function LanguageSwitcher({ className = '' }: { className?: string }) {
-  const { locale, setLocale } = useI18n()
+  const { pathname } = useLocalizedPath()
+  const { locale } = useI18n()
+  const router = useRouter()
+
+  const neutralPath = stripLocalePath(pathname ?? '/')
+
+  const switchTo = (target: Locale) => {
+    const next = localizePath(neutralPath, target)
+    router.push(next)
+  }
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
       {locales.map((loc) => (
         <button
           key={loc.value}
-          onClick={() => setLocale(loc.value)}
+          type="button"
+          onClick={() => switchTo(loc.value)}
           className={`cursor-pointer px-2 py-1 text-xs font-sans font-medium rounded transition-colors ${
             locale === loc.value
               ? 'bg-lime/20 text-lime-dark'

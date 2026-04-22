@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { Product } from '@/lib/products'
 import { useCart } from './cart-context'
 import { useI18n } from '@/lib/i18n'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
@@ -33,6 +34,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   const [isAdded, setIsAdded] = useState(false)
   const { addItem, items: cartItems } = useCart()
   const { t } = useI18n()
+  const { withLocale } = useLocalizedPath()
 
   const safeIdx = Math.min(selectedWeight, Math.max(0, product.prices.length - 1))
   const currentPrice = product.prices[safeIdx]
@@ -92,7 +94,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
       )}
     >
       <Link
-        href={`/proizvodi/${product.slug}`}
+        href={withLocale(`/proizvodi/${product.slug}`)}
         className={cn(
           'relative block w-full aspect-[4/3] rounded-t-md',
           featuredImageLift ? 'overflow-visible' : 'overflow-hidden',
@@ -141,7 +143,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
       </Link>
 
       <div className="flex flex-1 flex-col bg-bg-hero p-4 rounded-b-md">
-        <Link href={`/proizvodi/${product.slug}`}>
+        <Link href={withLocale(`/proizvodi/${product.slug}`)}>
           <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors">
             {product.name}
           </h3>

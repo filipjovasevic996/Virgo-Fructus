@@ -7,6 +7,7 @@ import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
 import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { HERO_VIDEO_URL } from '@/app/constants/constants'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Spinner } from '@/components/ui/spinner'
@@ -19,12 +20,12 @@ const fetcher = async (url: string) => {
 
 export function HomePageClient({ initialBestSellers }: { initialBestSellers: Product[] }) {
   const { t, locale } = useI18n()
+  const { withLocale } = useLocalizedPath()
   const [mounted, setMounted] = useState(false)
   const swrKey = `/api/products?bestSellers=true&locale=${locale}`
-  const isDefaultLocale = locale === 'sr'
   const { data, isLoading } = useSWR<{ products: Product[] }>(swrKey, fetcher, {
-    fallbackData: isDefaultLocale ? { products: initialBestSellers } : undefined,
-    revalidateOnMount: !isDefaultLocale,
+    fallbackData: { products: initialBestSellers },
+    revalidateOnMount: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     revalidateIfStale: false,
@@ -79,8 +80,8 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
             </span>
           </div>
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
-            <Link href="/prodavnica" className="inline-flex items-center justify-center px-7 sm:px-8 py-3 sm:py-3.5 bg-lime text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors shadow-lg">{t('home.orderNow')}</Link>
-            <Link href="/nasa-prica" className="inline-flex items-center justify-center px-7 sm:px-8 py-3 sm:py-3.5 bg-transparent text-white font-sans text-[12px] font-semibold uppercase tracking-[0.08em] border-[1.5px] border-white/40 rounded hover:border-white hover:bg-white/10 transition-colors">{t('home.ourStoryLink')}</Link>
+            <Link href={withLocale('/prodavnica')} className="inline-flex items-center justify-center px-7 sm:px-8 py-3 sm:py-3.5 bg-lime text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors shadow-lg">{t('home.orderNow')}</Link>
+            <Link href={withLocale('/nasa-prica')} className="inline-flex items-center justify-center px-7 sm:px-8 py-3 sm:py-3.5 bg-transparent text-white font-sans text-[12px] font-semibold uppercase tracking-[0.08em] border-[1.5px] border-white/40 rounded hover:border-white hover:bg-white/10 transition-colors">{t('home.ourStoryLink')}</Link>
           </div>
         </div>
       </section>
@@ -92,7 +93,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
               <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">{t('home.bestSellers')}</span>
               <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.bestSellersSubtitle')}</h2>
             </div>
-            <Link href="/prodavnica" className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end">{t('home.viewAllProducts')}</Link>
+            <Link href={withLocale('/prodavnica')} className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end">{t('home.viewAllProducts')}</Link>
           </div>
           {isLoading ? (
             <div className="mt-14 sm:mt-16 md:mt-20 pt-8 sm:pt-10 md:pt-12 flex min-h-[280px] items-center justify-center">
@@ -152,7 +153,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.premiumDesc')}</p>
             </div>
           </div>
-          <Link href="/prodavnica" className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors">{t('home.orderNow')}</Link>
+          <Link href={withLocale('/prodavnica')} className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors">{t('home.orderNow')}</Link>
         </div>
       </section>
       <SpeedInsights />

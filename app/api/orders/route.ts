@@ -173,6 +173,8 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/prodavnica')
     revalidatePath('/')
+    revalidatePath('/en/prodavnica')
+    revalidatePath('/en')
 
     const emailPromises: Promise<unknown>[] = []
 

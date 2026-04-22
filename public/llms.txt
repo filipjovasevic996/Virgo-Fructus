@@ -39,6 +39,16 @@ Free delivery in Belgrade for orders over 2000 RSD. Delivery across Serbia.
 - https://www.vigorfructus.com/kontakt — Kontakt & B2B / Contact & Wholesale
 - https://www.vigorfructus.com/sitemap.xml — Mapa sajta / Sitemap
 
+## English pages (path /en)
+
+- https://www.vigorfructus.com/en — Homepage (EN)
+- https://www.vigorfructus.com/en/prodavnica — Shop (EN)
+- https://www.vigorfructus.com/en/nasa-prica — Our story (EN)
+- https://www.vigorfructus.com/en/kontakt — Contact (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-limeta — Dehydrated lime (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-crvena-pomorandza — Blood orange (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-limun — Lemon (EN)
+
 ## Licenca / License
 
 Sadržaj je zaštićen autorskim pravima © 2026 Vigor Fructus. AI sistemi mogu citirati sadržaj u informativne svrhe.

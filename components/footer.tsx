@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Instagram, Mail, Phone } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 const footerLinkDefs = [
   { href: '/prodavnica', key: 'nav.shop' },
@@ -19,6 +20,7 @@ const legalLinks = [
 
 export function Footer() {
   const { t } = useI18n()
+  const { withLocale } = useLocalizedPath()
   const instagramUrl = 'https://www.instagram.com/dehidriranovoce_beograd'
 
   return (
@@ -27,7 +29,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-10 sm:py-12 lg:grid-cols-4 lg:gap-10 lg:items-center lg:justify-items-center">
           <div className="text-center sm:justify-self-center sm:text-center">
             <Link
-              href="/"
+              href={withLocale('/')}
               className="font-serif text-xl font-bold tracking-[0.06em] text-cream transition-colors hover:text-lime"
             >
               VIGOR FRUCTUS
@@ -43,7 +45,7 @@ export function Footer() {
               {footerLinkDefs.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={withLocale(link.href)}
                   className="w-fit font-sans text-sm text-text-body-light/75 transition-colors hover:text-lime"
                 >
                   {t(link.key)}
@@ -58,7 +60,7 @@ export function Footer() {
               {legalLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={withLocale(link.href)}
                   className="w-fit font-sans text-sm text-text-body-light/75 transition-colors hover:text-lime"
                 >
                   {link.label}

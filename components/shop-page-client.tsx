@@ -29,7 +29,6 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
   const [sortBy, setSortBy] = useState<'popular' | 'priceAsc' | 'priceDesc'>('popular')
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
-  const isDefaultLocale = locale === 'sr'
   const otherLocale = locale === 'sr' ? 'en' : 'sr'
 
   useEffect(() => {
@@ -46,8 +45,8 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
     mounted ? `/api/products?locale=${locale}` : null,
     fetcher,
     {
-      fallbackData: isDefaultLocale ? { products: initialProducts } : undefined,
-      revalidateOnMount: !isDefaultLocale,
+      fallbackData: { products: initialProducts },
+      revalidateOnMount: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       revalidateIfStale: false,

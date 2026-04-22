@@ -9,7 +9,14 @@ export const metadata: Metadata = {
   title: 'Prodavnica',
   description:
     'Kupite premium dehidrirano voce Vigor Fructus: limeta, limun, crvena pomorandza i drugi proizvodi za koktele i zdravu uzinu.',
-  alternates: { canonical: '/prodavnica' },
+  alternates: {
+    canonical: '/prodavnica',
+    languages: {
+      'sr-RS': `${SITE_URL}/prodavnica`,
+      'en-US': `${SITE_URL}/en/prodavnica`,
+      'x-default': `${SITE_URL}/prodavnica`,
+    },
+  },
   openGraph: {
     type: 'website',
     title: 'Prodavnica | Vigor Fructus',

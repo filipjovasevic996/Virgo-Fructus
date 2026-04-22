@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   title: 'Kontakt',
   description:
     'Kontaktirajte Vigor Fructus za porudzbine, B2B saradnju i pitanja o premium dehidriranom vocu.',
-  alternates: { canonical: '/kontakt' },
+  alternates: {
+    canonical: '/kontakt',
+    languages: {
+      'sr-RS': `${SITE_URL}/kontakt`,
+      'en-US': `${SITE_URL}/en/kontakt`,
+      'x-default': `${SITE_URL}/kontakt`,
+    },
+  },
   openGraph: {
     type: 'website',
     title: 'Kontakt | Vigor Fructus',

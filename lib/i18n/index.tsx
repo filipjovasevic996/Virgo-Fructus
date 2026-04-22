@@ -35,29 +35,22 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string | un
   return typeof current === 'string' ? current : undefined
 }
 
-function getSavedLocale(): Locale {
-  if (typeof window === 'undefined') return DEFAULT_LOCALE
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved === 'en' || saved === 'sr') return saved
-  return DEFAULT_LOCALE
-}
-
 export function I18nProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
 }: {
   children: ReactNode
-  /** From server cookies — must match first client render to avoid hydration mismatches */
+  /** Must match URL (`/` → sr, `/en` → en) for crawlable bilingual pages */
   initialLocale?: Locale
 }) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
   useEffect(() => {
-    const saved = getSavedLocale()
-    setLocaleState(saved)
-    document.documentElement.lang = saved
-    setLocaleCookie(saved)
-  }, [])
+    setLocaleState(initialLocale)
+    document.documentElement.lang = initialLocale
+    setLocaleCookie(initialLocale)
+    localStorage.setItem(STORAGE_KEY, initialLocale)
+  }, [initialLocale])
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)

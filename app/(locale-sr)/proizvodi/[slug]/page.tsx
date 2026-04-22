@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import { db } from '@/lib/db'
-import { productsTable, resolveLocalized, type SupportedLocale } from '@/lib/db/schema'
+import { resolveLocalized } from '@/lib/db/schema'
 import { allResolvedProductImageUrls } from '@/lib/resolve-product-image-url'
-import { and, desc, eq } from 'drizzle-orm'
 import ProductDetail from '@/components/product-detail'
 import { notFound } from 'next/navigation'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
-import { parseStockKg } from '@/lib/stock-kg'
-import type { Product } from '@/lib/products'
+import {
+  getProductRow,
+  localizeProductRow,
+  getSimilarLocalizedProducts,
+} from '@/lib/product-ssr-data'
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
@@ -17,64 +18,9 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-async function getProduct(slug: string) {
-  try {
-    const [product] = await db
-      .select()
-      .from(productsTable)
-      .where(and(eq(productsTable.slug, slug), eq(productsTable.status, 'active')))
-      .limit(1)
-    return product ?? null
-  } catch {
-    return null
-  }
-}
-
-function localizeProduct(
-  product: typeof productsTable.$inferSelect,
-  locale: SupportedLocale = 'sr',
-): Product {
-  return {
-    id: product.id,
-    slug: product.slug,
-    category: product.category as Product['category'],
-    name: resolveLocalized(product.name, locale),
-    description: resolveLocalized(product.description, locale),
-    shortDescription: resolveLocalized(product.shortDescription, locale),
-    image: product.image,
-    images: (product.images as string[]) ?? [],
-    prices: (product.prices as { weight: string; price: number; salePrice?: number }[]) ?? [],
-    badge: product.badge as Product['badge'],
-    isFavorite: product.isFavorite,
-    stockKg: parseStockKg(product.stockKg),
-  }
-}
-
-async function getSimilarProducts(
-  product: typeof productsTable.$inferSelect,
-  locale: SupportedLocale = 'sr',
-): Promise<Product[]> {
-  const rows = await db
-    .select()
-    .from(productsTable)
-    .where(
-      and(
-        eq(productsTable.status, 'active'),
-        eq(productsTable.category, product.category),
-      ),
-    )
-    .orderBy(desc(productsTable.createdAt))
-    .limit(5)
-
-  return rows
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4)
-    .map((p) => localizeProduct(p, locale))
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const product = await getProduct(slug)
+  const product = await getProductRow(slug)
 
   if (!product) {
     return { title: 'Proizvod nije pronađen' }
@@ -97,19 +43,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'https://schema.org/OutOfStock'
   const sku = `VF-${product.id}`
 
+  const srPath = `/proizvodi/${slug}`
+  const enPath = `/en/proizvodi/${slug}`
+
   return {
     title: name,
     description:
       shortDesc ||
       description ||
       `${name} – premium dehidrirano voće. Od ${lowestPrice} RSD.`,
-    alternates: { canonical: `/proizvodi/${slug}` },
+    alternates: {
+      canonical: srPath,
+      languages: {
+        'sr-RS': `${SITE_URL}${srPath}`,
+        'en-US': `${SITE_URL}${enPath}`,
+        'x-default': `${SITE_URL}${srPath}`,
+      },
+    },
     openGraph: {
       title: `${name} | Vigor Fructus`,
       description:
         shortDesc ||
         `${name} – premium dehidrirano voće za koktele.`,
-      url: `/proizvodi/${slug}`,
+      url: srPath,
+      locale: 'sr_RS',
       type: 'website',
       images: resolvedImages.map((img) => ({ url: img, alt: name })),
     },
@@ -129,11 +86,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
-  const product = await getProduct(slug)
+  const product = await getProductRow(slug)
   if (!product) notFound()
 
-  const localizedProduct = localizeProduct(product, 'sr')
-  const similarProducts = await getSimilarProducts(product, 'sr')
+  const localizedProduct = localizeProductRow(product, 'sr')
+  const similarProducts = await getSimilarLocalizedProducts(product, 'sr')
   const name = localizedProduct.name
   const description = localizedProduct.description
   const prices = localizedProduct.prices

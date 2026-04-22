@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   title: 'Naša priča',
   description:
     'Upoznajte kako je nastao Vigor Fructus i naš proces dehidracije voca za premium koktele i zdravu uzinu.',
-  alternates: { canonical: '/nasa-prica' },
+  alternates: {
+    canonical: '/nasa-prica',
+    languages: {
+      'sr-RS': `${SITE_URL}/nasa-prica`,
+      'en-US': `${SITE_URL}/en/nasa-prica`,
+      'x-default': `${SITE_URL}/nasa-prica`,
+    },
+  },
   openGraph: {
     type: 'website',
     title: 'Naša priča | Vigor Fructus',

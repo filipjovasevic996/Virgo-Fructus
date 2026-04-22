@@ -15,35 +15,44 @@ const SITE_URL = normalizeSiteUrl(
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com',
 )
 
+type StaticEntry = {
+  path: string
+  priority: number
+  frequency: NonNullable<MetadataRoute.Sitemap[0]['changeFrequency']>
+}
+
+const STATIC_DEFS: StaticEntry[] = [
+  { path: '', frequency: 'weekly', priority: 1 },
+  { path: '/prodavnica', frequency: 'weekly', priority: 0.9 },
+  { path: '/nasa-prica', frequency: 'monthly', priority: 0.7 },
+  { path: '/kontakt', frequency: 'monthly', priority: 0.6 },
+  { path: '/uslovi-kupovine', frequency: 'monthly', priority: 0.5 },
+  { path: '/povrat-robe-i-reklamacije', frequency: 'monthly', priority: 0.5 },
+  { path: '/politika-privatnosti', frequency: 'monthly', priority: 0.5 },
+]
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: SITE_URL,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-    {
-      url: `${SITE_URL}/prodavnica`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/nasa-prica`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/kontakt`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-  ]
+  const staticPages: MetadataRoute.Sitemap = STATIC_DEFS.flatMap((def) => {
+    const srUrl = `${SITE_URL}${def.path || '/'}`
+    const enUrl = `${SITE_URL}/en${def.path || ''}`
+    const enPriority = Math.max(0.3, def.priority - 0.05)
+    return [
+      {
+        url: srUrl,
+        lastModified: now,
+        changeFrequency: def.frequency,
+        priority: def.priority,
+      },
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: def.frequency,
+        priority: enPriority,
+      },
+    ]
+  })
 
   let productPages: MetadataRoute.Sitemap = []
   try {
@@ -58,19 +67,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .where(eq(productsTable.status, 'active'))
       .orderBy(desc(productsTable.updatedAt))
 
-    productPages = products.map((p) => {
+    productPages = products.flatMap((p) => {
       const pathSlug = encodeURIComponent(p.slug)
-      const entry: MetadataRoute.Sitemap[0] = {
+      const img = firstResolvedProductImage(p.images, p.image, SITE_URL)
+
+      const srEntry: MetadataRoute.Sitemap[0] = {
         url: `${SITE_URL}/proizvodi/${pathSlug}`,
         lastModified: p.updatedAt ?? now,
         changeFrequency: 'weekly',
         priority: 0.8,
       }
-      const img = firstResolvedProductImage(p.images, p.image, SITE_URL)
-      if (img) {
-        entry.images = [img]
+      const enEntry: MetadataRoute.Sitemap[0] = {
+        url: `${SITE_URL}/en/proizvodi/${pathSlug}`,
+        lastModified: p.updatedAt ?? now,
+        changeFrequency: 'weekly',
+        priority: 0.75,
       }
-      return entry
+      if (img) {
+        srEntry.images = [img]
+        enEntry.images = [img]
+      }
+      return [srEntry, enEntry]
     })
   } catch {
     // DB may not be available during build

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, Check, Loader2, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { useI18n } from '@/lib/i18n'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
@@ -15,9 +16,10 @@ const DELIVERY_FEE = 300
 
 type CheckoutStep = 'cart' | 'details' | 'payment' | 'confirmation'
 
-export default function CartPage() {
+export default function CartPageClient() {
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCart()
   const { t } = useI18n()
+  const { withLocale } = useLocalizedPath()
   const [step, setStep] = useState<CheckoutStep>('cart')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [formData, setFormData] = useState({
@@ -162,7 +164,7 @@ export default function CartPage() {
             {t('cart.emptyDesc')}
           </p>
           <Link
-            href="/prodavnica"
+            href={withLocale('/prodavnica')}
             className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors"
           >
             {t('cart.browseShop')}
@@ -191,7 +193,7 @@ export default function CartPage() {
             {t('cart.orderConfirmed')}
           </p>
           <Link
-            href="/prodavnica"
+            href={withLocale('/prodavnica')}
             className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors"
           >
             {t('cart.continueShopping')}
@@ -395,7 +397,7 @@ export default function CartPage() {
                     <span className="font-sans text-sm leading-relaxed text-text-body-light">
                       {t('cart.termsAgreementPrefix')}{' '}
                       <Link
-                        href="/uslovi-kupovine"
+                        href={withLocale('/uslovi-kupovine')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-lime hover:underline"
@@ -421,7 +423,7 @@ export default function CartPage() {
                 </button>
 
                 <Link
-                  href="/prodavnica"
+                  href={withLocale('/prodavnica')}
                   className="mt-4 block text-center font-sans text-sm text-lime hover:underline"
                 >
                   {t('common.backToShop')}

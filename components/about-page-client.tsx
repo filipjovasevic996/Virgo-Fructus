@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import { Sun, Leaf, Package } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 export default function AboutPageClient() {
   const { t } = useI18n()
+  const { withLocale } = useLocalizedPath()
 
   return (
     <div className="bg-bg-page min-h-screen">
@@ -152,7 +154,7 @@ export default function AboutPageClient() {
             {t('story.ctaDesc')}
           </p>
           <Link
-            href="/prodavnica"
+            href={withLocale('/prodavnica')}
             className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"
           >
             {t('story.viewShop')}

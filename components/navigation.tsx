@@ -9,6 +9,8 @@ import { useCart } from './cart-context'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/lib/i18n'
 import { LanguageSwitcher } from './language-switcher'
+import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
+import { stripLocalePath } from '@/lib/i18n/routing'
 
 const navLinkDefs = [
   { href: '/', key: 'nav.home' },
@@ -19,6 +21,7 @@ const navLinkDefs = [
 
 export function Navigation() {
   const pathname = usePathname()
+  const { withLocale } = useLocalizedPath()
   const { totalItems } = useCart()
   const { t } = useI18n()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -39,7 +42,7 @@ export function Navigation() {
       <nav className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
-            href="/"
+            href={withLocale('/')}
             className="flex items-center gap-2 md:gap-3 min-w-0 shrink-0 -my-1"
           >
             <Image
@@ -59,10 +62,10 @@ export function Navigation() {
             {navLinkDefs.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={withLocale(link.href)}
                 className={cn(
                   'font-sans text-sm text-text-nav transition-colors hover:text-text-nav-hover',
-                  pathname === link.href && 'font-medium text-text-nav-hover'
+                  stripLocalePath(pathname ?? '/') === link.href && 'font-medium text-text-nav-hover'
                 )}
               >
                 {t(link.key)}
@@ -73,7 +76,7 @@ export function Navigation() {
           <div className="flex items-center gap-1 sm:gap-3">
             <LanguageSwitcher />
             <Link
-              href="/korpa"
+              href={withLocale('/korpa')}
               className="relative p-2 text-text-nav hover:text-text-nav-hover transition-colors"
               aria-label={`${t('nav.cart')} (${totalItems})`}
             >
@@ -105,11 +108,11 @@ export function Navigation() {
             {navLinkDefs.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={withLocale(link.href)}
                 onClick={() => setIsMenuOpen(false)}
                 className={cn(
                   'block py-3 px-4 font-sans text-base text-text-nav transition-colors hover:text-text-nav-hover hover:bg-cream/30',
-                  pathname === link.href && 'font-medium text-text-nav-hover'
+                  stripLocalePath(pathname ?? '/') === link.href && 'font-medium text-text-nav-hover'
                 )}
               >
                 {t(link.key)}
