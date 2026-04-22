@@ -83,7 +83,9 @@
     "badgeLimited": "Limited offer",
     "badgeSale": "Sale",
     "outOfStock": "Out of stock",
-    "stockRemainingKg": "Total in stock: {kg} kg"
+    "stockRemainingKg": "Total in stock: {kg} kg",
+    "readMore": "Read more",
+    "readLess": "Read less"
   },
   "contact": {
     "title": "Contact",

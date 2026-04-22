@@ -83,7 +83,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group w-full min-h-0 border border-border-card rounded-md overflow-hidden animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
+    <div className="group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-hidden bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
       <Link
         href={`/proizvodi/${product.slug}`}
         className="relative block w-full aspect-[4/3] overflow-hidden rounded-t-md"
@@ -120,15 +120,20 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="bg-bg-hero p-4 rounded-b-md">
+      <div className="flex flex-1 flex-col bg-bg-hero p-4 rounded-b-md">
         <Link href={`/proizvodi/${product.slug}`}>
           <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors">
             {product.name}
           </h3>
         </Link>
-        <p className="text-[13px] text-text-body-light mt-1">
+        <div className="mt-2 min-h-[5.75rem] sm:min-h-[6.5rem]">
+          <p className="text-[13px] leading-relaxed text-text-body-light/85 line-clamp-4 sm:line-clamp-5">
+            {product.shortDescription || ''}
+          </p>
+        </div>
+        {/* <p className="text-[13px] text-text-body-light mt-1">
           {t('common.from')} {product.prices[0].price} {t('common.currency')}
-        </p>
+        </p> */}
 
         <div className="flex flex-wrap gap-2 mt-3">
           {product.prices.map((priceOption, index) => {

@@ -169,31 +169,28 @@ export function ProductsTab() {
         <table className="w-full min-w-[980px]">
           <thead>
             <tr className="border-b border-border-card">
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Slika
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Naziv
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Kategorija
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Najprodavanije
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Status
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Oznaka
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Prevod
               </th>
-              <th className="text-left px-6 py-4 text-sm font-medium text-text-body-light">
-                Cena (50g)
-              </th>
-              <th className="text-right px-6 py-4 text-sm font-medium text-text-body-light">
+              <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Akcije
               </th>
             </tr>
@@ -229,16 +226,16 @@ export function ProductsTab() {
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-cream font-medium">{productName}</p>
-                    <p className="text-sm text-text-body-light truncate max-w-xs">
+                    {/* <p className="text-sm text-text-body-light truncate max-w-xs">
                       {productShortDesc}
-                    </p>
+                    </p> */}
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-text-body-light capitalize">
                       {product.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     <button
                       type="button"
                       onClick={() => handleToggleFavorite(product)}
@@ -322,11 +319,6 @@ export function ProductsTab() {
                         <span>SR</span>
                       </span>
                     )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-cream">
-                      {formatPrice(product.prices[0]?.price || 0)} RSD
-                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">

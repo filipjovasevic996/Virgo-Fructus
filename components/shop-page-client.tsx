@@ -70,7 +70,7 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
         </div>
 
         {showSkeleton ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
@@ -82,7 +82,7 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

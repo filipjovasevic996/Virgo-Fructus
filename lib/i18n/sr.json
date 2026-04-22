@@ -83,7 +83,9 @@
     "badgeLimited": "Ograničena ponuda",
     "badgeSale": "Akcija",
     "outOfStock": "Nema na stanju",
-    "stockRemainingKg": "Na stanju ukupno: {kg} kg"
+    "stockRemainingKg": "Na stanju ukupno: {kg} kg",
+    "readMore": "Prikaži više",
+    "readLess": "Prikaži manje"
   },
   "contact": {
     "title": "Kontakt",

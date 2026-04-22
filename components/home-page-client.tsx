@@ -93,7 +93,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
             </div>
             <Link href="/prodavnica" className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end">{t('home.viewAllProducts')}</Link>
           </div>
-          <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 md:pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-10 sm:gap-y-12">
+          <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 md:pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-10">
             {bestSellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

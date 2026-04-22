@@ -64,6 +64,7 @@ export default function ProductDetail() {
   const [selectedWeight, setSelectedWeight] = useState(0)
   const [currentImage, setCurrentImage] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
@@ -81,6 +82,13 @@ export default function ProductDetail() {
     ? Math.min(...product.prices.map((priceOption) => priceOption.salePrice ?? priceOption.price))
     : 0
   const pricePer100g = currentPrice ? getPricePer100g(displayPrice, currentPrice.weight) : null
+  const fullDescription = (product?.description ?? '').trim()
+  const descriptionPreview = fullDescription.slice(0, 420).trimEnd()
+  const canExpandDescription = fullDescription.length > 420
+  const visibleDescription =
+    isDescriptionExpanded || !canExpandDescription
+      ? fullDescription
+      : `${descriptionPreview}...`
 
   const weightMaxQty = useMemo(() => {
     if (!product?.prices?.length) return []
@@ -99,6 +107,10 @@ export default function ProductDetail() {
   useEffect(() => {
     setIsAdded(false)
   }, [selectedWeight])
+
+  useEffect(() => {
+    setIsDescriptionExpanded(false)
+  }, [product?.id])
 
   const maxQty =
     product && currentPrice
@@ -210,9 +222,9 @@ export default function ProductDetail() {
 
       {/* Main Product Section - Image Focused */}
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="grid md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[1fr_380px] gap-6 lg:gap-10 md:items-start lg:items-stretch">
+        <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-6 lg:gap-10 lg:items-start">
           {/* Image Gallery - Takes most space */}
-          <div className="flex flex-col lg:h-[clamp(560px,78vh,760px)]">
+          <div className="flex flex-col lg:h-[clamp(460px,62vh,620px)]">
             {/* Main Image - Modern Swipeable Slider */}
             <div
               ref={sliderRef}
@@ -315,6 +327,7 @@ export default function ProductDetail() {
                         width={96}
                         height={96}
                         className="w-full h-full object-cover"
+                        loading="eager"
                       />
                     ) : (
                       <span className="text-4xl">{img}</span>
@@ -326,8 +339,8 @@ export default function ProductDetail() {
           </div>
 
           {/* Product Info - Compact Sidebar */}
-          <div className="md:sticky md:top-4 lg:top-6 lg:h-[clamp(560px,78vh,760px)]">
-            <div className="bg-bg-hero rounded-xl p-5 sm:p-6 lg:p-8 lg:h-full">
+          <div className="lg:sticky lg:top-6 self-start">
+            <div className="bg-bg-hero rounded-xl p-5 sm:p-6 lg:p-8">
               {product.badge && (
                 <span
                   className={cn(
@@ -345,6 +358,33 @@ export default function ProductDetail() {
                 {product.name}
               </h1>
 
+              {/* {product.shortDescription && (
+                <p className="mt-3 font-sans text-sm leading-relaxed text-text-body-light/90">
+                  {product.shortDescription}
+                </p>
+              )} */}
+
+              {fullDescription && (
+                <div className="mt-3">
+                  <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-text-body-light/75">
+                    {visibleDescription}
+                  </p>
+                  {canExpandDescription && (
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setIsDescriptionExpanded((prev) => !prev)}
+                        className="font-sans text-xs font-semibold uppercase tracking-wide text-lime hover:text-cream transition-colors cursor-pointer"
+                      >
+                        {isDescriptionExpanded
+                          ? t('product.readLess')
+                          : t('product.readMore')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* <div className="mt-4 grid grid-cols-2 gap-2">
                 <div className="rounded-lg border border-border-card bg-bg-dark/40 px-3 py-2">
                   <p className="text-[10px] uppercase tracking-wider text-text-body-light/60">{t('product.infoFrom')}</p>
@@ -356,50 +396,13 @@ export default function ProductDetail() {
                 </div>
               </div> */}
 
-              <div className="mt-4 rounded-lg border border-border-card bg-bg-dark/30 p-3">
-                <p className="font-sans text-xs text-text-body-light/85 leading-relaxed">
-                  {t('product.purchaseNoticeLine1')}
-                </p>
-                <p className="mt-2 font-sans text-xs text-text-body-light/75 leading-relaxed">
-                  {t('product.purchaseNoticeLine2')}{' '}
-                  <Link href="/kontakt" className="text-lime hover:text-cream underline underline-offset-2">
-                    {t('product.purchaseNoticeFormLink')}
-                  </Link>
-                  .
-                </p>
-              </div>
-
-              {/* Price */}
-              <div className="mt-4 flex items-baseline gap-3">
-                {currentPrice ? (
-                  <>
-                    <span className="font-sans font-bold text-3xl text-lime">
-                      {displayPrice} {t('common.currency')}
-                    </span>
-                    {currentPrice.salePrice && (
-                      <span className="text-lg text-text-body-light/50 line-through">
-                        {currentPrice.price} {t('common.currency')}
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <span className="font-sans font-semibold text-base text-text-body-light/80">
-                    {t('product.noPrice')}
-                  </span>
-                )}
-              </div>
-              {pricePer100g && (
-                <p className="mt-1 text-xs text-text-body-light/70">
-                  {pricePer100g} {t('common.currency')}/100g
-                </p>
-              )}
-
               {/* Weight Selection */}
               <div className="mt-6">
-                <p className="font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70 mb-3">
+                <p className="mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
                   {t('product.chooseWeight')}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div className="flex flex-wrap gap-2">
                   {product.prices.map((priceOption, index) => {
                     const optMax = weightMaxQty[index] ?? 0
                     const unavailable = optMax < 1
@@ -425,18 +428,33 @@ export default function ProductDetail() {
                       </button>
                     )
                   })}
+                  </div>
+                  <div className="ml-auto text-right">
+                    {currentPrice ? (
+                      <div className="flex items-baseline justify-end gap-2 sm:gap-3">
+                        <span className="font-sans font-bold text-2xl sm:text-3xl text-lime">
+                          {displayPrice} {t('common.currency')}
+                        </span>
+                        {currentPrice.salePrice && (
+                          <span className="text-base sm:text-lg text-text-body-light/50 line-through">
+                            {currentPrice.price} {t('common.currency')}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="font-sans font-semibold text-base text-text-body-light/80">
+                        {t('product.noPrice')}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {currentPrice && (
+              {currentPrice && maxQty >= 1 && (
                 <div className="mt-4 font-sans text-sm text-text-nav">
-                  {maxQty < 1 ? (
-                    <span className="text-terra">{t('product.outOfStock')}</span>
-                  ) : (
-                    <p className="leading-relaxed">
-                      {t('product.stockRemainingKg', { kg: formatKgFixed4(product.stockKg) })}
-                    </p>
-                  )}
+                  <p className="leading-relaxed">
+                    {t('product.stockRemainingKg', { kg: formatKgFixed4(product.stockKg) })}
+                  </p>
                 </div>
               )}
 
@@ -459,6 +477,8 @@ export default function ProductDetail() {
                       <Check className="w-5 h-5" />
                       <span>{t('common.addedToCart')}</span>
                     </>
+                  ) : maxQty < 1 ? (
+                    t('product.outOfStock')
                   ) : (
                     t('common.addToCart')
                   )}
@@ -476,6 +496,19 @@ export default function ProductDetail() {
                 {t('common.freeDeliveryNote')}
               </p>
 
+              <div className="mt-4 rounded-lg border border-border-card bg-bg-dark/30 p-3">
+                <p className="font-sans text-xs text-text-body-light/85 leading-relaxed">
+                  {t('product.purchaseNoticeLine1')}
+                </p>
+                <p className="mt-2 font-sans text-xs text-text-body-light/75 leading-relaxed">
+                  {t('product.purchaseNoticeLine2')}{' '}
+                  <Link href="/kontakt" className="text-lime hover:text-cream underline underline-offset-2">
+                    {t('product.purchaseNoticeFormLink')}
+                  </Link>
+                  .
+                </p>
+              </div>
+
 
             </div>
           </div>
@@ -484,7 +517,7 @@ export default function ProductDetail() {
 
       {/* Similar Products */}
       {similarProducts.length > 0 && (
-        <section className="bg-bg-page py-10 sm:py-14 lg:py-16 border-t border-border-card/20">
+        <section className="bg-bg-page py-6 sm:py-10 lg:py-12 border-t border-border-card/20">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
             <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
               {t('product.similar')}
