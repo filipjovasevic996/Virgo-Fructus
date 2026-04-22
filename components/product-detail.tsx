@@ -16,6 +16,7 @@ import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { formatKgFixed4 } from '@/lib/stock-kg'
 import { toast } from 'sonner'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
+import { Spinner } from '@/components/ui/spinner'
 
 function isImageUrl(src: string) {
   return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')
@@ -64,7 +65,6 @@ export default function ProductDetail() {
   const [selectedWeight, setSelectedWeight] = useState(0)
   const [currentImage, setCurrentImage] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [translateX, setTranslateX] = useState(0)
@@ -83,12 +83,6 @@ export default function ProductDetail() {
     : 0
   const pricePer100g = currentPrice ? getPricePer100g(displayPrice, currentPrice.weight) : null
   const fullDescription = (product?.description ?? '').trim()
-  const descriptionPreview = fullDescription.slice(0, 420).trimEnd()
-  const canExpandDescription = fullDescription.length > 420
-  const visibleDescription =
-    isDescriptionExpanded || !canExpandDescription
-      ? fullDescription
-      : `${descriptionPreview}...`
 
   const weightMaxQty = useMemo(() => {
     if (!product?.prices?.length) return []
@@ -107,10 +101,6 @@ export default function ProductDetail() {
   useEffect(() => {
     setIsAdded(false)
   }, [selectedWeight])
-
-  useEffect(() => {
-    setIsDescriptionExpanded(false)
-  }, [product?.id])
 
   const maxQty =
     product && currentPrice
@@ -182,7 +172,10 @@ export default function ProductDetail() {
   if (isLoading) {
     return (
       <div className="bg-bg-page min-h-screen flex items-center justify-center">
-        <p className="font-sans text-lg text-text-nav">{t('product.loading')}</p>
+        <div className="flex items-center gap-3 text-text-nav">
+          <Spinner className="size-6 text-lime" />
+          <p className="font-sans text-lg">{t('product.loading')}</p>
+        </div>
       </div>
     )
   }
@@ -367,21 +360,8 @@ export default function ProductDetail() {
               {fullDescription && (
                 <div className="mt-3">
                   <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-text-body-light/75">
-                    {visibleDescription}
+                    {fullDescription}
                   </p>
-                  {canExpandDescription && (
-                    <div className="mt-2 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setIsDescriptionExpanded((prev) => !prev)}
-                        className="font-sans text-xs font-semibold uppercase tracking-wide text-lime hover:text-cream transition-colors cursor-pointer"
-                      >
-                        {isDescriptionExpanded
-                          ? t('product.readLess')
-                          : t('product.readMore')}
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
 

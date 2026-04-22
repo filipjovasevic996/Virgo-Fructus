@@ -58,7 +58,8 @@
     "sortPriceAsc": "Cena ↑",
     "sortPriceDesc": "Cena ↓",
     "noProducts": "Nema proizvoda u ovoj kategoriji.",
-    "loadingProducts": "Učitavamo proizvode..."
+    "loadingProducts": "Učitavamo proizvode...",
+    "searchPlaceholder": "Pretraži proizvode..."
   },
   "product": {
     "loading": "Učitavanje proizvoda...",
@@ -74,7 +75,7 @@
     "infoBestValue": "Najbolja cena",
     "infoUnavailable": "Nije dostupno",
     "priceTableTitle": "Cena po pakovanju",
-    "purchaseNoticeLine1": "Dragi kupci, kupovina je moguća samo u navedenim količinama.",
+    "purchaseNoticeLine1": "Kupovina je moguća samo u navedenim količinama.",
     "purchaseNoticeLine2": "Za posebne zahteve i drugačije veličine, kontaktirajte nas putem mejla ili",
     "purchaseNoticeFormLink": "forme",
     "similar": "Slični proizvodi",

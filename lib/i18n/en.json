@@ -58,7 +58,8 @@
     "sortPriceAsc": "Price ↑",
     "sortPriceDesc": "Price ↓",
     "noProducts": "No products in this category.",
-    "loadingProducts": "Loading products..."
+    "loadingProducts": "Loading products...",
+    "searchPlaceholder": "Search products..."
   },
   "product": {
     "loading": "Loading product...",

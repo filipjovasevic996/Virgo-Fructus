@@ -18,6 +18,7 @@ function isImageUrl(src: string) {
 
 interface ProductCardProps {
   product: Product
+  featuredImageLift?: boolean
 }
 
 const badgeKeys: Record<string, string> = {
@@ -26,7 +27,7 @@ const badgeKeys: Record<string, string> = {
   sale: 'product.badgeSale',
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, featuredImageLift = false }: ProductCardProps) {
   const [selectedWeight, setSelectedWeight] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
   const { addItem, items: cartItems } = useCart()
@@ -83,14 +84,27 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-hidden bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
+    <div
+      className={cn(
+        'group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-visible bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20',
+        featuredImageLift && 'pt-1 sm:pt-2',
+      )}
+    >
       <Link
         href={`/proizvodi/${product.slug}`}
-        className="relative block w-full aspect-[4/3] overflow-hidden rounded-t-md"
+        className={cn(
+          'relative block w-full aspect-[4/3] rounded-t-md',
+          featuredImageLift ? 'overflow-visible' : 'overflow-hidden',
+          featuredImageLift &&
+            '-mt-6 sm:-mt-8 -mx-px w-[calc(100%+2px)] rounded-t-md shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
+        )}
       >
         <span
           aria-hidden
-          className="absolute inset-0 z-0 bg-bg-card"
+          className={cn(
+            'absolute inset-0 z-0 rounded-t-md',
+            featuredImageLift ? 'bg-cream' : 'bg-bg-card',
+          )}
         />
         {isImageUrl(product.image) ? (
           <Image
@@ -98,7 +112,11 @@ export function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="z-[1] object-contain object-center transition-transform duration-300"
+            className={cn(
+              'z-[1] object-contain object-center transition-transform duration-300',
+              featuredImageLift &&
+                'scale-[1.1] -translate-y-3 sm:scale-[1.13] sm:-translate-y-12',
+            )}
           />
         ) : (
           <div className="absolute inset-0 z-[1] flex items-center justify-center text-7xl transition-transform duration-300">
@@ -109,7 +127,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {product.badge && (
           <span
             className={cn(
-              'absolute top-3 left-3 z-[2] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider rounded',
+              'absolute bottom-3 right-3 z-[2] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider rounded',
               product.badge === 'new' && 'bg-lime text-bg-dark',
               product.badge === 'limited' && 'bg-bg-dark text-lime',
               product.badge === 'sale' && 'bg-terra text-bg-page'

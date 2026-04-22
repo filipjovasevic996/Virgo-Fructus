@@ -9,6 +9,7 @@ import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { HERO_VIDEO_URL } from '@/app/constants/constants'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Spinner } from '@/components/ui/spinner'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -21,7 +22,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
   const [mounted, setMounted] = useState(false)
   const swrKey = `/api/products?bestSellers=true&locale=${locale}`
   const isDefaultLocale = locale === 'sr'
-  const { data } = useSWR<{ products: Product[] }>(swrKey, fetcher, {
+  const { data, isLoading } = useSWR<{ products: Product[] }>(swrKey, fetcher, {
     fallbackData: isDefaultLocale ? { products: initialBestSellers } : undefined,
     revalidateOnMount: !isDefaultLocale,
     revalidateOnFocus: false,
@@ -93,11 +94,20 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
             </div>
             <Link href="/prodavnica" className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end">{t('home.viewAllProducts')}</Link>
           </div>
-          <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 md:pt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-10">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="mt-14 sm:mt-16 md:mt-20 pt-8 sm:pt-10 md:pt-12 flex min-h-[280px] items-center justify-center">
+              <div className="flex items-center gap-3 text-text-nav">
+                <Spinner className="size-6 text-lime" />
+                <p className="font-sans text-sm sm:text-base">{t('shop.loadingProducts')}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-14 sm:mt-16 md:mt-20 pt-8 sm:pt-10 md:pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-10">
+              {bestSellers.map((product) => (
+                <ProductCard key={product.id} product={product} featuredImageLift />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
