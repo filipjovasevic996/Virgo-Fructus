@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
 import useSWR from 'swr'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
@@ -49,16 +48,33 @@ function getPricePer100g(price: number, weight: string) {
   return Math.round((price / grams) * 100)
 }
 
-export default function ProductDetail() {
-  const params = useParams()
-  const slug = params.slug as string
+type ProductDetailProps = {
+  slug: string
+  initialLocale?: 'sr' | 'en'
+  initialProduct?: Product | null
+  initialSimilarProducts?: Product[]
+}
+
+export default function ProductDetail({
+  slug,
+  initialLocale = 'sr',
+  initialProduct = null,
+  initialSimilarProducts = [],
+}: ProductDetailProps) {
   const { t, locale } = useI18n()
   const { data: productData, isLoading, error } = useSWR<{
     product: Product | null
     similarProducts: Product[]
   }>(
     `/api/products?slug=${encodeURIComponent(slug)}&locale=${locale}`,
-    fetcher
+    fetcher,
+    {
+      fallbackData:
+        locale === initialLocale
+          ? { product: initialProduct, similarProducts: initialSimilarProducts }
+          : undefined,
+      revalidateOnFocus: false,
+    },
   )
   const product = productData?.product ?? null
 

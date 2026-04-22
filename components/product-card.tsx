@@ -19,6 +19,7 @@ function isImageUrl(src: string) {
 interface ProductCardProps {
   product: Product
   featuredImageLift?: boolean
+  imagePriority?: boolean
 }
 
 const badgeKeys: Record<string, string> = {
@@ -27,7 +28,7 @@ const badgeKeys: Record<string, string> = {
   sale: 'product.badgeSale',
 }
 
-export function ProductCard({ product, featuredImageLift = false }: ProductCardProps) {
+export function ProductCard({ product, featuredImageLift = false, imagePriority = false }: ProductCardProps) {
   const [selectedWeight, setSelectedWeight] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
   const { addItem, items: cartItems } = useCart()
@@ -111,6 +112,7 @@ export function ProductCard({ product, featuredImageLift = false }: ProductCardP
             src={cloudinaryProductImageUrl(product.image)}
             alt={product.name}
             fill
+            priority={imagePriority}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={cn(
               'z-[1] object-contain object-center transition-transform duration-300',

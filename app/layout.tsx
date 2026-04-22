@@ -102,6 +102,7 @@ export const metadata: Metadata = {
 const localBusinessJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Store',
+  '@id': `${SITE_URL}/#organization`,
   name: 'Vigor Fructus',
   url: SITE_URL,
   logo: {
@@ -119,7 +120,7 @@ const localBusinessJsonLd = {
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+38169302828',
+    telephone: '+381693023828',
     email: 'vigorfructus@gmail.com',
     contactType: 'customer service',
     availableLanguage: ['Serbian', 'English'],
@@ -150,8 +151,10 @@ const localBusinessJsonLd = {
 const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${SITE_URL}/#website`,
   name: 'Vigor Fructus',
   url: SITE_URL,
+  publisher: { '@id': `${SITE_URL}/#organization` },
   description: 'Premium dehidrirano voće iz Beograda — sušeno, prirodno, bez aditiva.',
 }
 

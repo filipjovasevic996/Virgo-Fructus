@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
-import { productsTable, resolveLocalized } from '@/lib/db/schema'
+import { productsTable, resolveLocalized, type SupportedLocale } from '@/lib/db/schema'
 import { allResolvedProductImageUrls } from '@/lib/resolve-product-image-url'
-import { sql } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import ProductDetail from '@/components/product-detail'
+import { notFound } from 'next/navigation'
+import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { parseStockKg } from '@/lib/stock-kg'
+import type { Product } from '@/lib/products'
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
@@ -18,12 +22,54 @@ async function getProduct(slug: string) {
     const [product] = await db
       .select()
       .from(productsTable)
-      .where(sql`${productsTable.slug} = ${slug} AND ${productsTable.status} = 'active'`)
+      .where(and(eq(productsTable.slug, slug), eq(productsTable.status, 'active')))
       .limit(1)
     return product ?? null
   } catch {
     return null
   }
+}
+
+function localizeProduct(
+  product: typeof productsTable.$inferSelect,
+  locale: SupportedLocale = 'sr',
+): Product {
+  return {
+    id: product.id,
+    slug: product.slug,
+    category: product.category as Product['category'],
+    name: resolveLocalized(product.name, locale),
+    description: resolveLocalized(product.description, locale),
+    shortDescription: resolveLocalized(product.shortDescription, locale),
+    image: product.image,
+    images: (product.images as string[]) ?? [],
+    prices: (product.prices as { weight: string; price: number; salePrice?: number }[]) ?? [],
+    badge: product.badge as Product['badge'],
+    isFavorite: product.isFavorite,
+    stockKg: parseStockKg(product.stockKg),
+  }
+}
+
+async function getSimilarProducts(
+  product: typeof productsTable.$inferSelect,
+  locale: SupportedLocale = 'sr',
+): Promise<Product[]> {
+  const rows = await db
+    .select()
+    .from(productsTable)
+    .where(
+      and(
+        eq(productsTable.status, 'active'),
+        eq(productsTable.category, product.category),
+      ),
+    )
+    .orderBy(desc(productsTable.createdAt))
+    .limit(5)
+
+  return rows
+    .filter((p) => p.id !== product.id)
+    .slice(0, 4)
+    .map((p) => localizeProduct(p, locale))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -44,6 +90,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   )
   const prices = product.prices as { weight: string; price: number; salePrice?: number }[]
   const lowestPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.salePrice ?? p.price)) : 0
+  const topOffer = prices[0]
+  const offerPrice = topOffer ? (topOffer.salePrice ?? topOffer.price) : undefined
+  const availability = product.stockKg && Number(product.stockKg) > 0
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock'
+  const sku = `VF-${product.id}`
 
   return {
     title: name,
@@ -66,68 +118,98 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${name} | Vigor Fructus`,
       description: shortDesc || description,
     },
+    other: {
+      ...(typeof offerPrice === 'number' ? { 'product:price:amount': String(offerPrice) } : {}),
+      'product:price:currency': 'RSD',
+      'product:availability': availability,
+      'product:retailer_item_id': sku,
+    },
   }
 }
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
   const product = await getProduct(slug)
+  if (!product) notFound()
 
-  const name = resolveLocalized(product?.name, 'sr')
-  const description = resolveLocalized(product?.description, 'sr')
-  const prices = (product?.prices ?? []) as { weight: string; price: number; salePrice?: number }[]
-  const resolvedImages = product
-    ? allResolvedProductImageUrls(product.images, product.image, SITE_URL)
-    : []
+  const localizedProduct = localizeProduct(product, 'sr')
+  const similarProducts = await getSimilarProducts(product, 'sr')
+  const name = localizedProduct.name
+  const description = localizedProduct.description
+  const prices = localizedProduct.prices
+  const resolvedImages = allResolvedProductImageUrls(product.images, product.image, SITE_URL)
+  const sku = `VF-${product.id}`
+  const productUrl = `${SITE_URL}/proizvodi/${slug}`
 
-  const jsonLd = product
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name,
-        description,
-        image: resolvedImages,
-        url: `${SITE_URL}/proizvodi/${slug}`,
-        brand: {
-          '@type': 'Brand',
-          name: 'Vigor Fructus',
-        },
-        offers: prices.map((p) => ({
-          '@type': 'Offer',
-          price: p.salePrice ?? p.price,
-          priceCurrency: 'RSD',
-          availability: 'https://schema.org/InStock',
-          name: p.weight,
-        })),
-        breadcrumb: {
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Prodavnica',
-              item: `${SITE_URL}/prodavnica`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name,
-              item: `${SITE_URL}/proizvodi/${slug}`,
-            },
-          ],
-        },
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${productUrl}#product`,
+    name,
+    description: description || localizedProduct.shortDescription,
+    sku,
+    image: resolvedImages,
+    url: productUrl,
+    brand: {
+      '@type': 'Brand',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'Vigor Fructus',
+    },
+    manufacturer: {
+      '@id': `${SITE_URL}/#organization`,
+    },
+    offers: prices.map((p) => {
+      const grams = parseWeightToGrams(p.weight) ?? 0
+      const inStock = grams > 0 ? localizedProduct.stockKg * 1000 >= grams : localizedProduct.stockKg > 0
+      return {
+        '@type': 'Offer',
+        sku: `${sku}-${p.weight}`,
+        name: p.weight,
+        price: p.salePrice ?? p.price,
+        priceCurrency: 'RSD',
+        availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        itemCondition: 'https://schema.org/NewCondition',
+        url: productUrl,
+        seller: { '@id': `${SITE_URL}/#organization` },
       }
-    : null
+    }),
+  }
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Prodavnica',
+        item: `${SITE_URL}/prodavnica`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name,
+        item: productUrl,
+      },
+    ],
+  }
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
-      <ProductDetail />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <ProductDetail
+        slug={slug}
+        initialLocale="sr"
+        initialProduct={localizedProduct}
+        initialSimilarProducts={similarProducts}
+      />
     </>
   )
 }

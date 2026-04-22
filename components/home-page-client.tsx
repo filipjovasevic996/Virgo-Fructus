@@ -103,8 +103,8 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
             </div>
           ) : (
             <div className="mt-14 sm:mt-16 md:mt-20 pt-8 sm:pt-10 md:pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-10">
-              {bestSellers.map((product) => (
-                <ProductCard key={product.id} product={product} featuredImageLift />
+              {bestSellers.map((product, index) => (
+                <ProductCard key={product.id} product={product} featuredImageLift imagePriority={index === 0} />
               ))}
             </div>
           )}
@@ -118,9 +118,9 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
               <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">{t('home.aboutUs')}</span>
               <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.aboutSubtitle')}</h2>
               <div className="mt-4 sm:mt-6 space-y-4 font-sans text-sm sm:text-base text-text-nav leading-relaxed">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum cras venenatis euismod.</p>
-                <p>Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus.</p>
-                <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Curabitur blandit tempus porttitor.</p>
+                <p>Vigor Fructus je beogradski brend premium dehidriranog voca, nastao iz potrebe da barmeni i ljubitelji koktela imaju pouzdan garnish koji izgleda i mirise odlicno tokom cele godine.</p>
+                <p>Voce biramo pazljivo i susimo na niskim temperaturama kako bismo sacuvali prirodnu aromu, boju i teksturu, bez dodatog secera i bez nepotrebnih aditiva.</p>
+                <p>Od malih pakovanja za kucnu upotrebu do vecih formata za ugostiteljstvo, nas cilj je isti: dosledan kvalitet i proizvod koji podize svaku casu i svaki zalogaj.</p>
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
