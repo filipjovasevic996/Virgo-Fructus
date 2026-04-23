@@ -20,13 +20,135 @@
     "closeMenu": "Zatvori meni"
   },
   "footer": {
-    "description": "Prirodno dehidrirano voće najvišeg kvaliteta. Besplatna dostava za narudžbine preko 2000 RSD u Beogradu.",
-    "copyright": "© 2026 Vigor Fructus. Sva prava zadržana."
+    "description": "100% prirodno dehidrirano voće. Besplatna dostava za narudžbine preko 2000 RSD u Beogradu.",
+    "copyright": "© 2026 Vigor Fructus. Sva prava zadržana.",
+    "usefulLinks": "Korisni linkovi"
+  },
+  "legal": {
+    "label": "Pravna dokumenta",
+    "terms": {
+      "title": "Uslovi kupovine",
+      "sections": {
+        "contractingParties": {
+          "title": "Ugovorne strane",
+          "body": "Ovi uslovi uređuju odnos između internet prodavnice Vigor Fructus (u daljem tekstu: \"Prodavac\") i korisnika sajta, odnosno kupca koji poručuje proizvode putem sajta. Korišćenjem sajta i potvrdom porudžbine korisnik potvrđuje da je upoznat sa ovim uslovima i da ih prihvata u celosti."
+        },
+        "subjectAndScope": {
+          "title": "Predmet i primena",
+          "body": "Uslovi se primenjuju na korišćenje sajta i kupovinu proizvoda Vigor Fructus putem online poručivanja. Proizvodi u ponudi su dehidrirano voće namenjeno za konzumaciju, posluživanje i upotrebu u pripremi napitaka."
+        },
+        "pricingAndPayment": {
+          "title": "Cene i plaćanje",
+          "body": "Sve cene su iskazane u dinarima (RSD) sa uključenim PDV-om, osim ako nije drugačije naznačeno. Troškovi dostave se obračunavaju posebno i jasno prikazuju pre potvrde porudžbine. Dostupni načini plaćanja prikazani su tokom checkout procesa."
+        },
+        "orderingAndContractConclusion": {
+          "title": "Naručivanje i zaključenje ugovora",
+          "body": "Klikom na dugme za potvrdu porudžbine kupac šalje obavezujući zahtev za kupovinu. Ugovor se smatra zaključenim kada kupac primi potvrdu da je porudžbina prihvaćena. Prodavac zadržava pravo da odbije porudžbinu u slučaju greške u ceni, nedostupnosti zaliha ili tehničke greške."
+        },
+        "delivery": {
+          "title": "Dostava",
+          "body": "Dostava se vrši na teritoriji Republike Srbije u rokovima prikazanim pri kupovini. Rok može biti produžen u periodima povećanog obima porudžbina ili usled više sile. Kupac je dužan da obezbedi tačne podatke za isporuku."
+        },
+        "liabilityLimitation": {
+          "title": "Ograničenje odgovornosti",
+          "body": "Sajt se koristi na sopstvenu odgovornost. Prodavac ne odgovara za privremenu nedostupnost sajta, tehničke prekide, niti za sadržaj i dostupnost eksternih linkova. Fotografije proizvoda su informativne prirode; moguća su manja odstupanja u prikazu boja i detalja u odnosu na stvarni proizvod."
+        },
+        "intellectualProperty": {
+          "title": "Intelektualna svojina",
+          "body": "Sav sadržaj na sajtu (tekstovi, fotografije, vizuelni identitet, logotipi i dizajn) predstavlja vlasništvo Prodavca ili se koristi po odgovarajućem pravnom osnovu i ne sme se koristiti bez prethodne pisane saglasnosti."
+        },
+        "amendments": {
+          "title": "Izmene uslova",
+          "body": "Prodavac može periodično ažurirati ove uslove radi usklađivanja sa poslovanjem i važećim propisima. Ažurirana verzija važi od trenutka objave na sajtu."
+        }
+      }
+    },
+    "returns": {
+      "title": "Povrat robe i reklamacije",
+      "sections": {
+        "withdrawal": {
+          "title": "Pravo na odustanak",
+          "body": "Kupac ima pravo da odustane od kupovine u roku od 14 dana od prijema pošiljke, bez navođenja razloga, u skladu sa važećim Zakonom o zaštiti potrošača."
+        },
+        "conditions": {
+          "title": "Uslovi za povrat",
+          "body": "Proizvod koji se vraća treba da bude neotvoren, nekorišćen i, kad god je moguće, u originalnom pakovanju. Trošak povrata robe snosi kupac, osim u slučaju kada je isporučen pogrešan ili neispravan proizvod."
+        },
+        "complaints": {
+          "title": "Reklamacije",
+          "body": "Ako je proizvod oštećen, pogrešno isporučen ili ne odgovara narudžbini, kupac može podneti reklamaciju. U zahtevu je potrebno navesti broj porudžbine, opis problema i, po mogućstvu, fotografije proizvoda/paketa."
+        },
+        "responseDeadline": {
+          "title": "Rok za odgovor",
+          "body": "Prodavac potvrđuje prijem reklamacije bez odlaganja i odgovara u zakonskom roku. Nakon potvrde opravdanosti reklamacije, kupac može ostvariti pravo na zamenu proizvoda, povraćaj sredstava ili drugo zakonsko rešenje."
+        },
+        "refunds": {
+          "title": "Povraćaj novca",
+          "body": "Povraćaj sredstava se vrši istim načinom plaćanja koji je korišćen prilikom kupovine, osim ako se kupac i prodavac drugačije dogovore. Povraćaj se realizuje nakon prijema vraćene robe ili dokaza da je roba poslata nazad."
+        },
+        "contact": {
+          "title": "Kontakt za povrat i reklamacije",
+          "prefix": "Zahtev možete poslati na",
+          "suffix": "uz relevantne informacije o porudžbini. Po potrebi, tim će vam dostaviti dalje korake i adresu za povrat."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Politika privatnosti",
+      "sections": {
+        "s1": {
+          "title": "1. Opšte informacije",
+          "body": "Vaša privatnost nam je važna. Ova Politika privatnosti objašnjava koje podatke prikupljamo, zašto ih obrađujemo, koliko dugo ih čuvamo i koja prava imate kao lice na koje se podaci odnose. Politika se primenjuje na korišćenje sajta Vigor Fructus i online poručivanje proizvoda."
+        },
+        "s2": {
+          "title": "2. Upravljač i kontakt",
+          "prefix": "Upravljač podataka je Vigor Fructus, kao pružalac usluge putem ovog sajta. Za pitanja u vezi sa obradom podataka i ostvarivanjem prava možete nam pisati na",
+          "suffix": "."
+        },
+        "s3": {
+          "title": "3. Pravne osnove i svrhe obrade",
+          "body": "Podatke obrađujemo na osnovu: (a) izvršenja ugovora (obrada i isporuka porudžbine), (b) zakonskih obaveza (računovodstveni i poreski propisi), (c) legitimnog interesa (bezbednost sajta, sprečavanje zloupotreba, poslovna analitika) i (d) saglasnosti kada je potrebna (npr. marketinška obaveštenja)."
+        },
+        "s4": {
+          "title": "4. Koje podatke prikupljamo",
+          "body": "U zavisnosti od načina korišćenja sajta, možemo prikupljati: ime i prezime, email adresu, broj telefona, adresu za dostavu, podatke o porudžbini i tehničke podatke neophodne za funkcionisanje sajta (npr. IP adresa, tip uređaja, kolačići). Podatke o platnim karticama ne čuvamo u našem sistemu kada se plaćanje vrši preko eksternog provajdera plaćanja."
+        },
+        "s5": {
+          "title": "5. Kolačići i srodne tehnologije",
+          "body": "Kolačiće koristimo za osnovnu funkcionalnost sajta, analitiku i unapređenje korisničkog iskustva. Podešavanja kolačića možete kontrolisati preko svog internet pregledača. Odbijanje pojedinih kolačića može ograničiti dostupnost nekih funkcija sajta."
+        },
+        "s6": {
+          "title": "6. Deljenje podataka",
+          "body": "Podaci se dele samo kada je to neophodno za izvršenje usluge: dostava, hosting, tehnička podrška i obrada plaćanja. Sa partnerima koji obrađuju podatke u naše ime zaključujemo odgovarajuće ugovore o obradi podataka. Podatke možemo dostaviti i nadležnim organima kada to zakon zahteva."
+        },
+        "s7": {
+          "title": "7. Rokovi čuvanja podataka",
+          "body": "Podatke čuvamo onoliko dugo koliko je potrebno za svrhu obrade i ispunjenje zakonskih obaveza. Podaci vezani za porudžbine i račune čuvaju se u rokovima propisanim važećim finansijskim i poreskim propisima."
+        },
+        "s8": {
+          "title": "8. Bezbednost podataka",
+          "body": "Primenjujemo razumne tehničke i organizacione mere za zaštitu podataka od neovlašćenog pristupa, izmene, gubitka ili zloupotrebe. Iako primenjujemo odgovarajuće mere zaštite, nijedan internet prenos podataka ne može biti apsolutno bezbedan."
+        },
+        "s9": {
+          "title": "9. Prava korisnika",
+          "prefix": "Korisnik ima pravo na pristup, ispravku, brisanje, ograničenje obrade i prigovor, kao i pravo na prenosivost podataka, u skladu sa važećim propisima. Zahtev možete poslati na",
+          "suffix": "."
+        },
+        "s10": {
+          "title": "10. Pravo na žalbu",
+          "body": "Ako smatrate da se vaši podaci obrađuju suprotno propisima, imate pravo da podnesete pritužbu nadležnom organu za zaštitu podataka o ličnosti u Republici Srbiji."
+        },
+        "s11": {
+          "title": "11. Izmene politike privatnosti",
+          "body": "Zadržavamo pravo ažuriranja ove politike radi usklađivanja sa poslovanjem i zakonskim zahtevima. Svaka izmena stupa na snagu danom objave na sajtu."
+        }
+      }
+    }
   },
   "home": {
     "tagline": "Prirodno · Sušeno · Zdravo",
     "headline": "Premium domaće dehidrirano voće",
-    "description": "Potpuno prirodno dehidrirano voće bez dodatog šećera i konzervansa, proizvedeno pažljivim procesom sporog sušenja na niskim temperaturama. Ovakav način obrade omogućava da voće zadrži svoj autentičan ukus, bogatu aromu i visoku nutritivnu vrednost.",
+    "description": "Potpuno prirodno dehidrirano voće bez dodatog šećera i konzervansa, proizvedeno pažljivim procesom sporog sušenja na niskim temperaturama. Ovakav način obrade omogućava da voće zadrži svoj ukus, aromu i nutritivnu vrednost.",
     "badge1": "100% prirodno voće",
     "badge2": "Ručna priprema",
     "badge3": "Dostava isti dan u Beogradu",
@@ -35,7 +157,7 @@
     "aboutUs": "O Nama",
     "aboutSubtitle": "Tradicija i kvalitet u svakom zalogaju",
     "bestSellers": "Najprodavanije",
-    "bestSellersSubtitle": "Preporučeni proizvodi",
+    "bestSellersSubtitle": "Izdvajamo iz ponude",
     "viewAllProducts": "Pogledaj Sve Proizvode",
     "whyUs": "Zašto Vigor Fructus?",
     "natural": "100% Prirodno",

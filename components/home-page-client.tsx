@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import useSWR from 'swr'
 import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
@@ -90,7 +91,6 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">{t('home.bestSellers')}</span>
               <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.bestSellersSubtitle')}</h2>
             </div>
             <Link href={withLocale('/prodavnica')} className="inline-flex w-fit items-center px-6 py-3 bg-bg-hero text-cream font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors md:self-end">{t('home.viewAllProducts')}</Link>
@@ -114,10 +114,9 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
 
       <section className="bg-bg-page py-4 sm:pt-6 lg:pt-8 pb-12">
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-[55%_45%] gap-8 lg:gap-12 items-center">
+          <div className="grid lg:grid-cols-[55%_45%] gap-8 lg:gap-12 items-start">
             <div>
-              <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">{t('home.aboutUs')}</span>
-              <h2 className="mt-3 sm:mt-4 font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.aboutSubtitle')}</h2>
+              <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.aboutSubtitle')}</h2>
               <div className="mt-4 sm:mt-6 space-y-4 font-sans text-sm sm:text-base text-text-nav leading-relaxed">
                 <p>Vigor Fructus je beogradski brend premium dehidriranog voca, nastao iz potrebe da barmeni i ljubitelji koktela imaju pouzdan garnish koji izgleda i mirise odlicno tokom cele godine.</p>
                 <p>Voce biramo pazljivo i susimo na niskim temperaturama kako bismo sacuvali prirodnu aromu, boju i teksturu, bez dodatog secera i bez nepotrebnih aditiva.</p>
@@ -125,8 +124,14 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
-              <div className="w-full max-w-[400px] h-[300px] bg-cream rounded-lg flex items-center justify-center">
-                <span className="text-8xl">🌿</span>
+              <div className="relative w-full max-w-[400px] h-[300px] rounded-lg overflow-hidden">
+                <Image
+                  src="https://res.cloudinary.com/dfpdrglba/image/upload/v1776980204/IMG_8858_s49d6i.webp"
+                  alt="Cocktails garnished with dehydrated fruit"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                  className="object-cover scale-120"
+                />
               </div>
             </div>
           </div>

@@ -21,12 +21,134 @@
   },
   "footer": {
     "description": "Natural dehydrated fruit of the highest quality. Free delivery for orders over 2000 RSD in Belgrade.",
-    "copyright": "© 2026 Vigor Fructus. All rights reserved."
+    "copyright": "© 2026 Vigor Fructus. All rights reserved.",
+    "usefulLinks": "Useful links"
+  },
+  "legal": {
+    "label": "Legal",
+    "terms": {
+      "title": "Terms of purchase",
+      "sections": {
+        "contractingParties": {
+          "title": "Contracting parties",
+          "body": "These terms govern the relationship between the Vigor Fructus online store (hereinafter: the \"Seller\") and the website user, i.e. the customer ordering products through the website. By using the website and confirming an order, the user confirms they are familiar with these terms and accepts them in full."
+        },
+        "subjectAndScope": {
+          "title": "Subject and scope",
+          "body": "These terms apply to use of the website and purchase of Vigor Fructus products through online ordering. Products offered are dehydrated fruit intended for consumption, serving and use in drink preparation."
+        },
+        "pricingAndPayment": {
+          "title": "Pricing and payment",
+          "body": "All prices are shown in Serbian dinars (RSD), including VAT, unless stated otherwise. Delivery costs are charged separately and clearly shown before order confirmation. Available payment methods are displayed during checkout."
+        },
+        "orderingAndContractConclusion": {
+          "title": "Ordering and contract conclusion",
+          "body": "By clicking the order confirmation button, the customer submits a binding purchase request. The contract is considered concluded when the customer receives confirmation that the order has been accepted. The Seller reserves the right to reject an order in case of price error, stock unavailability or technical error."
+        },
+        "delivery": {
+          "title": "Delivery",
+          "body": "Delivery is performed within the Republic of Serbia within the timeframes shown during purchase. The period may be extended during high order volume periods or due to force majeure. The customer must provide accurate delivery details."
+        },
+        "liabilityLimitation": {
+          "title": "Limitation of liability",
+          "body": "The website is used at your own risk. The Seller is not responsible for temporary website unavailability, technical interruptions, nor for the content and availability of external links. Product photos are informative; minor differences in color and details compared to the actual product are possible."
+        },
+        "intellectualProperty": {
+          "title": "Intellectual property",
+          "body": "All content on the website (texts, photos, visual identity, logos and design) is owned by the Seller or used on an appropriate legal basis and may not be used without prior written consent."
+        },
+        "amendments": {
+          "title": "Amendments to terms",
+          "body": "The Seller may periodically update these terms to align with business operations and applicable regulations. The updated version applies from the moment it is published on the website."
+        }
+      }
+    },
+    "returns": {
+      "title": "Returns and complaints",
+      "sections": {
+        "withdrawal": {
+          "title": "Right of withdrawal",
+          "body": "The customer has the right to withdraw from the purchase within 14 days of receiving the shipment, without stating a reason, in accordance with the applicable consumer protection law."
+        },
+        "conditions": {
+          "title": "Return conditions",
+          "body": "The returned product should be unopened, unused and, whenever possible, in its original packaging. The customer bears the return shipping cost, except when an incorrect or defective product has been delivered."
+        },
+        "complaints": {
+          "title": "Complaints",
+          "body": "If the product is damaged, delivered incorrectly, or does not match the order, the customer may file a complaint. The request should include the order number, a description of the issue and, if possible, photos of the product/package."
+        },
+        "responseDeadline": {
+          "title": "Response deadline",
+          "body": "The seller confirms receipt of the complaint without delay and responds within the statutory deadline. Once the complaint is confirmed as justified, the customer may be entitled to a replacement product, refund, or another legal remedy."
+        },
+        "refunds": {
+          "title": "Refunds",
+          "body": "Refunds are made using the same payment method used for the purchase, unless the customer and seller agree otherwise. The refund is processed after the returned goods are received or after proof is provided that the goods were sent back."
+        },
+        "contact": {
+          "title": "Returns and complaints contact",
+          "prefix": "You can send your request to",
+          "suffix": "with relevant order information. If needed, our team will provide next steps and the return address."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "sections": {
+        "s1": {
+          "title": "1. General information",
+          "body": "Your privacy matters to us. This Privacy Policy explains which data we collect, why we process it, how long we keep it and what rights you have as a data subject. This policy applies to the use of the Vigor Fructus website and online ordering."
+        },
+        "s2": {
+          "title": "2. Controller and contact",
+          "prefix": "The data controller is Vigor Fructus, as the service provider through this website. For questions regarding data processing and exercising your rights, you can contact us at",
+          "suffix": "."
+        },
+        "s3": {
+          "title": "3. Legal bases and processing purposes",
+          "body": "We process data based on: (a) contract performance (order processing and delivery), (b) legal obligations (accounting and tax regulations), (c) legitimate interest (website security, abuse prevention, business analytics), and (d) consent when required (e.g. marketing communications)."
+        },
+        "s4": {
+          "title": "4. Data we collect",
+          "body": "Depending on how you use the website, we may collect: full name, email address, phone number, delivery address, order details and technical data necessary for website operation (e.g. IP address, device type, cookies). We do not store card payment data in our system when payment is processed through an external payment provider."
+        },
+        "s5": {
+          "title": "5. Cookies and similar technologies",
+          "body": "We use cookies for core website functionality, analytics and improving user experience. You can control cookie settings through your internet browser. Rejecting certain cookies may limit the availability of some website features."
+        },
+        "s6": {
+          "title": "6. Data sharing",
+          "body": "Data is shared only when necessary for service delivery: shipping, hosting, technical support and payment processing. We conclude appropriate data processing agreements with partners who process data on our behalf. We may also provide data to competent authorities when required by law."
+        },
+        "s7": {
+          "title": "7. Data retention periods",
+          "body": "We retain data only as long as necessary for the processing purpose and fulfillment of legal obligations. Data related to orders and invoices is retained within deadlines prescribed by applicable financial and tax regulations."
+        },
+        "s8": {
+          "title": "8. Data security",
+          "body": "We apply reasonable technical and organizational measures to protect data against unauthorized access, alteration, loss or misuse. Although we apply appropriate safeguards, no internet data transfer can be absolutely secure."
+        },
+        "s9": {
+          "title": "9. User rights",
+          "prefix": "The user has the right to access, rectify, erase, restrict processing and object, as well as the right to data portability, in accordance with applicable regulations. You can submit your request to",
+          "suffix": "."
+        },
+        "s10": {
+          "title": "10. Right to complaint",
+          "body": "If you believe your data is being processed contrary to regulations, you have the right to file a complaint with the competent personal data protection authority in the Republic of Serbia."
+        },
+        "s11": {
+          "title": "11. Privacy policy updates",
+          "body": "We reserve the right to update this policy to align with business operations and legal requirements. Any change takes effect on the date it is published on the website."
+        }
+      }
+    }
   },
   "home": {
     "tagline": "Natural · Dried · Healthy",
     "headline": "Premium home-style dehydrated fruit",
-    "description": "Completely natural dehydrated fruit with no added sugar or preservatives, made through a careful slow-drying process at low temperatures. This way the fruit keeps its authentic taste, rich aroma and high nutritional value.",
+    "description": "Completely natural dehydrated fruit with no added sugar or preservatives, made through a careful slow-drying process at low temperatures. This way the fruit keeps its taste, aroma and nutritional value.",
     "badge1": "100% natural fruit",
     "badge2": "Hand-prepared",
     "badge3": "Same-day delivery in Belgrade",

@@ -13,9 +13,9 @@ const footerLinkDefs = [
 ] as const
 
 const legalLinks = [
-  { href: '/uslovi-kupovine', label: 'Uslovi kupovine' },
-  { href: '/povrat-robe-i-reklamacije', label: 'Povrat robe i reklamacije' },
-  { href: '/politika-privatnosti', label: 'Politika privatnosti' },
+  { href: '/uslovi-kupovine', key: 'legal.terms.title' },
+  { href: '/povrat-robe-i-reklamacije', key: 'legal.returns.title' },
+  { href: '/politika-privatnosti', key: 'legal.privacy.title' },
 ] as const
 
 export function Footer() {
@@ -40,7 +40,9 @@ export function Footer() {
           </div>
 
           <div className="text-center sm:justify-self-center sm:text-left">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">Navigacija</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">
+              {t('footer.usefulLinks')}
+            </p>
             <nav className="mt-4 flex flex-col items-center gap-y-2 sm:items-start">
               {footerLinkDefs.map((link) => (
                 <Link
@@ -55,7 +57,7 @@ export function Footer() {
           </div>
 
           <div className="text-center sm:justify-self-center sm:text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">Pravno</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">{t('legal.label')}</p>
             <nav className="mt-4 flex flex-col items-center gap-y-2 sm:items-start">
               {legalLinks.map((link) => (
                 <Link
@@ -63,7 +65,7 @@ export function Footer() {
                   href={withLocale(link.href)}
                   className="w-fit font-sans text-sm text-text-body-light/75 transition-colors hover:text-lime"
                 >
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               ))}
             </nav>
