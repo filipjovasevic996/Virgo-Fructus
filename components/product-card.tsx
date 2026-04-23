@@ -90,7 +90,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
     <div
       className={cn(
         'group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-visible bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20',
-        featuredImageLift && 'pt-1 sm:pt-2',
+        featuredImageLift && 'pt-1 lg:pt-2',
       )}
     >
       <Link
@@ -99,7 +99,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           'relative block w-full aspect-[4/3] rounded-t-md',
           featuredImageLift ? 'overflow-visible' : 'overflow-hidden',
           featuredImageLift &&
-            '-mt-6 sm:-mt-8 -mx-px w-[calc(100%+2px)] rounded-t-md shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
+            'lg:-mt-8 -mx-px w-[calc(100%+2px)] rounded-t-md shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
         )}
       >
         <span
@@ -119,7 +119,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
             className={cn(
               'z-[1] object-contain object-center transition-transform duration-300',
               featuredImageLift &&
-                'scale-[1.1] -translate-y-3 sm:scale-[1.13] sm:-translate-y-12',
+                'lg:scale-[1.13] lg:-translate-y-12',
             )}
           />
         ) : (
