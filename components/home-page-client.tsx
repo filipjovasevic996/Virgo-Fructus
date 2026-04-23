@@ -113,30 +113,34 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
       </section>
 
       <section className="bg-bg-page py-4 sm:pt-6 lg:pt-8 pb-12">
-        <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-[55%_45%] gap-8 lg:gap-12 items-start">
-            <div>
-              <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">{t('home.aboutSubtitle')}</h2>
-              <div className="mt-4 sm:mt-6 space-y-4 font-sans text-sm sm:text-base text-text-nav leading-relaxed">
+  <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
+    <div className="grid lg:grid-cols-[minmax(0,55fr)_minmax(0,45fr)] gap-8 lg:gap-12 items-start">
+      <div>
+        <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
+          {t('home.aboutSubtitle')}
+        </h2>
+
+        <div className="mt-4 sm:mt-6 space-y-4 font-sans text-sm sm:text-base text-text-nav leading-relaxed">
                 <p>Vigor Fructus je beogradski brend premium dehidriranog voca, nastao iz potrebe da barmeni i ljubitelji koktela imaju pouzdan garnish koji izgleda i mirise odlicno tokom cele godine.</p>
                 <p>Voce biramo pazljivo i susimo na niskim temperaturama kako bismo sacuvali prirodnu aromu, boju i teksturu, bez dodatog secera i bez nepotrebnih aditiva.</p>
                 <p>Od malih pakovanja za kucnu upotrebu do vecih formata za ugostiteljstvo, nas cilj je isti: dosledan kvalitet i proizvod koji podize svaku casu i svaki zalogaj.</p>
-              </div>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[400px] h-[300px] rounded-lg overflow-hidden">
-                <Image
-                  src="https://res.cloudinary.com/dfpdrglba/image/upload/v1776980204/IMG_8858_s49d6i.webp"
-                  alt="Cocktails garnished with dehydrated fruit"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 400px"
-                  className="object-cover scale-120"
-                />
-              </div>
-            </div>
-          </div>
         </div>
-      </section>
+      </div>
+
+      <div className="flex justify-end min-w-0">
+        <div className="relative w-full max-w-[400px] h-[300px] rounded-lg overflow-hidden">
+          <Image
+            src="https://res.cloudinary.com/dfpdrglba/image/upload/v1776980204/IMG_8858_s49d6i.webp"
+            alt="Cocktails garnished with dehydrated fruit"
+            fill
+            sizes="(max-width: 1024px) 100vw, 400px"
+            className="object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       <section className="bg-bg-hero py-12 sm:py-16">
         <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8 text-center">

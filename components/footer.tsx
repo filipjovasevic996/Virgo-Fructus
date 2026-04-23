@@ -26,8 +26,8 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-border-card/30 bg-bg-dark">
       <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-10 sm:py-12 lg:grid-cols-4 lg:gap-10 lg:items-center lg:justify-items-center">
-          <div className="text-center sm:justify-self-center sm:text-center">
+        <div className="grid grid-cols-1 gap-8 py-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-10 sm:py-12 lg:grid-cols-4 lg:gap-10 lg:items-start lg:justify-items-center">
+          <div className="text-center sm:justify-center sm:text-center">
             <Link
               href={withLocale('/')}
               className="font-serif text-xl font-bold tracking-[0.06em] text-cream transition-colors hover:text-lime"
@@ -39,7 +39,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="text-center sm:justify-self-center sm:text-left">
+          <div className="text-center sm:justify-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">
               {t('footer.usefulLinks')}
             </p>
@@ -56,7 +56,7 @@ export function Footer() {
             </nav>
           </div>
 
-          <div className="text-center sm:justify-self-center sm:text-center">
+          <div className="text-center sm:justify-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">{t('legal.label')}</p>
             <nav className="mt-4 flex flex-col items-center gap-y-2 sm:items-start">
               {legalLinks.map((link) => (
@@ -71,7 +71,7 @@ export function Footer() {
             </nav>
           </div>
 
-          <div className="text-center sm:justify-self-center sm:text-center">
+          <div className="text-center sm:justify-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">Kontakt</p>
             <div className="mt-4 grid justify-items-center gap-3 sm:justify-items-end">
               <a
