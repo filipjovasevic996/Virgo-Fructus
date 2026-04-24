@@ -153,7 +153,7 @@ export function ProductsTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-cream">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-text-body-light text-sm sm:text-base">
           Ukupno {products.length} proizvoda
@@ -918,13 +918,13 @@ function ProductModal({
                     )}
                     title="Prevucite da promenite redosled"
                   >
-                    <Image
+                      <Image
                       src={cloudinaryProductImageUrl(image)}
-                      alt={`Product ${index + 1}`}
-                      fill
-                      draggable={false}
-                      className="object-cover pointer-events-none select-none"
-                    />
+                        alt={`Product ${index + 1}`}
+                        fill
+                        draggable={false}
+                        className="object-cover pointer-events-none select-none"
+                      />
                     <div
                       className="absolute bottom-1 left-1 flex items-center gap-0.5 rounded bg-bg-dark/75 px-1 py-0.5 text-text-body-light pointer-events-none"
                       aria-hidden

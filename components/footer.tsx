@@ -73,7 +73,7 @@ export function Footer() {
 
           <div className="text-center sm:justify-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terra">Kontakt</p>
-            <div className="mt-4 grid justify-items-center gap-3 sm:justify-items-end">
+            <div className="mt-4 grid justify-items-center gap-3 sm:justify-items-start">
               <a
                 href="mailto:vigorfructus@gmail.com"
                 className="inline-flex w-fit items-center gap-2 font-sans text-sm text-text-body-light/75 transition-colors hover:text-lime"

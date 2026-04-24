@@ -189,7 +189,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           <span className="font-sans font-bold text-lg text-lime animate-price-fade">
             {displayPrice} {t('common.currency')}
           </span>
-          {currentPrice.salePrice && (
+          {!!currentPrice.salePrice &&  (
             <span className="text-sm text-text-body-light/50 line-through">
               {currentPrice.price} {t('common.currency')}
             </span>

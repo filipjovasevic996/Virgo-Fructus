@@ -81,6 +81,7 @@ export default function ProductDetail({
   const product = productData?.product ?? null
 
   const [selectedWeight, setSelectedWeight] = useState(0)
+  const [selectedOptionByWeight, setSelectedOptionByWeight] = useState<Record<string, string>>({})
   const [currentImage, setCurrentImage] = useState(0)
   const [isAdded, setIsAdded] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -101,6 +102,19 @@ export default function ProductDetail({
     : 0
   const pricePer100g = currentPrice ? getPricePer100g(displayPrice, currentPrice.weight) : null
   const fullDescription = (product?.description ?? '').trim()
+  const optionName = product?.prices?.find((p) => p.optionName?.trim())?.optionName?.trim()
+  const getOptionLabel = (priceOption: Product['prices'][number]) =>
+    priceOption.optionValue?.trim() || priceOption.weight
+  const currentOptionValues = currentPrice
+    ? (
+        currentPrice.optionValues?.filter((option) => option.trim().length > 0) ||
+        (currentPrice.optionValue?.trim() ? [currentPrice.optionValue.trim()] : [])
+      )
+    : []
+  const selectedOptionValue =
+    currentPrice && currentOptionValues.length > 0
+      ? selectedOptionByWeight[currentPrice.weight] || currentOptionValues[0]
+      : undefined
 
   const weightMaxQty = useMemo(() => {
     if (!product?.prices?.length) return []
@@ -120,6 +134,15 @@ export default function ProductDetail({
     setIsAdded(false)
   }, [selectedWeight])
 
+  useEffect(() => {
+    if (!currentPrice) return
+    if (currentOptionValues.length < 1) return
+    setSelectedOptionByWeight((prev) => {
+      if (prev[currentPrice.weight]) return prev
+      return { ...prev, [currentPrice.weight]: currentOptionValues[0] }
+    })
+  }, [currentPrice, currentOptionValues])
+
   const maxQty =
     product && currentPrice
       ? maxQuantityForCartLine(
@@ -127,6 +150,7 @@ export default function ProductDetail({
           currentPrice.weight,
           product.stockKg ?? 0,
           cartItems,
+          selectedOptionValue,
         )
       : 0
 
@@ -137,6 +161,8 @@ export default function ProductDetail({
         id: product.id,
         name: product.name,
         weight: currentPrice.weight,
+        optionName: optionName || undefined,
+        optionValue: selectedOptionValue,
         price: displayPrice,
         image: product.image,
       },
@@ -397,7 +423,7 @@ export default function ProductDetail({
               {/* Weight Selection */}
               <div className="mt-6">
                 <p className="mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
-                  {t('product.chooseWeight')}
+                  {optionName || t('product.chooseWeight')}
                 </p>
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div className="flex flex-wrap gap-2">
@@ -406,7 +432,7 @@ export default function ProductDetail({
                     const unavailable = optMax < 1
                     return (
                       <button
-                        key={priceOption.weight}
+                        key={`${priceOption.weight}-${priceOption.optionValue ?? index}`}
                         type="button"
                         disabled={unavailable}
                         onClick={() => !unavailable && setSelectedWeight(index)}
@@ -422,7 +448,7 @@ export default function ProductDetail({
                             'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50 cursor-pointer',
                         )}
                       >
-                        {priceOption.weight}
+                        {getOptionLabel(priceOption)}
                       </button>
                     )
                   })}
@@ -447,6 +473,35 @@ export default function ProductDetail({
                   </div>
                 </div>
               </div>
+              {currentPrice && currentOptionValues.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-2 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
+                    {optionName || 'Opcija'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentOptionValues.map((optionValue) => (
+                      <button
+                        key={`${currentPrice.weight}-${optionValue}`}
+                        type="button"
+                        onClick={() =>
+                          setSelectedOptionByWeight((prev) => ({
+                            ...prev,
+                            [currentPrice.weight]: optionValue,
+                          }))
+                        }
+                        className={cn(
+                          'px-4 py-2 text-sm font-medium rounded border transition-colors',
+                          selectedOptionValue === optionValue
+                            ? 'bg-lime text-bg-dark border-lime'
+                            : 'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
+                        )}
+                      >
+                        {optionValue}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {currentPrice && maxQty >= 1 && (
                 <div className="mt-4 font-sans text-sm text-text-nav">

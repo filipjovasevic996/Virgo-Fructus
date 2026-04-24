@@ -6,7 +6,7 @@ import Image from 'next/image'
 import useSWR from 'swr'
 import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
-import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
+import { Martini, Apple, PartyPopper, CheckCircle, Truck, Leaf } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { HERO_VIDEO_URL } from '@/app/constants/constants'
@@ -33,6 +33,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
     dedupingInterval: 120000,
   })
   const bestSellers = data?.products ?? []
+  const hasHeroVideo = Boolean(HERO_VIDEO_URL) && !HERO_VIDEO_URL.includes('/undefined/')
 
   useEffect(() => {
     setMounted(true)
@@ -41,7 +42,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
   return (
     <>
       <section className="relative min-h-[70vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden">
-        {mounted ? (
+        {mounted && hasHeroVideo ? (
           <video
             autoPlay
             muted
@@ -127,14 +128,14 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
         </div>
       </div>
 
-      <div className="flex justify-end min-w-0">
+      <div className="flex justify-center lg:justify-end min-w-0">
         <div className="relative w-full max-w-[400px] h-[300px] rounded-lg overflow-hidden">
           <Image
-            src="https://res.cloudinary.com/dfpdrglba/image/upload/v1776980204/IMG_8858_s49d6i.webp"
-            alt="Cocktails garnished with dehydrated fruit"
+            src="https://res.cloudinary.com/dfpdrglba/image/upload/v1777040620/Paket_voca_hmnanr.webp"
+            alt="Our offer of fruit"
             fill
             sizes="(max-width: 1024px) 100vw, 400px"
-            className="object-cover"
+            className="object-contain"
           />
         </div>
       </div>
@@ -147,17 +148,17 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
           <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-cream">{t('home.whyUs')}</h2>
           <div className="mt-4 sm:mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Sun className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Martini className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.natural')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.naturalDesc')}</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Apple className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.sustainable')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.sustainableDesc')}</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Droplets className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><PartyPopper className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.premium')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.premiumDesc')}</p>
             </div>

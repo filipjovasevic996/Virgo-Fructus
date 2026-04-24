@@ -103,7 +103,7 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="flex min-h-screen min-w-0">
+    <div className="flex min-h-screen min-w-0 bg-bg-dark text-cream">
       {/* Mobile overlay */}
       {mobileNavOpen && (
         <button
@@ -124,7 +124,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex min-h-screen min-w-0 flex-1 flex-col overflow-auto lg:min-h-screen">
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col overflow-auto bg-bg-dark lg:min-h-screen">
         <header className="sticky top-0 z-30 bg-bg-hero border-b border-border-card px-4 py-4 sm:px-6 sm:py-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">

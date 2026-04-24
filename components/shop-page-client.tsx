@@ -196,7 +196,7 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
             </p>
           </div>
         ) : (
-          <div className="mt-14 sm:mt-16 pt-8 sm:pt-10 md:pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-10">
+          <div className="mt-14 sm:mt-16 pt-8 sm:pt-10 md:pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-5 lg:gap-x-8 gap-y-6 sm:gap-y-8 lg:gap-y-26">
             {visibleProducts.map((product) => (
               <ProductCard key={product.id} product={product} featuredImageLift />
             ))}

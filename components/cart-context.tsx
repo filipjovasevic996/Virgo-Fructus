@@ -6,6 +6,8 @@ export interface CartItem {
   id: string
   name: string
   weight: string
+  optionName?: string
+  optionValue?: string
   price: number
   quantity: number
   image: string
@@ -15,8 +17,8 @@ interface CartContextType {
   items: CartItem[]
   /** Returns false if stock limit prevented adding another unit */
   addItem: (item: Omit<CartItem, 'quantity'>, options?: { maxQuantity?: number }) => boolean
-  removeItem: (id: string, weight: string) => void
-  updateQuantity: (id: string, weight: string, quantity: number) => void
+  removeItem: (id: string, weight: string, optionValue?: string) => void
+  updateQuantity: (id: string, weight: string, quantity: number, optionValue?: string) => void
   clearCart: () => void
   totalItems: number
   subtotal: number
@@ -52,7 +54,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const max = options?.maxQuantity ?? Number.POSITIVE_INFINITY
     let allowed = false
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id && i.weight === item.weight)
+      const existing = prev.find(
+        (i) =>
+          i.id === item.id &&
+          i.weight === item.weight &&
+          (i.optionValue || '') === (item.optionValue || ''),
+      )
       if (existing) {
         const nextQty = Math.min(existing.quantity + 1, max)
         if (nextQty <= existing.quantity) {
@@ -65,7 +72,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         allowed = true
         return prev.map((i) =>
-          i.id === item.id && i.weight === item.weight ? { ...i, quantity: nextQty } : i,
+          i.id === item.id &&
+          i.weight === item.weight &&
+          (i.optionValue || '') === (item.optionValue || '')
+            ? { ...i, quantity: nextQty }
+            : i,
         )
       }
       if (max < 1) {
@@ -78,18 +89,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return allowed
   }
 
-  const removeItem = (id: string, weight: string) => {
-    setItems((prev) => prev.filter((i) => !(i.id === id && i.weight === weight)))
+  const removeItem = (id: string, weight: string, optionValue?: string) => {
+    setItems((prev) =>
+      prev.filter(
+        (i) =>
+          !(
+            i.id === id &&
+            i.weight === weight &&
+            (i.optionValue || '') === (optionValue || '')
+          ),
+      ),
+    )
   }
 
-  const updateQuantity = (id: string, weight: string, quantity: number) => {
+  const updateQuantity = (
+    id: string,
+    weight: string,
+    quantity: number,
+    optionValue?: string,
+  ) => {
     if (quantity <= 0) {
-      removeItem(id, weight)
+      removeItem(id, weight, optionValue)
       return
     }
     setItems((prev) =>
       prev.map((i) =>
-        i.id === id && i.weight === weight ? { ...i, quantity } : i
+        i.id === id &&
+        i.weight === weight &&
+        (i.optionValue || '') === (optionValue || '')
+          ? { ...i, quantity }
+          : i
       )
     )
   }

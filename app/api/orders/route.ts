@@ -21,6 +21,8 @@ type OrderItemInput = {
   id: string
   name: string
   weight: string
+  optionName?: string
+  optionValue?: string
   quantity: number
   price: number
 }
@@ -133,7 +135,9 @@ export async function POST(request: NextRequest) {
         const orderItems = items.map((item) => ({
           orderId: order.id,
           productId: item.id,
-          productName: `${item.name} (${item.weight})`,
+          productName: item.optionValue
+            ? `${item.name} (${item.weight} · ${item.optionValue})`
+            : `${item.name} (${item.weight})`,
           quantity: item.quantity,
           price: item.price.toString(),
         }))
