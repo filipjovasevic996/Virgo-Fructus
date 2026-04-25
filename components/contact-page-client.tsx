@@ -45,9 +45,9 @@ export default function ContactPageClient() {
     <div className="bg-bg-page min-h-screen py-4 sm:py-8 lg:py-12">
       <div className="mx-auto max-w-[1100px] px-5 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
-          <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
+          {/* <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
             {t('contact.title')}
-          </span>
+          </span> */}
           <h1 className="mt-3 sm:mt-4 font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
             {t('contact.heading')}
           </h1>
@@ -68,6 +68,9 @@ export default function ContactPageClient() {
                 </h3>
                 <p className="mt-1 font-sans font-bold text-lg sm:text-xl text-text-nav">
                   +381 69 302 3828
+                </p>
+                <p className="mt-1 font-sans font-bold text-lg sm:text-xl text-text-nav">
+                  +381 64 073 8260
                 </p>
               </div>
             </div>

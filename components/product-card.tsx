@@ -13,8 +13,15 @@ import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { toast } from 'sonner'
 import { Check } from 'lucide-react'
 
-function isImageUrl(src: string) {
-  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')
+function isImageUrl(src: string | null | undefined) {
+  if (!src || typeof src !== 'string') return false
+  const normalizedSrc = src.trim()
+  if (!normalizedSrc) return false
+  return (
+    normalizedSrc.startsWith('http://') ||
+    normalizedSrc.startsWith('https://') ||
+    normalizedSrc.startsWith('/')
+  )
 }
 
 interface ProductCardProps {
@@ -35,6 +42,8 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   const { addItem, items: cartItems } = useCart()
   const { t } = useI18n()
   const { withLocale } = useLocalizedPath()
+  const productImage = typeof product.image === 'string' ? product.image.trim() : ''
+  const imageSrc = isImageUrl(productImage) ? cloudinaryProductImageUrl(productImage) : null
 
   const safeIdx = Math.min(selectedWeight, Math.max(0, product.prices.length - 1))
   const currentPrice = product.prices[safeIdx]
@@ -58,7 +67,9 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
     setIsAdded(false)
   }, [safeIdx])
 
-  const displayPrice = currentPrice.salePrice ?? currentPrice.price
+  const salePrice = currentPrice.salePrice
+  const hasSalePrice = typeof salePrice === 'number' && salePrice > 0
+  const displayPrice = hasSalePrice ? salePrice : currentPrice.price
 
   const maxQty = maxQuantityForCartLine(
     product.id,
@@ -109,9 +120,9 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
             featuredImageLift ? 'bg-cream' : 'bg-bg-card',
           )}
         />
-        {isImageUrl(product.image) ? (
+        {imageSrc ? (
           <Image
-            src={cloudinaryProductImageUrl(product.image)}
+            src={imageSrc}
             alt={product.name}
             fill
             priority={imagePriority}
@@ -124,7 +135,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           />
         ) : (
           <div className="absolute inset-0 z-[1] flex items-center justify-center text-7xl transition-transform duration-300">
-            {product.image}
+            {productImage || '🍊'}
           </div>
         )}
 
@@ -189,7 +200,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           <span className="font-sans font-bold text-lg text-lime animate-price-fade">
             {displayPrice} {t('common.currency')}
           </span>
-          {!!currentPrice.salePrice &&  (
+          {hasSalePrice && (
             <span className="text-sm text-text-body-light/50 line-through">
               {currentPrice.price} {t('common.currency')}
             </span>

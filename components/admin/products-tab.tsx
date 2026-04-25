@@ -74,6 +74,25 @@ function toLocalizedField(field: unknown): LocalizedField {
   return { sr: '', en: '' }
 }
 
+function resolveRenderableImageSrc(src: string | null | undefined): string | null {
+  if (!src || typeof src !== 'string') return null
+  const normalized = src.trim()
+  if (!normalized) return null
+  if (
+    !normalized.startsWith('http://') &&
+    !normalized.startsWith('https://') &&
+    !normalized.startsWith('/')
+  ) {
+    return null
+  }
+  const cloudinarySrc = cloudinaryProductImageUrl(normalized).trim()
+  return cloudinarySrc || null
+}
+
+function createImageItemKey() {
+  return `img_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`
+}
+
 export function ProductsTab() {
   const { mutate: revalidateByKey } = useSWRConfig()
   const { data, isLoading } = useSWR('/api/admin/products', fetcher)
@@ -153,7 +172,7 @@ export function ProductsTab() {
   }
 
   return (
-    <div className="space-y-6 text-cream">
+    <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-text-body-light text-sm sm:text-base">
           Ukupno {products.length} proizvoda
@@ -201,6 +220,7 @@ export function ProductsTab() {
               const productShortDesc = resolveField(product.shortDescription)
               const statusVal = product.status || 'active'
               const hasEnglish = !!(toLocalizedField(product.name).en)
+              const productThumbSrc = resolveRenderableImageSrc(product.images[0])
 
               return (
                 <tr
@@ -208,10 +228,10 @@ export function ProductsTab() {
                   className="border-b border-border-card last:border-b-0"
                 >
                   <td className="px-6 py-4">
-                    {product.images.length > 0 ? (
+                    {productThumbSrc ? (
                       <div className="w-12 h-12 rounded-md overflow-hidden bg-bg-card">
                         <Image
-                          src={cloudinaryProductImageUrl(product.images[0])}
+                          src={productThumbSrc}
                           alt={productName}
                           width={48}
                           height={48}
@@ -459,6 +479,9 @@ function ProductModal({
       ? roundKgUp4(parseStockKg(product.stockKg))
       : 1000,
   })
+  const [imageItemKeys, setImageItemKeys] = useState(() =>
+    (product?.images || []).map(() => createImageItemKey()),
+  )
 
   const uploadFiles = async (files: File[]) => {
     setUploadingImages(true)
@@ -493,6 +516,10 @@ function ProductModal({
         ...prev,
         images: [...prev.images, ...newImages],
       }))
+      setImageItemKeys((prev) => [
+        ...prev,
+        ...newImages.map(() => createImageItemKey()),
+      ])
     }
     setUploadingImages(false)
   }
@@ -513,6 +540,12 @@ function ProductModal({
       const [removed] = next.splice(from, 1)
       next.splice(to, 0, removed)
       return { ...prev, images: next }
+    })
+    setImageItemKeys((prev) => {
+      const next = [...prev]
+      const [removed] = next.splice(from, 1)
+      next.splice(to, 0, removed)
+      return next
     })
   }
 
@@ -583,6 +616,7 @@ function ProductModal({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }))
+    setImageItemKeys((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handlePriceChange = (index: number, field: 'price' | 'salePrice', value: string) => {
@@ -898,8 +932,11 @@ function ProductModal({
             >
               <div className="grid grid-cols-4 gap-4">
                 {formData.images.map((image, index) => (
+                  (() => {
+                    const imageSrc = resolveRenderableImageSrc(image)
+                    return (
                   <div
-                    key={image}
+                    key={imageItemKeys[index] ?? `${image}-${index}`}
                     draggable
                     onDragStart={(e) => handleThumbnailDragStart(index, e)}
                     onDragEnd={handleThumbnailDragEnd}
@@ -918,13 +955,19 @@ function ProductModal({
                     )}
                     title="Prevucite da promenite redosled"
                   >
+                    {imageSrc ? (
                       <Image
-                      src={cloudinaryProductImageUrl(image)}
+                        src={imageSrc}
                         alt={`Product ${index + 1}`}
                         fill
                         draggable={false}
                         className="object-cover pointer-events-none select-none"
                       />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-bg-card text-text-muted">
+                        <ImageIcon className="w-6 h-6" />
+                      </div>
+                    )}
                     <div
                       className="absolute bottom-1 left-1 flex items-center gap-0.5 rounded bg-bg-dark/75 px-1 py-0.5 text-text-body-light pointer-events-none"
                       aria-hidden
@@ -945,6 +988,8 @@ function ProductModal({
                       </span>
                     )}
                   </div>
+                    )
+                  })()
                 ))}
 
                 <button

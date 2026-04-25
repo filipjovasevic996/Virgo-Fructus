@@ -16,6 +16,17 @@ const DELIVERY_FEE = 300
 
 type CheckoutStep = 'cart' | 'details' | 'payment' | 'confirmation'
 
+function resolveRenderableImageSrc(src: string | null | undefined): string | null {
+  if (!src || typeof src !== 'string') return null
+  const normalized = src.trim()
+  if (!normalized) return null
+  if (!normalized.startsWith('http://') && !normalized.startsWith('https://') && !normalized.startsWith('/')) {
+    return null
+  }
+  const cloudinarySrc = cloudinaryProductImageUrl(normalized).trim()
+  return cloudinarySrc || null
+}
+
 export default function CartPageClient() {
   const { items, updateQuantity, removeItem, subtotal, clearCart } = useCart()
   const { t } = useI18n()
@@ -72,7 +83,7 @@ export default function CartPageClient() {
     if (adjusted) setCartNotice(t('cart.cartAdjusted'))
   }, [items, stockMap, updateQuantity, t])
 
-  const isBelgrade = formData.city.toLowerCase().includes('beograd')
+  const isBelgrade = formData.city.toLowerCase().includes('beograd') || formData.city.toLowerCase().includes('belgrade')
   const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD && isBelgrade
   const deliveryFee = isFreeDelivery ? 0 : DELIVERY_FEE
   const total = subtotal + deliveryFee
@@ -205,6 +216,8 @@ export default function CartPageClient() {
 
   const stepLabels = [t('cart.stepDetails'), t('cart.stepPayment'), t('cart.stepConfirm')]
 
+  console.log("THRESHOLD", FREE_DELIVERY_THRESHOLD)
+  console.log("SUBTOTAL", subtotal)
   return (
     <div className="bg-bg-page min-h-screen py-8 sm:py-12">
       <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
@@ -261,6 +274,7 @@ export default function CartPageClient() {
             <div className="grid lg:grid-cols-[1fr_400px] gap-6 sm:gap-8">
               <div className="space-y-4">
                 {items.map((item) => {
+                  const itemImageSrc = resolveRenderableImageSrc(item.image)
                   const lineMax = maxQuantityForCartLine(
                     item.id,
                     item.weight,
@@ -274,15 +288,15 @@ export default function CartPageClient() {
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-bg-page rounded flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 overflow-hidden relative">
-                        {item.image.startsWith('http') || item.image.startsWith('/') ? (
+                        {itemImageSrc ? (
                           <Image
-                            src={cloudinaryProductImageUrl(item.image)}
+                            src={itemImageSrc}
                             alt={item.name}
                             fill
                             className="object-cover"
                           />
                         ) : (
-                          item.image
+                          item.image?.trim() || '🍊'
                         )}
                       </div>
 
@@ -650,20 +664,23 @@ export default function CartPageClient() {
                 </p>
                 <div className="space-y-2">
                   {items.map((item) => (
+                    (() => {
+                      const itemImageSrc = resolveRenderableImageSrc(item.image)
+                      return (
                     <div
                       key={`${item.id}-${item.weight}`}
                       className="flex items-center gap-2 sm:gap-3 font-sans text-sm text-text-body-light"
                     >
                       <div className="w-8 h-8 rounded bg-bg-card flex items-center justify-center text-lg flex-shrink-0 overflow-hidden relative">
-                        {item.image.startsWith('http') || item.image.startsWith('/') ? (
+                        {itemImageSrc ? (
                           <Image
-                            src={cloudinaryProductImageUrl(item.image)}
+                            src={itemImageSrc}
                             alt={item.name}
                             fill
                             className="object-cover"
                           />
                         ) : (
-                          <span className="text-sm">{item.image}</span>
+                          <span className="text-sm">{item.image?.trim() || '🍊'}</span>
                         )}
                       </div>
                       <span className="flex-1 min-w-0 truncate">{item.name}</span>
@@ -672,6 +689,8 @@ export default function CartPageClient() {
                         {item.price * item.quantity} {t('common.currency')}
                       </span>
                     </div>
+                      )
+                    })()
                   ))}
                 </div>
               </div>

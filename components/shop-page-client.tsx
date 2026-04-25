@@ -113,9 +113,9 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
     <div className="bg-bg-page min-h-screen py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
+          {/* <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
             {t('shop.title')}
-          </span>
+          </span> */}
           <h1 className="mt-2 font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
             {t('shop.heading')}
           </h1>
