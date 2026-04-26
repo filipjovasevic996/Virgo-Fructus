@@ -6,7 +6,6 @@ import { ProductCard } from '@/components/product-card'
 import { useI18n } from '@/lib/i18n'
 import type { Product } from '@/lib/products'
 import { ArrowUpDown, Search, X } from 'lucide-react'
-import { parseWeightToGrams } from '@/lib/parse-weight-grams'
 import {
   Select,
   SelectContent,
@@ -90,18 +89,25 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
     })
   }, [products, searchQuery, secondaryNameById])
 
-  const getSortPriceBy50g = (product: Product) => {
-    const row50g = product.prices.find((entry) => parseWeightToGrams(entry.weight) === 50)
-    if (!row50g) return Number.POSITIVE_INFINITY
-    return row50g.salePrice && row50g.salePrice > 0 ? row50g.salePrice : row50g.price
+  const getSortMinAvailablePrice = (product: Product) => {
+    const validPrices = product.prices
+      .map((entry) =>
+        typeof entry.salePrice === 'number' && entry.salePrice > 0
+          ? entry.salePrice
+          : entry.price,
+      )
+      .filter((price) => typeof price === 'number' && price > 0)
+
+    if (validPrices.length === 0) return Number.POSITIVE_INFINITY
+    return Math.min(...validPrices)
   }
 
   const visibleProducts = useMemo(() => {
     if (sortBy === 'popular') return filteredProducts
 
     return [...filteredProducts].sort((a, b) => {
-      const priceA = getSortPriceBy50g(a)
-      const priceB = getSortPriceBy50g(b)
+      const priceA = getSortMinAvailablePrice(a)
+      const priceB = getSortMinAvailablePrice(b)
       if (priceA === priceB) return a.name.localeCompare(b.name, locale)
       return sortBy === 'priceAsc' ? priceA - priceB : priceB - priceA
     })
