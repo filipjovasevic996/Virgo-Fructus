@@ -100,17 +100,43 @@ export default function ProductDetail({
     : false
   const displayPrice = currentPrice ? (hasSalePrice ? currentPrice.salePrice! : currentPrice.price) : 0
   const isQuantityMode = product?.pricingMode === 'quantity'
-  const lowestPrice = product && hasPriceOptions
-    ? Math.min(
-        ...product.prices.map((priceOption) =>
-          typeof priceOption.salePrice === 'number' && priceOption.salePrice > 0
-            ? priceOption.salePrice
-            : priceOption.price,
-        ),
-      )
-    : 0
-  const pricePer100g = currentPrice ? getPricePer100g(displayPrice, currentPrice.weight) : null
   const fullDescription = (product?.description ?? '').trim()
+  const hasPricedOptions = useMemo(
+    () =>
+      (product?.prices ?? []).some((entry) => {
+        const effectivePrice =
+          typeof entry.salePrice === 'number' && entry.salePrice > 0
+            ? entry.salePrice
+            : entry.price
+        return effectivePrice > 0
+      }),
+    [product],
+  )
+  const preferredPriceIndex = useMemo(() => {
+    if (!product?.prices?.length) return 0
+
+    const effectivePrice = (idx: number) => {
+      const entry = product.prices[idx]
+      if (!entry) return 0
+      return typeof entry.salePrice === 'number' && entry.salePrice > 0
+        ? entry.salePrice
+        : entry.price
+    }
+
+    const nonZeroIndices = product.prices
+      .map((_, idx) => idx)
+      .filter((idx) => effectivePrice(idx) > 0)
+
+    if (nonZeroIndices.length === 0) return 0
+
+    if (product.pricingMode === 'quantity') return nonZeroIndices[0]
+
+    return nonZeroIndices.sort((a, b) => {
+      const gramsA = parseWeightToGrams(product.prices[a]?.weight || '') || Number.POSITIVE_INFINITY
+      const gramsB = parseWeightToGrams(product.prices[b]?.weight || '') || Number.POSITIVE_INFINITY
+      return gramsA - gramsB
+    })[0]
+  }, [product])
 
   const weightMaxQty = useMemo(() => {
     if (!product?.prices?.length) return []
@@ -126,11 +152,46 @@ export default function ProductDetail({
   }, [product, cartItems])
 
   useEffect(() => {
+    if (!hasPricedOptions) return
     if (!weightMaxQty.length) return
-    if (weightMaxQty[selectedWeight] >= 1) return
-    const next = weightMaxQty.findIndex((m) => m >= 1)
-    if (next >= 0) setSelectedWeight(next)
-  }, [weightMaxQty, selectedWeight])
+    const selectedEffectivePrice = (() => {
+      const selected = product?.prices?.[selectedWeight]
+      if (!selected) return 0
+      return typeof selected.salePrice === 'number' && selected.salePrice > 0
+        ? selected.salePrice
+        : selected.price
+    })()
+
+    if (selectedEffectivePrice <= 0 && preferredPriceIndex !== selectedWeight) {
+      setSelectedWeight(preferredPriceIndex)
+      return
+    }
+
+    const hasStockForSelected = (weightMaxQty[selectedWeight] ?? 0) >= 1
+    if (hasStockForSelected) return
+
+    const preferredWithStock =
+      preferredPriceIndex >= 0 && (weightMaxQty[preferredPriceIndex] ?? 0) >= 1
+        ? preferredPriceIndex
+        : -1
+
+    const firstWithStockAndPrice = product?.prices?.findIndex((entry, idx) => {
+      const effectivePrice =
+        typeof entry.salePrice === 'number' && entry.salePrice > 0
+          ? entry.salePrice
+          : entry.price
+      return effectivePrice > 0 && (weightMaxQty[idx] ?? 0) >= 1
+    }) ?? -1
+
+    const firstWithStock = weightMaxQty.findIndex((m) => m >= 1)
+    const next = preferredWithStock >= 0
+      ? preferredWithStock
+      : firstWithStockAndPrice >= 0
+        ? firstWithStockAndPrice
+        : firstWithStock
+
+    if (next >= 0 && next !== selectedWeight) setSelectedWeight(next)
+  }, [weightMaxQty, selectedWeight, preferredPriceIndex, product, hasPricedOptions])
 
   useEffect(() => {
     setIsAdded(false)
@@ -414,13 +475,18 @@ export default function ProductDetail({
               {/* Weight Selection */}
               <div className="mt-6">
                 {!isQuantityMode && (
-                  <p className="mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
+                  <p
+                    className={cn(
+                      'mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70',
+                      !hasPricedOptions && 'invisible',
+                    )}
+                  >
                     {t('product.chooseWeight')}
                   </p>
                 )}
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   {!isQuantityMode && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className={cn('flex min-h-[42px] flex-wrap gap-2', !hasPricedOptions && 'invisible')}>
                     {product.prices.map((priceOption, index) => {
                       const optMax = weightMaxQty[index] ?? 0
                       const unavailable = optMax < 1
@@ -448,24 +514,26 @@ export default function ProductDetail({
                     })}
                     </div>
                   )}
-                  <div className={cn('text-right', !isQuantityMode && 'ml-auto')}>
-                    {currentPrice ? (
-                      <div className="flex items-baseline justify-end gap-2 sm:gap-3">
-                        <span className="font-sans font-bold text-2xl sm:text-3xl text-lime">
-                          {displayPrice} {t('common.currency')}
-                        </span>
-                        {hasSalePrice && (
-                          <span className="text-base sm:text-lg text-text-body-light/50 line-through">
-                            {currentPrice.price} {t('common.currency')}
+                  {hasPricedOptions && (
+                    <div className={cn('text-right', !isQuantityMode && 'ml-auto')}>
+                      {currentPrice ? (
+                        <div className="flex items-baseline justify-end gap-2 sm:gap-3">
+                          <span className="font-sans font-bold text-2xl sm:text-3xl text-lime">
+                            {displayPrice} {t('common.currency')}
                           </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="font-sans font-semibold text-base text-text-body-light/80">
-                        {t('product.noPrice')}
-                      </span>
-                    )}
-                  </div>
+                          {hasSalePrice && (
+                            <span className="text-base sm:text-lg text-text-body-light/50 line-through">
+                              {currentPrice.price} {t('common.currency')}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="font-sans font-semibold text-base text-text-body-light/80">
+                          {t('product.noPrice')}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -481,7 +549,7 @@ export default function ProductDetail({
               <div className="mt-6 relative">
                 <button
                   onClick={handleAddToCart}
-                  disabled={isAdded || !currentPrice || maxQty < 1}
+                  disabled={isAdded || !currentPrice || !hasPricedOptions || maxQty < 1}
                   className={cn(
                     'cursor-pointer w-full py-4 px-6 font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded-lg transition-all duration-300 flex items-center justify-center gap-2',
                     isAdded
@@ -496,6 +564,8 @@ export default function ProductDetail({
                       <Check className="w-5 h-5" />
                       <span>{t('common.addedToCart')}</span>
                     </>
+                  ) : !hasPricedOptions ? (
+                    t('product.noPrice')
                   ) : maxQty < 1 ? (
                     t('product.outOfStock')
                   ) : (

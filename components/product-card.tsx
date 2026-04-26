@@ -10,6 +10,7 @@ import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
+import { parseWeightToGrams } from '@/lib/parse-weight-grams'
 import { toast } from 'sonner'
 import { Check } from 'lucide-react'
 
@@ -62,12 +63,62 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
     [product.id, product.stockKg, product.prices, cartItems],
   )
 
+  const preferredPriceIndex = useMemo(() => {
+    const effectivePrice = (idx: number) => {
+      const entry = product.prices[idx]
+      if (!entry) return 0
+      return typeof entry.salePrice === 'number' && entry.salePrice > 0
+        ? entry.salePrice
+        : entry.price
+    }
+
+    const nonZeroIndices = product.prices
+      .map((_, idx) => idx)
+      .filter((idx) => effectivePrice(idx) > 0)
+
+    if (nonZeroIndices.length === 0) return 0
+    if (product.pricingMode === 'quantity') return nonZeroIndices[0]
+
+    return nonZeroIndices.sort((a, b) => {
+      const gramsA = parseWeightToGrams(product.prices[a]?.weight || '') || Number.POSITIVE_INFINITY
+      const gramsB = parseWeightToGrams(product.prices[b]?.weight || '') || Number.POSITIVE_INFINITY
+      return gramsA - gramsB
+    })[0]
+  }, [product.prices, product.pricingMode])
+  const hasPricedOptions = useMemo(
+    () =>
+      product.prices.some((entry) => {
+        const effectivePrice =
+          typeof entry.salePrice === 'number' && entry.salePrice > 0
+            ? entry.salePrice
+            : entry.price
+        return effectivePrice > 0
+      }),
+    [product.prices],
+  )
+
   useEffect(() => {
+    if (!hasPricedOptions) return
     if (!weightMaxQty.length) return
+    const selected = product.prices[safeIdx]
+    const selectedEffectivePrice =
+      selected && typeof selected.salePrice === 'number' && selected.salePrice > 0
+        ? selected.salePrice
+        : selected?.price ?? 0
+
+    if (selectedEffectivePrice <= 0 && preferredPriceIndex !== safeIdx) {
+      setSelectedWeight(preferredPriceIndex)
+      return
+    }
+
     if (weightMaxQty[safeIdx] >= 1) return
-    const next = weightMaxQty.findIndex((m) => m >= 1)
+    const preferredWithStock =
+      preferredPriceIndex >= 0 && (weightMaxQty[preferredPriceIndex] ?? 0) >= 1
+        ? preferredPriceIndex
+        : -1
+    const next = preferredWithStock >= 0 ? preferredWithStock : weightMaxQty.findIndex((m) => m >= 1)
     if (next >= 0) setSelectedWeight(next)
-  }, [weightMaxQty, safeIdx])
+  }, [weightMaxQty, safeIdx, product.prices, preferredPriceIndex, hasPricedOptions])
 
   useEffect(() => {
     setIsAdded(false)
@@ -87,6 +138,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   )
 
   const handleAddToCart = () => {
+    if (!hasPricedOptions) return
     const added = addItem(
       {
         id: product.id,
@@ -176,9 +228,14 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           {t('common.from')} {product.prices[0].price} {t('common.currency')}
         </p> */}
 
-        {!isQuantityMode && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {product.prices.map((priceOption, index) => {
+        <div
+          className={cn(
+            'mt-3 flex min-h-[30px] flex-wrap gap-2',
+            (isQuantityMode || !hasPricedOptions) && 'invisible',
+          )}
+        >
+          {!isQuantityMode &&
+            product.prices.map((priceOption, index) => {
               const optMax = weightMaxQty[index] ?? 0
               const unavailable = optMax < 1
               return priceOption.price ? (
@@ -203,25 +260,26 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
                 </button>
               ) : null
             })}
+        </div>
+
+        {hasPricedOptions && (
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="font-sans font-bold text-lg text-lime animate-price-fade">
+              {displayPrice} {t('common.currency')}
+            </span>
+            {hasSalePrice && (
+              <span className="text-sm text-text-body-light/50 line-through">
+                {currentPrice.price} {t('common.currency')}
+              </span>
+            )}
           </div>
         )}
-
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="font-sans font-bold text-lg text-lime animate-price-fade">
-            {displayPrice} {t('common.currency')}
-          </span>
-          {hasSalePrice && (
-            <span className="text-sm text-text-body-light/50 line-through">
-              {currentPrice.price} {t('common.currency')}
-            </span>
-          )}
-        </div>
 
         <div className="mt-4 relative">
           <button
             type="button"
             onClick={handleAddToCart}
-            disabled={isAdded || maxQty < 1}
+            disabled={isAdded || !hasPricedOptions || maxQty < 1}
             className={cn(
               'w-full py-2.5 px-4 text-xs font-semibold uppercase tracking-wider border rounded transition-all duration-300 flex items-center justify-center gap-2',
               isAdded &&
@@ -239,6 +297,8 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
                 <Check className="w-4 h-4 shrink-0" />
                 <span>{t('common.addedToCart')}</span>
               </>
+            ) : !hasPricedOptions ? (
+              t('product.noPrice')
             ) : maxQty < 1 ? (
               t('product.outOfStock')
             ) : (
