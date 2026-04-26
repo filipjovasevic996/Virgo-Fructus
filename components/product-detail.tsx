@@ -424,7 +424,7 @@ export default function ProductDetail({
                     {product.prices.map((priceOption, index) => {
                       const optMax = weightMaxQty[index] ?? 0
                       const unavailable = optMax < 1
-                      return (
+                      return priceOption.price ? (
                         <button
                           key={`${priceOption.weight}-${index}`}
                           type="button"
@@ -444,7 +444,7 @@ export default function ProductDetail({
                         >
                           {priceOption.weight}
                         </button>
-                      )
+                      ) : null
                     })}
                     </div>
                   )}
