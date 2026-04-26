@@ -12,7 +12,19 @@ export function maxQuantityForCartLine(
   weight: string,
   stockKg: number,
   cartItems: CartLineRef[],
+  pricingMode: 'weight' | 'quantity' = 'weight',
 ): number {
+  if (pricingMode === 'quantity') {
+    const stockUnits = Math.max(0, Math.floor(stockKg))
+    const totalUnitsInCart = cartItems
+      .filter((item) => item.id === productId)
+      .reduce((sum, item) => sum + item.quantity, 0)
+    const currentLineUnits =
+      cartItems.find((i) => i.id === productId && i.weight === weight)?.quantity ?? 0
+    const remainingUnits = stockUnits - (totalUnitsInCart - currentLineUnits)
+    return Math.max(0, remainingUnits)
+  }
+
   const stockDg = kgToDecigrams(stockKg)
   const unitG = parseWeightToGrams(weight)
   if (!stockDg || !unitG) return 0

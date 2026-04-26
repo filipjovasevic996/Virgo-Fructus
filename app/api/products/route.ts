@@ -5,11 +5,21 @@ import { parseStockKg } from '@/lib/stock-kg'
 import { eq, and, desc } from 'drizzle-orm'
 
 function localizeProduct(product: typeof productsTable.$inferSelect, locale: SupportedLocale) {
+  const prices =
+    (product.prices as {
+      weight: string
+      price: number
+      salePrice?: number
+      pricingMode?: 'weight' | 'quantity'
+    }[]) ?? []
+
   return {
     ...product,
     name: resolveLocalized(product.name, locale),
     description: resolveLocalized(product.description, locale),
     shortDescription: resolveLocalized(product.shortDescription, locale),
+    prices,
+    pricingMode: prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight',
     stockKg: parseStockKg(product.stockKg),
   }
 }

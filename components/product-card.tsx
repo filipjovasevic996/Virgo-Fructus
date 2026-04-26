@@ -51,7 +51,13 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   const weightMaxQty = useMemo(
     () =>
       product.prices.map((po) =>
-        maxQuantityForCartLine(product.id, po.weight, product.stockKg ?? 0, cartItems),
+        maxQuantityForCartLine(
+          product.id,
+          po.weight,
+          product.stockKg ?? 0,
+          cartItems,
+          product.pricingMode ?? 'weight',
+        ),
       ),
     [product.id, product.stockKg, product.prices, cartItems],
   )
@@ -70,12 +76,14 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   const salePrice = currentPrice.salePrice
   const hasSalePrice = typeof salePrice === 'number' && salePrice > 0
   const displayPrice = hasSalePrice ? salePrice : currentPrice.price
+  const isQuantityMode = product.pricingMode === 'quantity'
 
   const maxQty = maxQuantityForCartLine(
     product.id,
     currentPrice.weight,
     product.stockKg ?? 0,
     cartItems,
+    product.pricingMode ?? 'weight',
   )
 
   const handleAddToCart = () => {
@@ -168,33 +176,35 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           {t('common.from')} {product.prices[0].price} {t('common.currency')}
         </p> */}
 
-        <div className="flex flex-wrap gap-2 mt-3">
-          {product.prices.map((priceOption, index) => {
-            const optMax = weightMaxQty[index] ?? 0
-            const unavailable = optMax < 1
-            return priceOption.price ? (
-              <button
-                key={priceOption.weight}
-                type="button"
-                disabled={unavailable}
-                onClick={() => !unavailable && setSelectedWeight(index)}
-                className={cn(
-                  'px-2 py-1 text-[11px] font-medium rounded border transition-colors',
-                  unavailable &&
-                    'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
-                  !unavailable &&
-                    safeIdx === index &&
-                    'bg-lime text-bg-dark border-lime cursor-pointer',
-                  !unavailable &&
-                    safeIdx !== index &&
-                    'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
-                )}
-              >
-                {priceOption.weight}
-              </button>
-            ) : null
-          })}
-        </div>
+        {!isQuantityMode && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {product.prices.map((priceOption, index) => {
+              const optMax = weightMaxQty[index] ?? 0
+              const unavailable = optMax < 1
+              return priceOption.price ? (
+                <button
+                  key={priceOption.weight}
+                  type="button"
+                  disabled={unavailable}
+                  onClick={() => !unavailable && setSelectedWeight(index)}
+                  className={cn(
+                    'px-2 py-1 text-[11px] font-medium rounded border transition-colors',
+                    unavailable &&
+                      'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
+                    !unavailable &&
+                      safeIdx === index &&
+                      'bg-lime text-bg-dark border-lime cursor-pointer',
+                    !unavailable &&
+                      safeIdx !== index &&
+                      'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
+                  )}
+                >
+                  {priceOption.weight}
+                </button>
+              ) : null
+            })}
+          </div>
+        )}
 
         <div className="mt-3 flex items-baseline gap-2">
           <span className="font-sans font-bold text-lg text-lime animate-price-fade">

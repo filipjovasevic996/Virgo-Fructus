@@ -51,6 +51,30 @@ const localeTabs = [
   { value: 'en' as const, label: 'English', flag: '🇬🇧' },
 ]
 
+const pricingModes = [
+  { value: 'weight' as const, label: 'Po težini (kg / g)' },
+  { value: 'quantity' as const, label: 'Po količini (broj komada)' },
+]
+
+type PriceRow = {
+  weight: string
+  price: number
+  salePrice?: number
+  pricingMode?: 'weight' | 'quantity'
+}
+
+const defaultPricesByMode: Record<'weight' | 'quantity', PriceRow[]> = {
+  weight: [
+    { weight: '50g', price: 0 },
+    { weight: '100g', price: 0 },
+    { weight: '1kg', price: 0 },
+    { weight: '3kg', price: 0 },
+  ],
+  quantity: [
+    { weight: '1 kom', price: 0 },
+  ],
+}
+
 function formatPrice(price: number) {
   return new Intl.NumberFormat('sr-RS').format(price)
 }
@@ -445,6 +469,20 @@ function ProductModal({
   product: AdminProduct | null
   onClose: () => void
 }) {
+  const initialPricingMode: 'weight' | 'quantity' =
+    product?.prices?.[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight'
+  const initialPrices: PriceRow[] = (() => {
+    const existing = product?.prices && product.prices.length > 0
+      ? product.prices
+      : defaultPricesByMode[initialPricingMode].map((entry) => ({ ...entry }))
+
+    if (initialPricingMode === 'quantity') {
+      return [existing[0] ?? { ...defaultPricesByMode.quantity[0] }]
+    }
+
+    return existing
+  })()
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadingImages, setUploadingImages] = useState(false)
   const [uploadError, setUploadError] = useState('')
@@ -469,12 +507,8 @@ function ProductModal({
     status: product?.status || 'active',
     isFavorite: Boolean(product?.isFavorite),
     images: product?.images || [],
-    prices: product?.prices || [
-      { weight: '50g', price: 0 },
-      { weight: '100g', price: 0 },
-      { weight: '1kg', price: 0 },
-      { weight: '3kg', price: 0 },
-    ],
+    pricingMode: initialPricingMode,
+    prices: initialPrices,
     stockKg: product
       ? roundKgUp4(parseStockKg(product.stockKg))
       : 1000,
@@ -662,6 +696,10 @@ function ProductModal({
       const payload = {
         ...(product ? { id: product.id } : {}),
         ...formData,
+        prices: formData.prices.map((price) => ({
+          ...price,
+          pricingMode: formData.pricingMode,
+        })),
         image: formData.images[0] || '',
       }
 
@@ -816,30 +854,73 @@ function ProductModal({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-text-body-light">Na stanju (kg, do 4 decimale)</label>
+            <label className="text-sm text-text-body-light">Način vođenja cene i zaliha</label>
+            <select
+              value={formData.pricingMode}
+              onChange={(e) => {
+                const nextMode = e.target.value as 'weight' | 'quantity'
+                setFormData((prev) => ({
+                  ...prev,
+                  pricingMode: nextMode,
+                  prices: (() => {
+                    if (prev.pricingMode === nextMode) {
+                      return nextMode === 'quantity' ? [prev.prices[0]].filter(Boolean) : prev.prices
+                    }
+                    if (nextMode === 'quantity') {
+                      return [prev.prices[0] ?? { ...defaultPricesByMode.quantity[0] }]
+                    }
+                    return defaultPricesByMode.weight.map((entry) => ({ ...entry }))
+                  })(),
+                }))
+              }}
+              className="w-full px-3 py-2 input-vigor"
+            >
+              {pricingModes.map((mode) => (
+                <option key={mode.value} value={mode.value}>
+                  {mode.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-text-body-light/70">
+              Izaberite da li je proizvod vezan za gramažu ili za broj komada.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm text-text-body-light">
+              {formData.pricingMode === 'quantity'
+                ? 'Na stanju (broj komada)'
+                : 'Na stanju (kg, do 4 decimale)'}
+            </label>
             <Input
               type="number"
               min={0}
-              step={0.0001}
+              step={formData.pricingMode === 'quantity' ? 1 : 0.0001}
               value={formData.stockKg}
               onChange={(e) => {
                 const raw = Number(e.target.value)
                 setFormData((prev) => ({
                   ...prev,
-                  stockKg: Number.isFinite(raw) ? Math.max(0, raw) : 0,
+                  stockKg: Number.isFinite(raw)
+                    ? Math.max(0, prev.pricingMode === 'quantity' ? Math.floor(raw) : raw)
+                    : 0,
                 }))
               }}
               onBlur={() =>
                 setFormData((prev) => ({
                   ...prev,
-                  stockKg: roundKgUp4(prev.stockKg),
+                  stockKg:
+                    prev.pricingMode === 'quantity'
+                      ? Math.max(0, Math.floor(prev.stockKg))
+                      : roundKgUp4(prev.stockKg),
                 }))
               }
               className="input-vigor tabular-nums"
             />
             <p className="text-xs text-text-body-light/70">
-              Jedna količina u kilogramima za sve veličine pakovanja; pri čuvanju se zaokružuje naviše na 4 decimale.
-              Porudžbina oduzima masu po izabranoj gramaži × količina.
+              {formData.pricingMode === 'quantity'
+                ? 'Unesite ukupan broj komada na stanju (ceo broj).'
+                : 'Jedna količina u kilogramima za sve veličine pakovanja; pri čuvanju se zaokružuje naviše na 4 decimale. Porudžbina oduzima masu po izabranoj gramaži × količina.'}
             </p>
           </div>
 
@@ -1039,11 +1120,31 @@ function ProductModal({
 
           {/* Prices */}
           <div className="space-y-4">
-            <label className="text-sm text-text-body-light">Cene po težini</label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <label className="text-sm text-text-body-light">
+              {formData.pricingMode === 'quantity' ? 'Cene po komadu' : 'Cene po težini'}
+            </label>
+            <div className={cn('grid gap-4', formData.pricingMode === 'quantity' ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-4')}>
               {formData.prices.map((price, index) => (
                 <div key={price.weight} className="space-y-2">
-                  <label className="text-xs text-text-muted">{price.weight}</label>
+                  {formData.pricingMode === 'weight' && (
+                    <>
+                      <label className="text-xs text-text-muted">Težina</label>
+                      <Input
+                        type="text"
+                        value={price.weight}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            prices: prev.prices.map((p, i) =>
+                              i === index ? { ...p, weight: e.target.value } : p
+                            ),
+                          }))
+                        }
+                        placeholder="npr. 50g"
+                        className="input-vigor"
+                      />
+                    </>
+                  )}
                   <Input
                     type="number"
                     value={price.price || ''}

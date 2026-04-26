@@ -20,6 +20,7 @@ export interface AdminProduct {
     weight: string
     price: number
     salePrice?: number
+    pricingMode?: 'weight' | 'quantity'
   }[]
   createdAt: string
   updatedAt: string

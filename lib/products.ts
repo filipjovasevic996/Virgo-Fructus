@@ -12,7 +12,9 @@ export interface Product {
     weight: string
     price: number
     salePrice?: number
+    pricingMode?: 'weight' | 'quantity'
   }[]
+  pricingMode?: 'weight' | 'quantity'
   isFavorite: boolean
   stockKg: number
 }

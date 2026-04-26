@@ -99,6 +99,7 @@ export default function ProductDetail({
     ? typeof currentPrice.salePrice === 'number' && currentPrice.salePrice > 0
     : false
   const displayPrice = currentPrice ? (hasSalePrice ? currentPrice.salePrice! : currentPrice.price) : 0
+  const isQuantityMode = product?.pricingMode === 'quantity'
   const lowestPrice = product && hasPriceOptions
     ? Math.min(
         ...product.prices.map((priceOption) =>
@@ -114,7 +115,13 @@ export default function ProductDetail({
   const weightMaxQty = useMemo(() => {
     if (!product?.prices?.length) return []
     return product.prices.map((po) =>
-      maxQuantityForCartLine(product.id, po.weight, product.stockKg ?? 0, cartItems),
+      maxQuantityForCartLine(
+        product.id,
+        po.weight,
+        product.stockKg ?? 0,
+        cartItems,
+        product.pricingMode ?? 'weight',
+      ),
     )
   }, [product, cartItems])
 
@@ -136,6 +143,7 @@ export default function ProductDetail({
           currentPrice.weight,
           product.stockKg ?? 0,
           cartItems,
+          product.pricingMode ?? 'weight',
         )
       : 0
 
@@ -405,38 +413,42 @@ export default function ProductDetail({
 
               {/* Weight Selection */}
               <div className="mt-6">
-                <p className="mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
-                  {t('product.chooseWeight')}
-                </p>
+                {!isQuantityMode && (
+                  <p className="mb-3 font-sans text-xs font-semibold uppercase tracking-wider text-text-body-light/70">
+                    {t('product.chooseWeight')}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                  {product.prices.map((priceOption, index) => {
-                    const optMax = weightMaxQty[index] ?? 0
-                    const unavailable = optMax < 1
-                    return (
-                      <button
-                        key={`${priceOption.weight}-${index}`}
-                        type="button"
-                        disabled={unavailable}
-                        onClick={() => !unavailable && setSelectedWeight(index)}
-                        className={cn(
-                          'px-4 py-2.5 text-sm font-medium rounded border transition-colors min-w-[4.5rem]',
-                          unavailable &&
-                            'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
-                          !unavailable &&
-                            selectedWeight === index &&
-                            'bg-lime text-bg-dark border-lime cursor-pointer',
-                          !unavailable &&
-                            selectedWeight !== index &&
-                            'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50 cursor-pointer',
-                        )}
-                      >
-                        {priceOption.weight}
-                      </button>
-                    )
-                  })}
-                  </div>
-                  <div className="ml-auto text-right">
+                  {!isQuantityMode && (
+                    <div className="flex flex-wrap gap-2">
+                    {product.prices.map((priceOption, index) => {
+                      const optMax = weightMaxQty[index] ?? 0
+                      const unavailable = optMax < 1
+                      return (
+                        <button
+                          key={`${priceOption.weight}-${index}`}
+                          type="button"
+                          disabled={unavailable}
+                          onClick={() => !unavailable && setSelectedWeight(index)}
+                          className={cn(
+                            'px-4 py-2.5 text-sm font-medium rounded border transition-colors min-w-[4.5rem]',
+                            unavailable &&
+                              'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
+                            !unavailable &&
+                              selectedWeight === index &&
+                              'bg-lime text-bg-dark border-lime cursor-pointer',
+                            !unavailable &&
+                              selectedWeight !== index &&
+                              'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50 cursor-pointer',
+                          )}
+                        >
+                          {priceOption.weight}
+                        </button>
+                      )
+                    })}
+                    </div>
+                  )}
+                  <div className={cn('text-right', !isQuantityMode && 'ml-auto')}>
                     {currentPrice ? (
                       <div className="flex items-baseline justify-end gap-2 sm:gap-3">
                         <span className="font-sans font-bold text-2xl sm:text-3xl text-lime">

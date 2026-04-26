@@ -19,6 +19,15 @@ function localizeProduct(
   product: typeof productsTable.$inferSelect,
   locale: SupportedLocale,
 ): Product {
+  const prices =
+    (product.prices as {
+      weight: string
+      price: number
+      salePrice?: number
+      pricingMode?: 'weight' | 'quantity'
+    }[]) ?? []
+  const pricingMode = prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight'
+
   return {
     id: product.id,
     slug: product.slug,
@@ -28,8 +37,8 @@ function localizeProduct(
     shortDescription: resolveLocalized(product.shortDescription, locale),
     image: product.image,
     images: (product.images as string[]) ?? [],
-    prices:
-      (product.prices as { weight: string; price: number; salePrice?: number }[]) ?? [],
+    prices,
+    pricingMode,
     badge: product.badge as Product['badge'],
     isFavorite: product.isFavorite,
     stockKg: parseStockKg(product.stockKg),
