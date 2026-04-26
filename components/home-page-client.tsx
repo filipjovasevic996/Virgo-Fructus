@@ -6,7 +6,7 @@ import Image from 'next/image'
 import useSWR from 'swr'
 import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
-import { Sun, Leaf, Droplets, CheckCircle, Truck } from 'lucide-react'
+import {  Leaf, CheckCircle, Truck, Martini, Apple, PartyPopper } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { HERO_VIDEO_URL } from '@/app/constants/constants'
@@ -124,7 +124,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
         <div className="mt-4 sm:mt-6 space-y-4 font-sans text-sm sm:text-base text-text-nav leading-relaxed">
           <p>{t('home.aboutParagraph1')}</p>
           <p>{t('home.aboutParagraph2')}</p>
-          <p>{t('home.aboutParagraph3')}</p>
+          <Link href={withLocale('/nasa-prica')} className="inline-flex items-center px-4 py-2 bg-bg-hero text-cream font-sans text-[10px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-bg-dark transition-colors">{t('home.aboutParagraph3')}</Link>
         </div>
       </div>
 
@@ -148,17 +148,17 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
           <h2 className="font-serif font-semibold text-2xl sm:text-3xl lg:text-4xl text-cream">{t('home.whyUs')}</h2>
           <div className="mt-4 sm:mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Sun className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Martini className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.natural')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.naturalDesc')}</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Apple className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.sustainable')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.sustainableDesc')}</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><Droplets className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
+              <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-bg-dark"><PartyPopper className="w-7 h-7 sm:w-8 sm:h-8 text-lime" /></div>
               <h3 className="mt-4 font-serif font-semibold text-lg sm:text-xl text-cream">{t('home.premium')}</h3>
               <p className="mt-2 font-sans text-xs sm:text-sm text-text-body-light leading-relaxed max-w-xs">{t('home.premiumDesc')}</p>
             </div>

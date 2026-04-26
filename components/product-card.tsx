@@ -172,7 +172,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           {product.prices.map((priceOption, index) => {
             const optMax = weightMaxQty[index] ?? 0
             const unavailable = optMax < 1
-            return (
+            return priceOption.price ? (
               <button
                 key={priceOption.weight}
                 type="button"
@@ -192,7 +192,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
               >
                 {priceOption.weight}
               </button>
-            )
+            ) : null
           })}
         </div>
 

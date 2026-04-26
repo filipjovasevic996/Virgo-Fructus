@@ -80,6 +80,7 @@ export default function AboutPageClient() {
               <div className="mt-4 sm:mt-6 font-sans text-sm sm:text-base text-text-nav leading-[1.7] space-y-4">
                 <p>{t('story.philosophyP1')}</p>
                 <p>{t('story.philosophyP2')}</p>
+                <p>{t('story.philosophyP3')}</p>
               </div>
             </div>
           </div>

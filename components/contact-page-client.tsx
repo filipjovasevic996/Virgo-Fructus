@@ -51,7 +51,7 @@ export default function ContactPageClient() {
           <h1 className="mt-3 sm:mt-4 font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-bg-dark">
             {t('contact.heading')}
           </h1>
-          <p className="mt-3 sm:mt-4 font-sans text-sm sm:text-base text-text-nav max-w-md mx-auto">
+          <p className="mt-3 sm:mt-4 font-sans text-sm sm:text-base text-text-nav max-w-lg mx-auto">
             {t('contact.description')}
           </p>
         </div>
