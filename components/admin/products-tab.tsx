@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type { DragEvent } from 'react'
 import Image from 'next/image'
 import useSWR, { useSWRConfig, mutate } from 'swr'
@@ -516,6 +516,15 @@ function ProductModal({
   const [imageItemKeys, setImageItemKeys] = useState(() =>
     (product?.images || []).map(() => createImageItemKey()),
   )
+  const [stockInput, setStockInput] = useState(String(
+    product
+      ? roundKgUp4(parseStockKg(product.stockKg))
+      : 1000,
+  ))
+
+  useEffect(() => {
+    setStockInput(String(formData.stockKg))
+  }, [formData.stockKg])
 
   const uploadFiles = async (files: File[]) => {
     setUploadingImages(true)
@@ -893,28 +902,27 @@ function ProductModal({
                 : 'Na stanju (kg, do 4 decimale)'}
             </label>
             <Input
-              type="number"
-              min={0}
-              step={formData.pricingMode === 'quantity' ? 1 : 0.0001}
-              value={formData.stockKg}
-              onChange={(e) => {
-                const raw = Number(e.target.value)
-                setFormData((prev) => ({
-                  ...prev,
-                  stockKg: Number.isFinite(raw)
-                    ? Math.max(0, prev.pricingMode === 'quantity' ? Math.floor(raw) : raw)
-                    : 0,
-                }))
+              type="text"
+              inputMode={formData.pricingMode === 'quantity' ? 'numeric' : 'decimal'}
+              value={stockInput}
+              onChange={(e) => setStockInput(e.target.value)}
+              onBlur={() => {
+                const normalized = stockInput.replace(',', '.').trim()
+                const raw = normalized === '' ? 0 : Number(normalized)
+                setFormData((prev) => {
+                  const nextStock =
+                    Number.isFinite(raw)
+                      ? prev.pricingMode === 'quantity'
+                        ? Math.max(0, Math.floor(raw))
+                        : roundKgUp4(Math.max(0, raw))
+                      : 0
+                  setStockInput(String(nextStock))
+                  return {
+                    ...prev,
+                    stockKg: nextStock,
+                  }
+                })
               }}
-              onBlur={() =>
-                setFormData((prev) => ({
-                  ...prev,
-                  stockKg:
-                    prev.pricingMode === 'quantity'
-                      ? Math.max(0, Math.floor(prev.stockKg))
-                      : roundKgUp4(prev.stockKg),
-                }))
-              }
               className="input-vigor tabular-nums"
             />
             <p className="text-xs text-text-body-light/70">
