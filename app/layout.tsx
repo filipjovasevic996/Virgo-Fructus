@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: '%s | Vigor Fructus',
   },
   description:
-    'Premium dehidrirano voće iz Beograda za koktele, dekoraciju pića i zdravu užinu. Sušenje voća na niskim temperaturama — 100% prirodno, bez aditiva. Besplatna dostava u Srbiji za narudžbine preko 2000 RSD.',
+    'Premium dehidrirano voće iz Beograda za koktele, dekoraciju pića i zdravu užinu. Sušenje voća na niskim temperaturama — 100% prirodno, bez aditiva. Besplatna dostava u Srbiji za narudžbine preko 2500 RSD.',
   keywords: [
     'dehidrirano voće',
     'sušeno voće',

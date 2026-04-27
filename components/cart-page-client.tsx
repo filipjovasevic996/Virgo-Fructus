@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 
-const FREE_DELIVERY_THRESHOLD = 2000
-const DELIVERY_FEE = 300
+const FREE_DELIVERY_THRESHOLD = 2500
+const DELIVERY_FEE = 450
 
 type CheckoutStep = 'cart' | 'details' | 'payment' | 'confirmation'
 
@@ -83,8 +83,7 @@ export default function CartPageClient() {
     if (adjusted) setCartNotice(t('cart.cartAdjusted'))
   }, [items, stockMap, updateQuantity, t])
 
-  const isBelgrade = formData.city.toLowerCase().includes('beograd') || formData.city.toLowerCase().includes('belgrade')
-  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD && isBelgrade
+  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD
   const deliveryFee = isFreeDelivery ? 0 : DELIVERY_FEE
   const total = subtotal + deliveryFee
   const progressToFree = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)

@@ -3,7 +3,7 @@
     "addToCart": "Dodaj u korpu",
     "addedToCart": "Dodato u korpu",
     "backToShop": "← Vrati se u prodavnicu",
-    "freeDeliveryNote": "Besplatna dostava za narudžbine preko 2000 RSD u Beogradu",
+    "freeDeliveryNote": "Besplatna dostava za narudžbine preko 2500 RSD",
     "currency": "RSD",
     "from": "od",
     "loading": "Učitavanje...",
@@ -20,7 +20,7 @@
     "closeMenu": "Zatvori meni"
   },
   "footer": {
-    "description": "100% prirodno dehidrirano voće. Besplatna dostava za narudžbine preko 2000 RSD u Beogradu.",
+    "description": "100% prirodno dehidrirano voće. Besplatna dostava za narudžbine preko 2500 RSD.",
     "copyright": "© 2026 Vigor Fructus. Sva prava zadržana.",
     "usefulLinks": "Korisni linkovi"
   },
@@ -170,7 +170,7 @@
     "premium": "Ketering i dekoracija",
     "premiumDesc": "Idealno za ketering, dekoraciju i kreativne projekte.",
     "ctaHeadline": "Spremni da unapredite svoje koktele?",
-    "ctaDescription": "Besplatna dostava za sve narudžbine preko 2000 RSD u Beogradu."
+    "ctaDescription": "Besplatna dostava za sve narudžbine preko 2500 RSD."
   },
   "shop": {
     "title": "Prodavnica voća",
@@ -265,7 +265,7 @@
     "subtotal": "Stavke",
     "untilFreeDelivery": "Još {amount} RSD do besplatne dostave",
     "delivery": "Dostava",
-    "freeDelivery": "Besplatna dostava istog dana",
+    "freeDelivery": "Besplatna dostava",
     "total": "Ukupno",
     "proceedToPayment": "Nastavi na plaćanje",
     "deliveryDetails": "Podaci za dostavu",
@@ -315,7 +315,7 @@
     "philosophyLabel": "Filozofija",
     "philosophyTitle": "Naša misija",
     "philosophyP1": "Nismo fabrika niti to želimo da postanemo. Svaka serija je ograničena, svaki komad voća ručno pripreman. Svako naše pakovanje nosi u sebi sate rada i iskrenu nameru da budete zadovoljni.",  
-    "philosophyP2": "Kako smo nestrpljivi da vam što pre predstavimo naš proizvod, porudžbine u Beogradu iznad 2000 RSD i napravljene do 10:00h dostavljamo isti dan! Za ostale gradove u Srbiji, porudžbine šaljemo kurirskom službom.",
+    "philosophyP2": "Kako smo nestrpljivi da vam što pre predstavimo naš proizvod, porudžbine u Beogradu iznad 2500 RSD i napravljene do 10:00h dostavljamo isti dan! Za ostale gradove u Srbiji, porudžbine šaljemo kurirskom službom.",
     "philosophyP3": "Hvala vam što ste ovde!",
     "processLabel": "Proces",
     "processTitle": "Od voćnjaka do vašeg stola",

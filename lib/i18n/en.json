@@ -3,7 +3,7 @@
     "addToCart": "Add to cart",
     "addedToCart": "Added to cart",
     "backToShop": "← Back to the shop",
-    "freeDeliveryNote": "Free delivery for orders over 2000 RSD in Belgrade",
+    "freeDeliveryNote": "Free delivery for orders over 2500 RSD",
     "currency": "RSD",
     "from": "from",
     "loading": "Loading...",
@@ -20,7 +20,7 @@
     "closeMenu": "Close menu"
   },
   "footer": {
-    "description": "Natural dehydrated fruit of the highest quality. Free delivery for orders over 2000 RSD in Belgrade.",
+    "description": "Natural dehydrated fruit of the highest quality. Free delivery for orders over 2500 RSD.",
     "copyright": "© 2026 Vigor Fructus. All rights reserved.",
     "usefulLinks": "Useful links"
   },
@@ -170,7 +170,7 @@
     "premium": "Catering & decoration",
     "premiumDesc": "Ideal for decoration and creative projects.",
     "ctaHeadline": "Ready to take your cocktails up a notch?",
-    "ctaDescription": "Free delivery on all orders over 2000 RSD in Belgrade."
+    "ctaDescription": "Free delivery on all orders over 2500 RSD."
   },
   "shop": {
     "title": "Fruit shop",
@@ -315,7 +315,7 @@
     "philosophyLabel": "Philosophy",
     "philosophyTitle": "Our mission",
     "philosophyP1": "We are not a factory and we don’t want to become one. Each batch is limited, every piece of fruit is prepared by hand. Every package carries hours of work and a genuine intention for you to enjoy it.",
-    "philosophyP2": "Since we are eager to get our product to you as quickly as possible, orders in Belgrade over 2000 RSD placed before 10 AM are delivered the same day. For other cities in Serbia, we ship our product via courier service.",
+    "philosophyP2": "Since we are eager to get our product to you as quickly as possible, orders in Belgrade over 2500 RSD placed before 10 AM are delivered the same day. For other cities in Serbia, we ship our product via courier service.",
     "philosophyP3": "Thank you for being here!",
     "processLabel": "Process",
     "processTitle": "From the orchard to your table",
