@@ -608,9 +608,6 @@ export default function ProductDetail({
       {similarProducts.length > 0 && (
         <section className="bg-bg-page py-6 sm:py-10 lg:py-12 border-t border-border-card/20">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-            <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-terra">
-              {t('product.similar')}
-            </span>
             <h2 className="mt-2 font-serif font-semibold text-2xl sm:text-3xl text-bg-dark">
               {t('product.similarSubtitle')}
             </h2>
