@@ -14,6 +14,8 @@ export default function ContactPageClient() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const topics = [
     { value: '', label: t('contact.topicDefault') },
@@ -34,10 +36,32 @@ export default function ContactPageClient() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (validateForm()) {
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+    setSubmitError('')
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        setSubmitError(
+          typeof data?.error === 'string' ? data.error : 'Došlo je do greške. Pokušajte ponovo.',
+        )
+        return
+      }
       setIsSubmitted(true)
+      setFormData({ name: '', email: '', topic: '', message: '' })
+      setErrors({})
+    } catch {
+      setSubmitError('Došlo je do greške. Pokušajte ponovo.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -180,10 +204,14 @@ export default function ContactPageClient() {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full py-4 px-6 bg-bg-page text-bg-dark font-sans text-[13px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"
                 >
-                  {t('contact.send')}
+                  {isSubmitting ? 'Slanje...' : t('contact.send')}
                 </button>
+                {submitError && (
+                  <p className="text-sm text-terra font-sans">{submitError}</p>
+                )}
               </form>
             )}
           </div>
