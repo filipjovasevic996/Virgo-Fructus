@@ -31,12 +31,26 @@ const STATIC_DEFS: StaticEntry[] = [
   { path: '/politika-privatnosti', frequency: 'monthly', priority: 0.5 },
 ]
 
+/**
+ * Bidirectional language map for one logical page (SR ↔ EN).
+ * Repeating the same map on both URL entries lets Google connect them
+ * as alternates regardless of which one it crawls first.
+ */
+function languageMap(srUrl: string, enUrl: string) {
+  return {
+    sr: srUrl,
+    en: enUrl,
+    'x-default': srUrl,
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
   const staticPages: MetadataRoute.Sitemap = STATIC_DEFS.flatMap((def) => {
     const srUrl = `${SITE_URL}${def.path || '/'}`
     const enUrl = `${SITE_URL}/en${def.path || ''}`
+    const languages = languageMap(srUrl, enUrl)
     const enPriority = Math.max(0.3, def.priority - 0.05)
     return [
       {
@@ -44,12 +58,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: now,
         changeFrequency: def.frequency,
         priority: def.priority,
+        alternates: { languages },
       },
       {
         url: enUrl,
         lastModified: now,
         changeFrequency: def.frequency,
         priority: enPriority,
+        alternates: { languages },
       },
     ]
   })
@@ -70,18 +86,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     productPages = products.flatMap((p) => {
       const pathSlug = encodeURIComponent(p.slug)
       const img = firstResolvedProductImage(p.images, p.image, SITE_URL)
+      const srUrl = `${SITE_URL}/proizvodi/${pathSlug}`
+      const enUrl = `${SITE_URL}/en/proizvodi/${pathSlug}`
+      const languages = languageMap(srUrl, enUrl)
 
       const srEntry: MetadataRoute.Sitemap[0] = {
-        url: `${SITE_URL}/proizvodi/${pathSlug}`,
+        url: srUrl,
         lastModified: p.updatedAt ?? now,
         changeFrequency: 'weekly',
         priority: 0.8,
+        alternates: { languages },
       }
       const enEntry: MetadataRoute.Sitemap[0] = {
-        url: `${SITE_URL}/en/proizvodi/${pathSlug}`,
+        url: enUrl,
         lastModified: p.updatedAt ?? now,
         changeFrequency: 'weekly',
         priority: 0.75,
+        alternates: { languages },
       }
       if (img) {
         srEntry.images = [img]

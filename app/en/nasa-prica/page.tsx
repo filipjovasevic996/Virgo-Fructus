@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import AboutPageClient from '@/components/about-page-client'
+import { buildLanguageAlternates } from '@/lib/hreflang'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com').replace(/\/+$/, '')
 
@@ -9,11 +10,7 @@ export const metadata: Metadata = {
     'How Vigor Fructus started and our approach to premium dehydrated fruit for cocktails and healthy snacking.',
   alternates: {
     canonical: '/en/nasa-prica',
-    languages: {
-      'sr-RS': `${SITE_URL}/nasa-prica`,
-      'en-US': `${SITE_URL}/en/nasa-prica`,
-      'x-default': `${SITE_URL}/nasa-prica`,
-    },
+    languages: buildLanguageAlternates('/nasa-prica'),
   },
   openGraph: {
     type: 'website',

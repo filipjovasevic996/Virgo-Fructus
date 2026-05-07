@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import ContactPageClient from '@/components/contact-page-client'
+import { buildLanguageAlternates } from '@/lib/hreflang'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com').replace(/\/+$/, '')
 
@@ -9,11 +10,7 @@ export const metadata: Metadata = {
     'Kontaktirajte Vigor Fructus za porudzbine, B2B saradnju i pitanja o premium dehidriranom vocu.',
   alternates: {
     canonical: '/kontakt',
-    languages: {
-      'sr-RS': `${SITE_URL}/kontakt`,
-      'en-US': `${SITE_URL}/en/kontakt`,
-      'x-default': `${SITE_URL}/kontakt`,
-    },
+    languages: buildLanguageAlternates('/kontakt'),
   },
   openGraph: {
     type: 'website',

@@ -16,6 +16,7 @@ import {
   lowestEffectivePrice,
   validPriceEntries,
 } from '@/lib/product-offers'
+import { buildLanguageAlternates } from '@/lib/hreflang'
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
@@ -57,7 +58,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sku = `VF-${product.id}`
 
   const srPath = `/proizvodi/${slug}`
-  const enPath = `/en/proizvodi/${slug}`
 
   const fallbackDescription =
     typeof lowestPrice === 'number'
@@ -69,11 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: shortDesc || description || fallbackDescription,
     alternates: {
       canonical: srPath,
-      languages: {
-        'sr-RS': `${SITE_URL}${srPath}`,
-        'en-US': `${SITE_URL}${enPath}`,
-        'x-default': `${SITE_URL}${srPath}`,
-      },
+      languages: buildLanguageAlternates(srPath),
     },
     openGraph: {
       title: `${name} | Vigor Fructus`,

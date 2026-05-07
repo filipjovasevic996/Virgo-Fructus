@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ShopPageClient } from '@/components/shop-page-client'
 import { getStorefrontProducts } from '@/lib/storefront-products'
+import { buildLanguageAlternates } from '@/lib/hreflang'
 
 export const revalidate = 120
 
@@ -12,11 +13,7 @@ export const metadata: Metadata = {
     'Browse premium dehydrated fruit from Vigor Fructus — lime, lemon, blood orange and more for cocktails and snacks.',
   alternates: {
     canonical: '/en/prodavnica',
-    languages: {
-      'sr-RS': `${SITE_URL}/prodavnica`,
-      'en-US': `${SITE_URL}/en/prodavnica`,
-      'x-default': `${SITE_URL}/prodavnica`,
-    },
+    languages: buildLanguageAlternates('/prodavnica'),
   },
   openGraph: {
     type: 'website',

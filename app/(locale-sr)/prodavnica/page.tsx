@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { ShopPageClient } from '@/components/shop-page-client'
 import { getStorefrontProducts } from '@/lib/storefront-products'
+import { buildLanguageAlternates } from '@/lib/hreflang'
 
 export const revalidate = 120
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com').replace(/\/+$/, '')
@@ -11,11 +12,7 @@ export const metadata: Metadata = {
     'Kupite premium dehidrirano voce Vigor Fructus: limeta, limun, crvena pomorandza i drugi proizvodi za koktele i zdravu uzinu.',
   alternates: {
     canonical: '/prodavnica',
-    languages: {
-      'sr-RS': `${SITE_URL}/prodavnica`,
-      'en-US': `${SITE_URL}/en/prodavnica`,
-      'x-default': `${SITE_URL}/prodavnica`,
-    },
+    languages: buildLanguageAlternates('/prodavnica'),
   },
   openGraph: {
     type: 'website',
