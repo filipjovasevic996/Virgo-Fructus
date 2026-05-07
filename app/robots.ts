@@ -17,11 +17,12 @@ export default function robots(): MetadataRoute.Robots {
           'Claude-User',
           'PerplexityBot',
           'Perplexity-User',
+          'Google-Extended',
         ],
         allow: '/',
       },
       {
-        userAgent: ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'Google-Extended', 'CCBot', 'Bytespider'],
+        userAgent: ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'CCBot', 'Bytespider'],
         disallow: '/',
       },
       {
