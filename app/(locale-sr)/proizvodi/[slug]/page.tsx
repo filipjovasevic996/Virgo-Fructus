@@ -10,6 +10,12 @@ import {
   localizeProductRow,
   getSimilarLocalizedProducts,
 } from '@/lib/product-ssr-data'
+import {
+  type PriceEntry,
+  effectivePrice,
+  lowestEffectivePrice,
+  validPriceEntries,
+} from '@/lib/product-offers'
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
@@ -42,10 +48,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     product.image,
     SITE_URL,
   )
-  const prices = product.prices as { weight: string; price: number; salePrice?: number }[]
-  const lowestPrice = prices.length > 0 ? Math.min(...prices.map((p) => p.salePrice ?? p.price)) : 0
-  const topOffer = prices[0]
-  const offerPrice = topOffer ? (topOffer.salePrice ?? topOffer.price) : undefined
+  const prices = product.prices as PriceEntry[]
+  const lowestPrice = lowestEffectivePrice(prices)
+  const offerPrice = effectivePrice(validPriceEntries(prices)[0])
   const availability = product.stockKg && Number(product.stockKg) > 0
     ? 'https://schema.org/InStock'
     : 'https://schema.org/OutOfStock'
@@ -54,12 +59,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const srPath = `/proizvodi/${slug}`
   const enPath = `/en/proizvodi/${slug}`
 
+  const fallbackDescription =
+    typeof lowestPrice === 'number'
+      ? `${name} – premium dehidrirano voće. Od ${lowestPrice} RSD.`
+      : `${name} – premium dehidrirano voće za koktele i zdravu užinu.`
+
   return {
     title: name,
-    description:
-      shortDesc ||
-      description ||
-      `${name} – premium dehidrirano voće. Od ${lowestPrice} RSD.`,
+    description: shortDesc || description || fallbackDescription,
     alternates: {
       canonical: srPath,
       languages: {
@@ -101,10 +108,31 @@ export default async function ProductPage({ params }: Props) {
   const similarProducts = await getSimilarLocalizedProducts(product, 'sr')
   const name = localizedProduct.name
   const description = localizedProduct.description
-  const prices = localizedProduct.prices
   const resolvedImages = allResolvedProductImageUrls(product.images, product.image, SITE_URL)
   const sku = `VF-${product.id}`
   const productUrl = `${SITE_URL}/proizvodi/${slug}`
+
+  // Only emit Offers for variants with a real, positive price. Google's
+  // Product rich-result validator rejects offers with `price: 0`, which
+  // disqualifies the entire product from price/availability cards.
+  const offerEntries = validPriceEntries(localizedProduct.prices).map((p) => {
+    const grams = parseWeightToGrams(p.weight) ?? 0
+    const inStock =
+      grams > 0
+        ? localizedProduct.stockKg * 1000 >= grams
+        : localizedProduct.stockKg > 0
+    return {
+      '@type': 'Offer',
+      sku: `${sku}-${p.weight}`,
+      name: p.weight,
+      price: effectivePrice(p) as number,
+      priceCurrency: 'RSD',
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      url: productUrl,
+      seller: { '@id': `${SITE_URL}/#organization` },
+    }
+  })
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -123,21 +151,7 @@ export default async function ProductPage({ params }: Props) {
     manufacturer: {
       '@id': `${SITE_URL}/#organization`,
     },
-    offers: prices.map((p) => {
-      const grams = parseWeightToGrams(p.weight) ?? 0
-      const inStock = grams > 0 ? localizedProduct.stockKg * 1000 >= grams : localizedProduct.stockKg > 0
-      return {
-        '@type': 'Offer',
-        sku: `${sku}-${p.weight}`,
-        name: p.weight,
-        price: p.salePrice ?? p.price,
-        priceCurrency: 'RSD',
-        availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-        itemCondition: 'https://schema.org/NewCondition',
-        url: productUrl,
-        seller: { '@id': `${SITE_URL}/#organization` },
-      }
-    }),
+    ...(offerEntries.length > 0 ? { offers: offerEntries } : {}),
   }
 
   const breadcrumbJsonLd = {
