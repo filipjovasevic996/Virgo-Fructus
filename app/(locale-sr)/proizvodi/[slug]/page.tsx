@@ -5,6 +5,7 @@ import ProductDetail from '@/components/product-detail'
 import { notFound } from 'next/navigation'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
 import {
+  getActiveProductSlugs,
   getProductRow,
   localizeProductRow,
   getSimilarLocalizedProducts,
@@ -17,6 +18,13 @@ const SITE_URL = (
 type Props = {
   params: Promise<{ slug: string }>
 }
+
+export async function generateStaticParams() {
+  const slugs = await getActiveProductSlugs()
+  return slugs.map((slug) => ({ slug }))
+}
+
+export const revalidate = 120
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -162,10 +170,9 @@ export default async function ProductPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductDetail
-        slug={slug}
-        initialLocale="sr"
-        initialProduct={localizedProduct}
-        initialSimilarProducts={similarProducts}
+        product={localizedProduct}
+        similarProducts={similarProducts}
+        locale="sr"
       />
     </>
   )

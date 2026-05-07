@@ -41,7 +41,7 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
   }, [isSearchExpanded])
 
   const { data, isLoading } = useSWR<{ products: Product[] }>(
-    mounted ? `/api/products?locale=${locale}` : null,
+    `/api/products?locale=${locale}`,
     fetcher,
     {
       fallbackData: { products: initialProducts },
@@ -112,8 +112,6 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
       return sortBy === 'priceAsc' ? priceA - priceB : priceB - priceA
     })
   }, [filteredProducts, sortBy, locale])
-
-  const showLoading = !mounted || isLoading
 
   return (
     <div className="bg-bg-page min-h-screen py-8 sm:py-10 lg:py-12">
@@ -188,7 +186,7 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
           </div>
         </div>
 
-        {showLoading ? (
+        {isLoading ? (
           <div className="flex min-h-[320px] items-center justify-center">
             <div className="flex items-center gap-3 text-text-nav">
               <Spinner className="size-6 text-lime" />

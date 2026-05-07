@@ -5,6 +5,7 @@ import ProductDetail from '@/components/product-detail'
 import { notFound } from 'next/navigation'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
 import {
+  getActiveProductSlugs,
   getProductRow,
   localizeProductRow,
   getSimilarLocalizedProducts,
@@ -17,6 +18,17 @@ const SITE_URL = (
 type Props = {
   params: Promise<{ slug: string }>
 }
+
+/**
+ * Pre-render every active product page at build time. Combined with
+ * `revalidate`, new/updated products are picked up on the next ISR refresh.
+ */
+export async function generateStaticParams() {
+  const slugs = await getActiveProductSlugs()
+  return slugs.map((slug) => ({ slug }))
+}
+
+export const revalidate = 120
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -162,10 +174,9 @@ export default async function ProductPageEn({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductDetail
-        slug={slug}
-        initialLocale="en"
-        initialProduct={localizedProduct}
-        initialSimilarProducts={similarProducts}
+        product={localizedProduct}
+        similarProducts={similarProducts}
+        locale="en"
       />
     </>
   )

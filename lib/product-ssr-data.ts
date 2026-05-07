@@ -21,10 +21,30 @@ export async function getProductRow(slug: string) {
   }
 }
 
+export async function getActiveProductSlugs(): Promise<string[]> {
+  try {
+    const rows = await db
+      .select({ slug: productsTable.slug })
+      .from(productsTable)
+      .where(eq(productsTable.status, 'active'))
+    return rows.map((r) => r.slug)
+  } catch {
+    return []
+  }
+}
+
 export function localizeProductRow(
   product: typeof productsTable.$inferSelect,
   locale: SupportedLocale,
 ): Product {
+  const prices =
+    (product.prices as {
+      weight: string
+      price: number
+      salePrice?: number
+      pricingMode?: 'weight' | 'quantity'
+    }[]) ?? []
+
   return {
     id: product.id,
     slug: product.slug,
@@ -34,7 +54,8 @@ export function localizeProductRow(
     shortDescription: resolveLocalized(product.shortDescription, locale),
     image: product.image,
     images: (product.images as string[]) ?? [],
-    prices: (product.prices as { weight: string; price: number; salePrice?: number }[]) ?? [],
+    prices,
+    pricingMode: prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight',
     badge: product.badge as Product['badge'],
     isFavorite: product.isFavorite,
     stockKg: parseStockKg(product.stockKg),
