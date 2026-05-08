@@ -9,7 +9,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.
 export const metadata: Metadata = {
   title: 'Prodavnica',
   description:
-    'Kupite premium dehidrirano voce Vigor Fructus: limeta, limun, crvena pomorandza i drugi proizvodi za koktele i zdravu uzinu.',
+    'Premium dehidrirano voće Vigor Fructus nudi širok asortiman proizvoda za koktele i bezalkoholna pića. Brza i besplatna dostava u Beogradu.',
   alternates: {
     canonical: '/prodavnica',
     languages: buildLanguageAlternates('/prodavnica'),
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'Prodavnica | Vigor Fructus',
     description:
-      'Pregled svih proizvoda i pakovanja premium dehidriranog voca Vigor Fructus.',
+      'Pregled svih proizvoda i pakovanja premium dehidriranog voća Vigor Fructus.',
     url: `${SITE_URL}/prodavnica`,
     images: [{ url: `${SITE_URL}/prodavnica/opengraph-image`, width: 1200, height: 630, alt: 'Prodavnica' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Prodavnica | Vigor Fructus',
-    description: 'Pregled svih proizvoda i pakovanja premium dehidriranog voca Vigor Fructus.',
+    description: 'Pregled svih proizvoda i pakovanja premium dehidriranog voća Vigor Fructus.',
     images: [`${SITE_URL}/prodavnica/opengraph-image`],
   },
 }
