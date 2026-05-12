@@ -69,7 +69,7 @@ export interface Transaction {
   type: 'payment' | 'refund'
   amount: number
   status: 'completed' | 'pending' | 'failed'
-  paymentMethod: 'card' | 'bank_transfer' | 'cash_on_delivery'
+  paymentMethod: 'card' | 'bank_transfer' | 'cash'
   customerName: string
   createdAt: string
 }

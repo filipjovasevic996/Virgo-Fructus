@@ -38,7 +38,7 @@ interface DBOrder {
   address: string
   postalCode: string
   totalAmount: string
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'SHIPPED' | 'CANCELLED'
+  status: 'PENDING' | 'APPROVED' | 'PAID' | 'FAILED' | 'SHIPPED' | 'CANCELLED'
   notes: string | null
   createdAt: string
   items: OrderItem[]
@@ -46,6 +46,7 @@ interface DBOrder {
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
   PENDING: { label: 'Na čekanju', color: 'bg-terra/20 text-terra', icon: Clock },
+  APPROVED: { label: 'Odobreno', color: 'bg-lime/20 text-lime', icon: CheckCircle },
   PAID: { label: 'Plaćeno', color: 'bg-lime/20 text-lime', icon: CreditCard },
   SHIPPED: { label: 'Isporučeno', color: 'bg-cream/20 text-cream', icon: Truck },
   FAILED: { label: 'Neuspešno', color: 'bg-terra/20 text-terra', icon: XCircle },
@@ -130,6 +131,7 @@ export function OrdersTab() {
         >
           <option value="all">Svi statusi</option>
           <option value="PENDING">Na čekanju</option>
+          <option value="APPROVED">Odobreno</option>
           <option value="PAID">Plaćeno</option>
           <option value="SHIPPED">Isporučeno</option>
           <option value="FAILED">Neuspešno</option>
@@ -236,6 +238,7 @@ export function OrdersTab() {
                         className="w-full px-3 py-2 input-vigor"
                       >
                         <option value="PENDING">Na čekanju</option>
+                        <option value="APPROVED">Odobreno</option>
                         <option value="PAID">Plaćeno</option>
                         <option value="SHIPPED">Isporučeno</option>
                         <option value="CANCELLED">Otkazano</option>

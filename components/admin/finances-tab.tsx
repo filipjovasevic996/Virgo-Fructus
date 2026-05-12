@@ -23,7 +23,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 const paymentMethodConfig = {
   card: { label: 'Kartica', icon: CreditCard },
   bank_transfer: { label: 'Uplata', icon: Banknote },
-  cash_on_delivery: { label: 'Pouzećem', icon: Wallet },
+  cash: { label: 'Pouzećem', icon: Wallet },
 }
 
 function formatPrice(price: number) {
@@ -83,8 +83,8 @@ export function FinancesTab() {
     bank_transfer: transactions
       .filter((t) => t.paymentMethod === 'bank_transfer' && t.type === 'payment' && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0),
-    cash_on_delivery: transactions
-      .filter((t) => t.paymentMethod === 'cash_on_delivery' && t.type === 'payment' && t.status === 'completed')
+    cash: transactions
+      .filter((t) => t.paymentMethod === 'cash' && t.type === 'payment' && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0),
   }
 
@@ -219,7 +219,7 @@ export function FinancesTab() {
               <option value="all">Svi metodi</option>
               <option value="card">Kartica</option>
               <option value="bank_transfer">Uplata</option>
-              <option value="cash_on_delivery">Pouzećem</option>
+              <option value="cash">Pouzećem</option>
             </select>
           </div>
         </div>

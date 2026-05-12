@@ -161,6 +161,11 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        const normalizedPaymentMethod =
+          paymentMethod === 'card' || paymentMethod === 'bank_transfer'
+            ? paymentMethod
+            : 'cash'
+
         const [order] = await tx
           .insert(ordersTable)
           .values({
@@ -173,6 +178,7 @@ export async function POST(request: NextRequest) {
             notes: customer.note ? String(customer.note) : null,
             totalAmount: total.toString(),
             status: 'PENDING',
+            paymentMethod: normalizedPaymentMethod,
           })
           .returning()
 

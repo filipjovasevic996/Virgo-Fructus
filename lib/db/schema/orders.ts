@@ -2,7 +2,14 @@ import { pgTable, text, numeric, timestamp, uuid, pgEnum } from "drizzle-orm/pg-
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const orderStatusEnum = pgEnum("order_status", ["PENDING", "PAID", "FAILED", "SHIPPED", "CANCELLED"]);
+export const orderStatusEnum = pgEnum("order_status", [
+  "PENDING",
+  "APPROVED",
+  "PAID",
+  "FAILED",
+  "SHIPPED",
+  "CANCELLED",
+]);
 
 export const ordersTable = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -14,6 +21,8 @@ export const ordersTable = pgTable("orders", {
   phone: text("phone").notNull(),
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: orderStatusEnum("status").notNull().default("PENDING"),
+  /** "cash" | "card" | "bank_transfer" — selected by customer at checkout. */
+  paymentMethod: text("payment_method").notNull().default("cash"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

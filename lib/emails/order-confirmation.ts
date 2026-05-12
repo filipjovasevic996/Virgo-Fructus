@@ -90,16 +90,20 @@ export function customerOrderEmail(data: OrderEmailData): string {
         <tr>
           <td style="padding: 40px;">
             <div style="text-align: center; margin-bottom: 32px;">
-              <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background-color: #c1d62e; line-height: 60px; text-align: center; font-size: 28px;">
-                ✓
+              <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background-color: #f0c419; line-height: 60px; text-align: center; font-size: 28px;">
+                ⏳
               </div>
             </div>
             
             <h2 style="margin: 0 0 8px; font-family: Georgia, serif; font-size: 22px; color: #1a1a1a; text-align: center;">
               Hvala na porudžbini!
             </h2>
-            <p style="margin: 0 0 24px; font-family: sans-serif; font-size: 14px; color: #666; text-align: center;">
+            <p style="margin: 0 0 12px; font-family: sans-serif; font-size: 14px; color: #666; text-align: center;">
               Porudžbina <strong>#${data.orderNumber}</strong> je uspešno primljena.
+            </p>
+            <p style="margin: 0 0 24px; font-family: sans-serif; font-size: 13px; color: #999; text-align: center; line-height: 1.5;">
+              Porudžbina čeka odobrenje administratora.<br />
+              Kada bude odobrena, dobićete novi mejl sa potvrdom i informacijama o slanju.
             </p>
 
             <!-- Items -->
@@ -297,6 +301,162 @@ export function supplierOrderEmail(data: OrderEmailData): string {
 
           </td>
         </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+interface OrderStatusEmailData {
+  orderNumber: string
+  customerName: string
+  total: number
+  items: OrderItem[]
+}
+
+export function orderApprovedEmail(data: OrderStatusEmailData): string {
+  const customerName = escapeHtml(data.customerName)
+  const orderNumber = escapeHtml(data.orderNumber)
+
+  return `
+<!DOCTYPE html>
+<html lang="sr">
+<head><meta charset="utf-8" /></head>
+<body style="margin: 0; padding: 0; background-color: #f5f0e8;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f0e8; padding: 40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+
+        <tr>
+          <td style="background-color: #2c2c2c; padding: 32px 40px; text-align: center;">
+            <h1 style="margin: 0; font-family: Georgia, serif; font-size: 24px; color: #f5f0e8; letter-spacing: 1px;">
+              Vigor Fructus
+            </h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding: 40px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background-color: #c1d62e; line-height: 60px; text-align: center; font-size: 28px;">
+                ✓
+              </div>
+            </div>
+
+            <h2 style="margin: 0 0 8px; font-family: Georgia, serif; font-size: 22px; color: #1a1a1a; text-align: center;">
+              Porudžbina je odobrena
+            </h2>
+            <p style="margin: 0 0 24px; font-family: sans-serif; font-size: 14px; color: #666; text-align: center; line-height: 1.5;">
+              Poštovani/a ${customerName},<br />
+              vaša porudžbina <strong>#${orderNumber}</strong> je odobrena i biće poslata uskoro.<br />
+              Obavestićemo vas kada pošiljka bude predata kurirskoj službi.
+            </p>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e8e0d0; border-radius: 6px; overflow: hidden; margin-bottom: 24px;">
+              <tr style="background-color: #f9f6f0;">
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: left;">Proizvod</th>
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Pakovanje</th>
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Kol.</th>
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: right;">Cena</th>
+              </tr>
+              ${itemsTableRows(data.items)}
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+              <tr>
+                <td style="padding: 6px 0; font-family: Georgia, serif; font-size: 18px; font-weight: bold; color: #1a1a1a;">Ukupno</td>
+                <td style="padding: 6px 0; font-family: sans-serif; font-size: 20px; font-weight: bold; color: #c1d62e; text-align: right;">
+                  ${data.total.toLocaleString('sr-RS')} RSD
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin: 0; font-family: sans-serif; font-size: 13px; color: #999; text-align: center;">
+              Za sva pitanja, javite nam se na vigorfructus@gmail.com.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #2c2c2c; padding: 20px 40px; text-align: center;">
+            <p style="margin: 0; font-family: sans-serif; font-size: 12px; color: #999;">
+              © ${new Date().getFullYear()} Vigor Fructus. Sva prava zadržana.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+interface OrderCancelledEmailData {
+  orderNumber: string
+  customerName: string
+  reason?: string
+}
+
+export function orderCancelledEmail(data: OrderCancelledEmailData): string {
+  const customerName = escapeHtml(data.customerName)
+  const orderNumber = escapeHtml(data.orderNumber)
+  const reason = data.reason ? escapeHtml(data.reason) : ''
+
+  return `
+<!DOCTYPE html>
+<html lang="sr">
+<head><meta charset="utf-8" /></head>
+<body style="margin: 0; padding: 0; background-color: #f5f0e8;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f0e8; padding: 40px 20px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+
+        <tr>
+          <td style="background-color: #2c2c2c; padding: 32px 40px; text-align: center;">
+            <h1 style="margin: 0; font-family: Georgia, serif; font-size: 24px; color: #f5f0e8; letter-spacing: 1px;">
+              Vigor Fructus
+            </h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding: 40px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background-color: #c0392b; line-height: 60px; text-align: center; font-size: 28px; color: #fff;">
+                ✕
+              </div>
+            </div>
+
+            <h2 style="margin: 0 0 8px; font-family: Georgia, serif; font-size: 22px; color: #1a1a1a; text-align: center;">
+              Porudžbina je otkazana
+            </h2>
+            <p style="margin: 0 0 16px; font-family: sans-serif; font-size: 14px; color: #666; text-align: center; line-height: 1.5;">
+              Poštovani/a ${customerName},<br />
+              nažalost, vaša porudžbina <strong>#${orderNumber}</strong> je otkazana.
+            </p>
+            ${reason ? `
+            <div style="background-color: #f9f6f0; border-left: 3px solid #c0392b; padding: 12px 16px; margin-bottom: 16px;">
+              <p style="margin: 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a; line-height: 1.5;">
+                <strong>Razlog:</strong> ${reason}
+              </p>
+            </div>` : ''}
+            <p style="margin: 0; font-family: sans-serif; font-size: 13px; color: #999; text-align: center; line-height: 1.5;">
+              Ako je u pitanju greška ili imate dodatna pitanja,<br />
+              kontaktirajte nas na vigorfructus@gmail.com.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #2c2c2c; padding: 20px 40px; text-align: center;">
+            <p style="margin: 0; font-family: sans-serif; font-size: 12px; color: #999;">
+              © ${new Date().getFullYear()} Vigor Fructus. Sva prava zadržana.
+            </p>
+          </td>
+        </tr>
+
       </table>
     </td></tr>
   </table>
