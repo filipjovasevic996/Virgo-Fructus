@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { priceEntryLabel } from '@/lib/price-entry-label'
 import { toast } from 'sonner'
 import { Check } from 'lucide-react'
 
@@ -48,19 +49,20 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
 
   const safeIdx = Math.min(selectedWeight, Math.max(0, product.prices.length - 1))
   const currentPrice = product.prices[safeIdx]
+  const unitPiecesLabel = t('product.unitPieces')
 
   const weightMaxQty = useMemo(
     () =>
       product.prices.map((po) =>
         maxQuantityForCartLine(
           product.id,
-          po.weight,
+          priceEntryLabel(po, unitPiecesLabel),
           product.stockKg ?? 0,
           cartItems,
           product.pricingMode ?? 'weight',
         ),
       ),
-    [product.id, product.stockKg, product.prices, cartItems],
+    [product.id, product.stockKg, product.prices, cartItems, product.pricingMode, unitPiecesLabel],
   )
 
   const preferredPriceIndex = useMemo(() => {
@@ -129,9 +131,10 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   const displayPrice = hasSalePrice ? salePrice : currentPrice.price
   const isQuantityMode = product.pricingMode === 'quantity'
 
+  const currentLabel = priceEntryLabel(currentPrice, unitPiecesLabel)
   const maxQty = maxQuantityForCartLine(
     product.id,
-    currentPrice.weight,
+    currentLabel,
     product.stockKg ?? 0,
     cartItems,
     product.pricingMode ?? 'weight',
@@ -143,7 +146,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
       {
         id: product.id,
         name: product.name,
-        weight: currentPrice.weight,
+        weight: currentLabel,
         price: displayPrice,
         image: product.image,
       },
@@ -240,7 +243,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
               const unavailable = optMax < 1
               return priceOption.price ? (
                 <button
-                  key={priceOption.weight}
+                  key={`${priceOption.weight ?? index}-${index}`}
                   type="button"
                   disabled={unavailable}
                   onClick={() => !unavailable && setSelectedWeight(index)}
@@ -256,7 +259,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
                       'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
                   )}
                 >
-                  {priceOption.weight}
+                  {priceOption.weight ?? ''}
                 </button>
               ) : null
             })}

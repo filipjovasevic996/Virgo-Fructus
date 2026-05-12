@@ -106,7 +106,7 @@ export function customerOrderEmail(data: OrderEmailData): string {
             <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e8e0d0; border-radius: 6px; overflow: hidden; margin-bottom: 24px;">
               <tr style="background-color: #f9f6f0;">
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: left;">Proizvod</th>
-                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Gram.</th>
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Pakovanje</th>
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Kol.</th>
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: right;">Cena</th>
               </tr>
@@ -269,7 +269,7 @@ export function supplierOrderEmail(data: OrderEmailData): string {
             <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 24px;">
               <tr style="background-color: #f5f5f5;">
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: left;">Proizvod</th>
-                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Gram.</th>
+                <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Pakovanje</th>
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: center;">Kol.</th>
                 <th style="padding: 10px 16px; font-family: sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; text-align: right;">Cena</th>
               </tr>

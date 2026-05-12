@@ -9,7 +9,8 @@ export interface Product {
   images: string[]
   badge?: 'new' | 'limited' | 'sale'
   prices: {
-    weight: string
+    weight?: string
+    quantity?: number
     price: number
     salePrice?: number
     pricingMode?: 'weight' | 'quantity'

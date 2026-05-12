@@ -57,7 +57,8 @@ const pricingModes = [
 ]
 
 type PriceRow = {
-  weight: string
+  weight?: string
+  quantity?: number
   price: number
   salePrice?: number
   pricingMode?: 'weight' | 'quantity'
@@ -71,8 +72,30 @@ const defaultPricesByMode: Record<'weight' | 'quantity', PriceRow[]> = {
     { weight: '3kg', price: 0 },
   ],
   quantity: [
-    { weight: '1 kom', price: 0 },
+    { quantity: 1, price: 0 },
   ],
+}
+
+function normalizePriceRowForMode(
+  row: PriceRow | undefined,
+  mode: 'weight' | 'quantity',
+): PriceRow {
+  if (mode === 'quantity') {
+    const q =
+      typeof row?.quantity === 'number' && row.quantity > 0
+        ? Math.floor(row.quantity)
+        : 1
+    return {
+      quantity: q,
+      price: row?.price ?? 0,
+      ...(typeof row?.salePrice === 'number' ? { salePrice: row.salePrice } : {}),
+    }
+  }
+  return {
+    weight: typeof row?.weight === 'string' && row.weight ? row.weight : '',
+    price: row?.price ?? 0,
+    ...(typeof row?.salePrice === 'number' ? { salePrice: row.salePrice } : {}),
+  }
 }
 
 function formatPrice(price: number) {
@@ -477,10 +500,13 @@ function ProductModal({
       : defaultPricesByMode[initialPricingMode].map((entry) => ({ ...entry }))
 
     if (initialPricingMode === 'quantity') {
-      return [existing[0] ?? { ...defaultPricesByMode.quantity[0] }]
+      const first = existing[0] as PriceRow | undefined
+      return [normalizePriceRowForMode(first, 'quantity')]
     }
 
-    return existing
+    return existing.map((entry) =>
+      normalizePriceRowForMode(entry as PriceRow, 'weight'),
+    )
   })()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -706,7 +732,7 @@ function ProductModal({
         ...(product ? { id: product.id } : {}),
         ...formData,
         prices: formData.prices.map((price) => ({
-          ...price,
+          ...normalizePriceRowForMode(price, formData.pricingMode),
           pricingMode: formData.pricingMode,
         })),
         image: formData.images[0] || '',
@@ -873,10 +899,14 @@ function ProductModal({
                   pricingMode: nextMode,
                   prices: (() => {
                     if (prev.pricingMode === nextMode) {
-                      return nextMode === 'quantity' ? [prev.prices[0]].filter(Boolean) : prev.prices
+                      return nextMode === 'quantity'
+                        ? [normalizePriceRowForMode(prev.prices[0], 'quantity')]
+                        : prev.prices.map((p) =>
+                            normalizePriceRowForMode(p, 'weight'),
+                          )
                     }
                     if (nextMode === 'quantity') {
-                      return [prev.prices[0] ?? { ...defaultPricesByMode.quantity[0] }]
+                      return [normalizePriceRowForMode(prev.prices[0], 'quantity')]
                     }
                     return defaultPricesByMode.weight.map((entry) => ({ ...entry }))
                   })(),
@@ -1133,13 +1163,20 @@ function ProductModal({
             </label>
             <div className={cn('grid gap-4', formData.pricingMode === 'quantity' ? 'grid-cols-1' : 'grid-cols-2 md:grid-cols-4')}>
               {formData.prices.map((price, index) => (
-                <div key={price.weight} className="space-y-2">
+                <div
+                  key={
+                    formData.pricingMode === 'quantity'
+                      ? `q-${index}`
+                      : `w-${price.weight ?? index}`
+                  }
+                  className="space-y-2"
+                >
                   {formData.pricingMode === 'weight' && (
                     <>
                       <label className="text-xs text-text-muted">Težina</label>
                       <Input
                         type="text"
-                        value={price.weight}
+                        value={price.weight ?? ''}
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -1149,6 +1186,30 @@ function ProductModal({
                           }))
                         }
                         placeholder="npr. 50g"
+                        className="input-vigor"
+                      />
+                    </>
+                  )}
+                  {formData.pricingMode === 'quantity' && (
+                    <>
+                      <label className="text-xs text-text-muted">Količina (kom)</label>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        step={1}
+                        value={price.quantity ?? ''}
+                        onChange={(e) => {
+                          const raw = parseInt(e.target.value, 10)
+                          const q = Number.isFinite(raw) && raw > 0 ? raw : 1
+                          setFormData((prev) => ({
+                            ...prev,
+                            prices: prev.prices.map((p, i) =>
+                              i === index ? { ...p, quantity: q } : p
+                            ),
+                          }))
+                        }}
+                        placeholder="npr. 1"
                         className="input-vigor"
                       />
                     </>

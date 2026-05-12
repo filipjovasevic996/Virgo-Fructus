@@ -9,7 +9,14 @@ import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
+import { priceEntryLabel } from '@/lib/price-entry-label'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
+
+type StockInfo = {
+  stock: number
+  mode: 'weight' | 'quantity'
+  perUnit: number
+}
 
 const FREE_DELIVERY_THRESHOLD = 2500
 const DELIVERY_FEE = 450
@@ -46,8 +53,9 @@ export default function CartPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderError, setOrderError] = useState('')
   const [orderNumber, setOrderNumber] = useState('')
-  const [stockMap, setStockMap] = useState<Record<string, number>>({})
+  const [stockMap, setStockMap] = useState<Record<string, StockInfo>>({})
   const [cartNotice, setCartNotice] = useState('')
+  const unitPiecesLabel = t('product.unitPieces')
 
   useEffect(() => {
     const ids = [...new Set(items.map((i) => i.id))]
@@ -58,8 +66,24 @@ export default function CartPageClient() {
     let cancelled = false
     fetch(`/api/products/stock?ids=${encodeURIComponent(ids.join(','))}`)
       .then((r) => r.json())
-      .then((data: { stock?: Record<string, number> }) => {
-        if (!cancelled && data.stock) setStockMap(data.stock)
+      .then((data: { stock?: Record<string, StockInfo | number> }) => {
+        if (cancelled || !data.stock) return
+        const normalized: Record<string, StockInfo> = {}
+        for (const [id, value] of Object.entries(data.stock)) {
+          if (typeof value === 'number') {
+            normalized[id] = { stock: value, mode: 'weight', perUnit: 1 }
+          } else if (value && typeof value === 'object') {
+            normalized[id] = {
+              stock: typeof value.stock === 'number' ? value.stock : 0,
+              mode: value.mode === 'quantity' ? 'quantity' : 'weight',
+              perUnit:
+                typeof value.perUnit === 'number' && value.perUnit > 0
+                  ? Math.floor(value.perUnit)
+                  : 1,
+            }
+          }
+        }
+        setStockMap(normalized)
       })
       .catch(() => {})
     return () => {
@@ -67,14 +91,35 @@ export default function CartPageClient() {
     }
   }, [items])
 
+  /** Best display label for a cart line. Uses server-confirmed pricing mode
+   *  so legacy lines (e.g. stored with `weight: "50g"` for a quantity-mode
+   *  product) still render correctly as "1 kom". */
+  const labelForItem = (item: (typeof items)[number]): string => {
+    const info = stockMap[item.id]
+    if (info?.mode === 'quantity') {
+      return priceEntryLabel(
+        { pricingMode: 'quantity', quantity: info.perUnit },
+        unitPiecesLabel,
+      )
+    }
+    return item.weight
+  }
+
   useEffect(() => {
     if (items.length === 0) return
     const ready = items.every((i) => stockMap[i.id] !== undefined)
     if (!ready) return
     let adjusted = false
     for (const item of items) {
-      const stock = stockMap[item.id] ?? 0
-      const max = maxQuantityForCartLine(item.id, item.weight, stock, items)
+      const info = stockMap[item.id]
+      if (!info) continue
+      const max = maxQuantityForCartLine(
+        item.id,
+        item.weight,
+        info.stock,
+        items,
+        info.mode,
+      )
       if (item.quantity > max) {
         adjusted = true
         updateQuantity(item.id, item.weight, Math.max(0, max))
@@ -132,7 +177,7 @@ export default function CartPageClient() {
           items: items.map((item) => ({
             id: item.id,
             name: item.name,
-            weight: item.weight,
+            weight: labelForItem(item),
             quantity: item.quantity,
             price: item.price,
           })),
@@ -215,8 +260,6 @@ export default function CartPageClient() {
 
   const stepLabels = [t('cart.stepDetails'), t('cart.stepPayment'), t('cart.stepConfirm')]
 
-  console.log("THRESHOLD", FREE_DELIVERY_THRESHOLD)
-  console.log("SUBTOTAL", subtotal)
   return (
     <div className="bg-bg-page min-h-screen py-8 sm:py-12">
       <div className="mx-auto max-w-[1320px] px-5 sm:px-6 lg:px-8">
@@ -274,12 +317,15 @@ export default function CartPageClient() {
               <div className="space-y-4">
                 {items.map((item) => {
                   const itemImageSrc = resolveRenderableImageSrc(item.image)
+                  const info = stockMap[item.id]
                   const lineMax = maxQuantityForCartLine(
                     item.id,
                     item.weight,
-                    stockMap[item.id] ?? 0,
+                    info?.stock ?? 0,
                     items,
+                    info?.mode ?? 'weight',
                   )
+                  const displayLabel = labelForItem(item)
                   return (
                   <div
                     key={`${item.id}-${item.weight}`}
@@ -304,7 +350,7 @@ export default function CartPageClient() {
                           {item.name}
                         </h3>
                         <p className="font-sans text-sm text-text-nav">
-                          {item.weight}
+                          {displayLabel}
                         </p>
                       </div>
 
@@ -683,7 +729,7 @@ export default function CartPageClient() {
                         )}
                       </div>
                       <span className="flex-1 min-w-0 truncate">{item.name}</span>
-                      <span className="text-text-body-light/60 text-xs whitespace-nowrap">{item.weight} × {item.quantity}</span>
+                      <span className="text-text-body-light/60 text-xs whitespace-nowrap">{labelForItem(item)} × {item.quantity}</span>
                       <span className="text-cream font-medium text-right whitespace-nowrap">
                         {item.price * item.quantity} {t('common.currency')}
                       </span>

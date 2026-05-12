@@ -193,6 +193,7 @@
     "prevImage": "Previous image",
     "nextImage": "Next image",
     "chooseWeight": "Choose weight",
+    "unitPieces": "pcs",
     "noPrice": "Price is currently unavailable",
     "infoFrom": "Starting price",
     "infoFormats": "Pack sizes",
@@ -209,6 +210,7 @@
     "badgeSale": "Sale",
     "outOfStock": "Out of stock",
     "stockRemainingKg": "Total in stock: {kg} kg",
+    "stockRemainingPieces": "Total in stock: {count} pcs",
     "readMore": "Read more",
     "readLess": "Read less"
   },

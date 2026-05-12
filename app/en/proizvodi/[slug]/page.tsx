@@ -4,6 +4,7 @@ import { allResolvedProductImageUrls } from '@/lib/resolve-product-image-url'
 import ProductDetail from '@/components/product-detail'
 import { notFound } from 'next/navigation'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { priceEntryLabel, priceEntryKey } from '@/lib/price-entry-label'
 import {
   getActiveProductSlugs,
   getProductRow,
@@ -113,15 +114,16 @@ export default async function ProductPageEn({ params }: Props) {
   const sku = `VF-${product.id}`
   const productUrl = `${SITE_URL}/en/proizvodi/${slug}`
   const offerEntries = validPriceEntries(localizedProduct.prices).map((p) => {
-    const grams = parseWeightToGrams(p.weight) ?? 0
+    const label = priceEntryLabel(p)
+    const grams = parseWeightToGrams(p.weight ?? '') ?? 0
     const inStock =
       grams > 0
         ? localizedProduct.stockKg * 1000 >= grams
         : localizedProduct.stockKg > 0
     return {
       '@type': 'Offer',
-      sku: `${sku}-${p.weight}`,
-      name: p.weight,
+      sku: `${sku}-${priceEntryKey(p)}`,
+      name: label,
       price: effectivePrice(p) as number,
       priceCurrency: 'RSD',
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',

@@ -30,11 +30,26 @@ export const productsTable = pgTable("products", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const priceEntrySchema = z.object({
-  weight: z.string(),
-  price: z.number(),
-  salePrice: z.number().optional(),
-});
+export const priceEntrySchema = z
+  .object({
+    weight: z.string().optional(),
+    quantity: z.number().int().positive().optional(),
+    price: z.number(),
+    salePrice: z.number().optional(),
+    pricingMode: z.enum(["weight", "quantity"]).optional(),
+  })
+  .refine(
+    (entry) => {
+      const mode = entry.pricingMode ?? "weight";
+      return mode === "quantity"
+        ? typeof entry.quantity === "number"
+        : typeof entry.weight === "string" && entry.weight.length > 0;
+    },
+    {
+      message:
+        "Price entry must define `weight` for weight pricing or `quantity` for quantity pricing.",
+    },
+  );
 
 export const localizedFieldSchema = z.object({
   sr: z.string(),

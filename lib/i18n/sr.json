@@ -193,6 +193,7 @@
     "prevImage": "Prethodna slika",
     "nextImage": "Sledeća slika",
     "chooseWeight": "Izaberi gramažu",
+    "unitPieces": "kom",
     "noPrice": "Cena trenutno nije dostupna",
     "infoFrom": "Početna cena",
     "infoFormats": "Broj pakovanja",
@@ -209,6 +210,7 @@
     "badgeSale": "Akcija",
     "outOfStock": "Nema na stanju",
     "stockRemainingKg": "Na stanju ukupno: {kg} kg",
+    "stockRemainingPieces": "Na stanju ukupno: {count} kom",
     "readMore": "Prikaži više",
     "readLess": "Prikaži manje"
   },

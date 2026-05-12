@@ -1,7 +1,9 @@
 export type PriceEntry = {
-  weight: string
+  weight?: string
+  quantity?: number
   price: number
   salePrice?: number
+  pricingMode?: 'weight' | 'quantity'
 }
 
 export function effectivePrice(entry: PriceEntry | undefined | null): number | null {

@@ -9,6 +9,7 @@ import type { Product } from '@/lib/products'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { formatKgFixed4 } from '@/lib/stock-kg'
 import { preferredPriceIndex as computePreferredPriceIndex } from '@/lib/preferred-price-index'
+import { priceEntryLabel } from '@/lib/price-entry-label'
 import { toast } from 'sonner'
 
 interface ProductPurchasePanelProps {
@@ -45,6 +46,7 @@ export function ProductPurchasePanel({
       : currentPrice.price
     : 0
   const isQuantityMode = product.pricingMode === 'quantity'
+  const unitPiecesLabel = t('product.unitPieces')
 
   const hasPricedOptions = useMemo(
     () =>
@@ -65,13 +67,13 @@ export function ProductPurchasePanel({
     return product.prices.map((po) =>
       maxQuantityForCartLine(
         product.id,
-        po.weight,
+        priceEntryLabel(po, unitPiecesLabel),
         product.stockKg ?? 0,
         cartItems,
         product.pricingMode ?? 'weight',
       ),
     )
-  }, [product, cartItems])
+  }, [product, cartItems, unitPiecesLabel])
 
   useEffect(() => {
     if (!hasPricedOptions) return
@@ -121,10 +123,13 @@ export function ProductPurchasePanel({
     setIsAdded(false)
   }, [selectedWeight])
 
+  const currentLabel = currentPrice
+    ? priceEntryLabel(currentPrice, unitPiecesLabel)
+    : ''
   const maxQty = currentPrice
     ? maxQuantityForCartLine(
         product.id,
-        currentPrice.weight,
+        currentLabel,
         product.stockKg ?? 0,
         cartItems,
         product.pricingMode ?? 'weight',
@@ -137,7 +142,7 @@ export function ProductPurchasePanel({
       {
         id: product.id,
         name: product.name,
-        weight: currentPrice.weight,
+        weight: currentLabel,
         price: displayPrice,
         image: product.image,
       },
@@ -177,7 +182,7 @@ export function ProductPurchasePanel({
                 const unavailable = optMax < 1
                 return priceOption.price ? (
                   <button
-                    key={`${priceOption.weight}-${index}`}
+                    key={`${priceOption.weight ?? index}-${index}`}
                     type="button"
                     disabled={unavailable}
                     onClick={() => !unavailable && setSelectedWeight(index)}
@@ -193,7 +198,7 @@ export function ProductPurchasePanel({
                         'bg-bg-dark border-border-card text-text-body-light hover:border-lime/50 cursor-pointer',
                     )}
                   >
-                    {priceOption.weight}
+                    {priceOption.weight ?? ''}
                   </button>
                 ) : null
               })}
@@ -225,7 +230,11 @@ export function ProductPurchasePanel({
       {currentPrice && maxQty >= 1 && (
         <div className="mt-4 font-sans text-sm text-text-nav">
           <p className="leading-relaxed">
-            {t('product.stockRemainingKg', { kg: formatKgFixed4(product.stockKg) })}
+            {isQuantityMode
+              ? t('product.stockRemainingPieces', {
+                  count: Math.max(0, Math.floor(product.stockKg ?? 0)),
+                })
+              : t('product.stockRemainingKg', { kg: formatKgFixed4(product.stockKg) })}
           </p>
         </div>
       )}

@@ -6,6 +6,7 @@ import { ordersTable } from '@/lib/db/schema/orders'
 import { orderItemsTable } from '@/lib/db/schema/order-items'
 import { productsTable } from '@/lib/db/schema/products'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
+import { priceEntryLabel, type PriceEntryLike } from '@/lib/price-entry-label'
 import { kgToDecigrams, parseStockKg } from '@/lib/stock-kg'
 import { resend, FROM_EMAIL, SUPPLIER_EMAIL } from '@/lib/resend'
 import { customerOrderEmail, supplierOrderEmail } from '@/lib/emails/order-confirmation'
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
           .select({
             id: productsTable.id,
             stockKg: productsTable.stockKg,
+            prices: productsTable.prices,
           })
           .from(productsTable)
           .where(inArray(productsTable.id, productIds))
@@ -87,12 +89,49 @@ export async function POST(request: NextRequest) {
           throw new Error('PRODUCT_NOT_FOUND')
         }
 
-        const stockById = new Map(
-          productRows.map((r) => [r.id, kgToDecigrams(parseStockKg(r.stockKg))]),
+        type ProductMeta = {
+          pricingMode: 'weight' | 'quantity'
+          prices: PriceEntryLike[]
+          stockKg: number
+        }
+        const metaById = new Map<string, ProductMeta>(
+          productRows.map((r) => {
+            const prices = (r.prices as PriceEntryLike[]) ?? []
+            const pricingMode: 'weight' | 'quantity' =
+              prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight'
+            return [
+              r.id,
+              {
+                pricingMode,
+                prices,
+                stockKg: parseStockKg(r.stockKg),
+              },
+            ]
+          }),
         )
 
         const gramsNeeded = new Map<string, number>()
+        const piecesNeeded = new Map<string, number>()
+
         for (const item of items) {
+          const meta = metaById.get(item.id)
+          if (!meta) throw new Error('PRODUCT_NOT_FOUND')
+
+          if (meta.pricingMode === 'quantity') {
+            const matched = meta.prices.find(
+              (entry) => priceEntryLabel(entry) === item.weight,
+            )
+            const perPackPieces =
+              typeof matched?.quantity === 'number' && matched.quantity > 0
+                ? Math.floor(matched.quantity)
+                : 1
+            piecesNeeded.set(
+              item.id,
+              (piecesNeeded.get(item.id) ?? 0) + perPackPieces * item.quantity,
+            )
+            continue
+          }
+
           const perPack = parseWeightToGrams(item.weight)
           if (!perPack) {
             throw new Error('INVALID_WEIGHT')
@@ -104,9 +143,20 @@ export async function POST(request: NextRequest) {
         }
 
         for (const [id, grams] of gramsNeeded) {
-          const availDg = stockById.get(id)
+          const meta = metaById.get(id)
+          if (!meta) throw new Error('PRODUCT_NOT_FOUND')
+          const availDg = kgToDecigrams(meta.stockKg)
           const neededDg = grams * 10
-          if (availDg === undefined || neededDg > availDg) {
+          if (neededDg > availDg) {
+            throw new Error('INSUFFICIENT_STOCK')
+          }
+        }
+
+        for (const [id, pieces] of piecesNeeded) {
+          const meta = metaById.get(id)
+          if (!meta) throw new Error('PRODUCT_NOT_FOUND')
+          const availPieces = Math.max(0, Math.floor(meta.stockKg))
+          if (pieces > availPieces) {
             throw new Error('INSUFFICIENT_STOCK')
           }
         }
@@ -149,6 +199,16 @@ export async function POST(request: NextRequest) {
             .update(productsTable)
             .set({
               stockKg: sql`${productsTable.stockKg} - (${grams}::numeric / 1000.0)`,
+              updatedAt: new Date(),
+            })
+            .where(eq(productsTable.id, id))
+        }
+
+        for (const [id, pieces] of piecesNeeded) {
+          await tx
+            .update(productsTable)
+            .set({
+              stockKg: sql`${productsTable.stockKg} - ${pieces}::numeric`,
               updatedAt: new Date(),
             })
             .where(eq(productsTable.id, id))
