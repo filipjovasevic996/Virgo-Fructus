@@ -186,7 +186,14 @@ export function ShopPageClient({ initialProducts }: { initialProducts: Product[]
           </div>
         </div>
 
-        {isLoading ? (
+        {/*
+         * Only show the spinner when SWR is loading AND we don't yet have any
+         * products to render. With `fallbackData: { products: initialProducts }`
+         * SWR returns `isLoading: false` on first render, so SSR HTML always
+         * contains the full grid — never the spinner. This guard keeps the
+         * SSR contract intact even if SWR's future behaviour changes.
+         */}
+        {isLoading && products.length === 0 ? (
           <div className="flex min-h-[320px] items-center justify-center">
             <div className="flex items-center gap-3 text-text-nav">
               <Spinner className="size-6 text-lime" />

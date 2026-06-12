@@ -49,7 +49,8 @@ export const metadata: Metadata = {
   publisher: 'Vigor Fructus',
   formatDetection: {
     email: false,
-    telephone: false,
+    telephone: true,
+    address: false,
   },
   openGraph: {
     type: 'website',
@@ -111,7 +112,6 @@ const localBusinessJsonLd = {
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Beograd',
-    addressRegion: 'RS-00',
     addressCountry: 'RS',
   },
   contactPoint: {
@@ -136,11 +136,12 @@ const localBusinessJsonLd = {
     },
   ],
   areaServed: {
-    '@type': 'City',
-    name: 'Beograd',
+    '@type': 'Country',
+    name: 'Serbia',
   },
   priceRange: '$$',
   currenciesAccepted: 'RSD',
+  paymentAccepted: 'Cash on delivery',
   sameAs: ['https://www.instagram.com/dehidriranovoce_beograd'],
 }
 

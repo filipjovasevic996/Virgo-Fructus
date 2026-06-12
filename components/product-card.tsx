@@ -39,7 +39,21 @@ const badgeKeys: Record<string, string> = {
 }
 
 export function ProductCard({ product, featuredImageLift = false, imagePriority = false }: ProductCardProps) {
-  const [selectedWeight, setSelectedWeight] = useState(0)
+  // Initial selected index must point at a variant with a real (>0) price so
+  // SSR never renders "0 RSD" (Google flags this as a price-data bug). If a
+  // product has no priced variant we still default to 0 — the `hasPricedOptions`
+  // gate below hides the price block entirely in that case.
+  const initialSelectedIdx = (() => {
+    const firstPricedIdx = product.prices.findIndex((entry) => {
+      const effective =
+        typeof entry.salePrice === 'number' && entry.salePrice > 0
+          ? entry.salePrice
+          : entry.price
+      return typeof effective === 'number' && effective > 0
+    })
+    return firstPricedIdx >= 0 ? firstPricedIdx : 0
+  })()
+  const [selectedWeight, setSelectedWeight] = useState(initialSelectedIdx)
   const [isAdded, setIsAdded] = useState(false)
   const { addItem, items: cartItems } = useCart()
   const { t } = useI18n()
@@ -265,12 +279,12 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
             })}
         </div>
 
-        {hasPricedOptions && (
+        {hasPricedOptions && displayPrice > 0 && (
           <div className="mt-3 flex items-baseline gap-2">
             <span className="font-sans font-bold text-lg text-lime animate-price-fade">
               {displayPrice} {t('common.currency')}
             </span>
-            {hasSalePrice && (
+            {hasSalePrice && currentPrice.price > 0 && (
               <span className="text-sm text-text-body-light/50 line-through">
                 {currentPrice.price} {t('common.currency')}
               </span>

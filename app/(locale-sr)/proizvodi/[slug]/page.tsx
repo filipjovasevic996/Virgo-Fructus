@@ -109,6 +109,13 @@ export default async function ProductPage({ params }: Props) {
   const sku = `VF-${product.id}`
   const productUrl = `${SITE_URL}/proizvodi/${slug}`
 
+  // priceValidUntil rolls forward 1 year from each ISR render. Required for
+  // Google Merchant / Product rich-result eligibility — without it, Google
+  // Search Console flags "Missing field priceValidUntil" on every offer.
+  const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+
   // Only emit Offers for variants with a real, positive price. Google's
   // Product rich-result validator rejects offers with `price: 0`, which
   // disqualifies the entire product from price/availability cards.
@@ -125,6 +132,7 @@ export default async function ProductPage({ params }: Props) {
       name: label,
       price: effectivePrice(p) as number,
       priceCurrency: 'RSD',
+      priceValidUntil,
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
       url: productUrl,
@@ -147,6 +155,7 @@ export default async function ProductPage({ params }: Props) {
       name: 'Vigor Fructus',
     },
     manufacturer: {
+      '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
     },
     ...(offerEntries.length > 0 ? { offers: offerEntries } : {}),

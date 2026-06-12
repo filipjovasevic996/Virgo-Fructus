@@ -15,6 +15,7 @@
     "shop": "Shop",
     "ourStory": "Our Story",
     "contact": "Contact",
+    "faq": "FAQ",
     "cart": "Cart",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
@@ -329,6 +330,45 @@
     "ctaHeadline": "Try our products",
     "ctaDesc": "Discover why top bartenders and cocktail enthusiasts across Serbia choose us.",
     "viewShop": "View the shop"
+  },
+  "faq": {
+    "label": "Help & information",
+    "title": "Frequently asked questions",
+    "lead": "Everything you most often ask us about our dehydrated fruit, storage, delivery and wholesale — in one place.",
+    "items": {
+      "shelfLife": {
+        "q": "How long does dehydrated fruit last?",
+        "a": "Our dehydrated fruit has a shelf life of up to 12 months from the production date, provided the package is kept sealed in a dry, dark place. The exact best-before date is printed on every pack."
+      },
+      "additives": {
+        "q": "Do the products contain preservatives or added sugar?",
+        "a": "No. Our fruit is 100% natural — no preservatives, no added sugar, no artificial colors or flavors. The ingredient list is always just the fruit itself (e.g. \"100% strawberry\")."
+      },
+      "storage": {
+        "q": "How should I store dehydrated fruit?",
+        "a": "After opening, keep the bag tightly closed in a dry, dark place at room temperature. Avoid direct sunlight and moisture. No refrigeration needed."
+      },
+      "useCases": {
+        "q": "What is dehydrated fruit used for?",
+        "a": "Most often as a cocktail garnish (gin & tonic, whisky, lemonades, iced tea), drink and dessert decoration, a healthy additive-free snack, and for baking — cakes, granola and gift sets."
+      },
+      "children": {
+        "q": "Is it suitable for children?",
+        "a": "Dehydrated fruit is a natural snack with no added sugar or additives and is suitable for older children. For toddlers, always consult your pediatrician — small hard pieces can be a choking hazard and citrus is naturally acidic."
+      },
+      "ordering": {
+        "q": "How do I order in Belgrade?",
+        "a": "Place your order directly on the website through the shop and cart. In Belgrade we also offer same-day delivery — for any order over 2500 RSD confirmed before 10:00, the package arrives by the end of the same business day."
+      },
+      "wholesale": {
+        "q": "Do you offer wholesale for bars and restaurants?",
+        "a": "Yes. We work with bars, restaurants, hotels and catering teams across Serbia. For wholesale terms and pricing email us at vigorfructus@gmail.com or via the contact form — we reply within 24 hours."
+      },
+      "deliveryTime": {
+        "q": "What is the delivery time?",
+        "a": "Belgrade: same day for orders over 2500 RSD confirmed before 10:00, otherwise next business day. Rest of Serbia: 1–3 business days via courier. Free delivery on all orders over 2500 RSD."
+      }
+    }
   },
   "admin": {
     "login": "Admin login",

@@ -7,7 +7,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.
 export const metadata: Metadata = {
   title: 'Our story',
   description:
-    'How Vigor Fructus started and our approach to premium dehydrated fruit for cocktails and healthy snacking.',
+    'Vigor Fructus — a small Belgrade dehydrated fruit brand founded by Jelena and Danilo, with nearly two decades of hospitality experience. Slow low-temperature drying for premium cocktails and healthy snacking.',
   alternates: {
     canonical: '/en/nasa-prica',
     languages: buildLanguageAlternates('/nasa-prica'),
@@ -15,15 +15,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     title: 'Our story | Vigor Fructus',
-    description: 'Our journey and philosophy of premium dehydrated fruit.',
+    description:
+      'A small Belgrade dehydrated fruit brand founded by Jelena and Danilo. Slow low-temperature drying for premium cocktails and healthy snacking.',
     url: `${SITE_URL}/en/nasa-prica`,
     locale: 'en_US',
-    images: [{ url: `${SITE_URL}/nasa-prica/opengraph-image`, width: 1200, height: 630, alt: 'Our story' }],
+    images: [{ url: `${SITE_URL}/nasa-prica/opengraph-image`, width: 1200, height: 630, alt: 'Our story — Vigor Fructus' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Our story | Vigor Fructus',
-    description: 'How Vigor Fructus began and what makes our process unique.',
+    description:
+      'How Jelena and Danilo started Vigor Fructus and why slow low-temperature drying makes fruit perfect for cocktails and healthy snacking.',
     images: [`${SITE_URL}/nasa-prica/opengraph-image`],
   },
 }

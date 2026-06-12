@@ -26,6 +26,7 @@ const STATIC_DEFS: StaticEntry[] = [
   { path: '/prodavnica', frequency: 'weekly', priority: 0.9 },
   { path: '/nasa-prica', frequency: 'monthly', priority: 0.7 },
   { path: '/kontakt', frequency: 'monthly', priority: 0.6 },
+  { path: '/faq', frequency: 'monthly', priority: 0.6 },
   { path: '/uslovi-kupovine', frequency: 'monthly', priority: 0.5 },
   { path: '/povrat-robe-i-reklamacije', frequency: 'monthly', priority: 0.5 },
   { path: '/politika-privatnosti', frequency: 'monthly', priority: 0.5 },

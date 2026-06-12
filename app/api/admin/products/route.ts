@@ -4,12 +4,17 @@ import { db } from '@/lib/db'
 import { productsTable } from '@/lib/db/schema'
 import { eq, desc } from 'drizzle-orm'
 
-/** Bust ISR for listing pages; optionally the product detail page when slug is known */
+/**
+ * Bust ISR for listing pages, the product detail page when slug is known,
+ * and the sitemap (so newly added/activated/deleted products are discoverable
+ * to Google without waiting for the 1h sitemap cache to expire).
+ */
 function revalidateStorefront(productSlug?: string | null) {
   revalidatePath('/')
   revalidatePath('/prodavnica')
   revalidatePath('/en')
   revalidatePath('/en/prodavnica')
+  revalidatePath('/sitemap.xml')
   if (productSlug) {
     revalidatePath(`/proizvodi/${productSlug}`)
     revalidatePath(`/en/proizvodi/${productSlug}`)

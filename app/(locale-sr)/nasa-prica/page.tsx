@@ -7,7 +7,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.
 export const metadata: Metadata = {
   title: 'Naša priča',
   description:
-    'Upoznajte kako je nastao Vigor Fructus i naš proces dehidracije voca za premium koktele i zdravu uzinu.',
+    'Vigor Fructus — mali beogradski brend dehidriranog voća. Jelena i Danilo, sa skoro dve decenije iskustva u ugostiteljstvu, sporo suše voće na niskim temperaturama za premium koktele i zdravu užinu.',
   alternates: {
     canonical: '/nasa-prica',
     languages: buildLanguageAlternates('/nasa-prica'),
@@ -16,14 +16,15 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'Naša priča | Vigor Fructus',
     description:
-      'Upoznajte kako je nastao Vigor Fructus i nasu filozofiju premium dehidriranog voca.',
+      'Mali beogradski brend dehidriranog voća koji su osnovali Jelena i Danilo. Sporo sušenje voća na niskim temperaturama za premium koktele i zdravu užinu.',
     url: `${SITE_URL}/nasa-prica`,
-    images: [{ url: `${SITE_URL}/nasa-prica/opengraph-image`, width: 1200, height: 630, alt: 'Nasa prica' }],
+    images: [{ url: `${SITE_URL}/nasa-prica/opengraph-image`, width: 1200, height: 630, alt: 'Naša priča — Vigor Fructus' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Naša priča | Vigor Fructus',
-    description: 'Kako je nastao Vigor Fructus i po cemu je nas proces jedinstven.',
+    description:
+      'Kako su Jelena i Danilo pokrenuli Vigor Fructus i zašto sporo sušenje na niskim temperaturama daje voće savršeno za koktele i zdravu užinu.',
     images: [`${SITE_URL}/nasa-prica/opengraph-image`],
   },
 }

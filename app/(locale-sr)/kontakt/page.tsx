@@ -7,7 +7,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.
 export const metadata: Metadata = {
   title: 'Kontakt',
   description:
-    'Kontaktirajte Vigor Fructus za porudzbine, B2B saradnju i pitanja o premium dehidriranom vocu.',
+    'Kontaktirajte Vigor Fructus za porudžbine, veleprodaju i B2B saradnju putem emaila, telefona ili kontakt forme. Odgovaramo u roku od 24h.',
   alternates: {
     canonical: '/kontakt',
     languages: buildLanguageAlternates('/kontakt'),

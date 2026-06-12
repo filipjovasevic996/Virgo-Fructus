@@ -47,7 +47,7 @@ export function Navigation() {
           >
             <Image
               src="/logo.png"
-              alt=""
+              alt="Vigor Fructus"
               width={200}
               height={200}
               className="h-8 w-8 sm:h-9 sm:w-9 object-contain shrink-0"

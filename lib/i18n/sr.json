@@ -15,6 +15,7 @@
     "shop": "Prodavnica",
     "ourStory": "Naša Priča",
     "contact": "Kontakt",
+    "faq": "Česta pitanja",
     "cart": "Korpa",
     "openMenu": "Otvori meni",
     "closeMenu": "Zatvori meni"
@@ -329,6 +330,45 @@
     "ctaHeadline": "Pogledajte našu ponudu",
     "ctaDesc": "Otkrijte zašto nas biraju najbolji barmeni i entuzijasti koktela širom Srbije.",
     "viewShop": "Prodavnica"
+  },
+  "faq": {
+    "label": "Pomoć i informacije",
+    "title": "Česta pitanja",
+    "lead": "Sve što vas najčešće zanima o našem dehidriranom voću, čuvanju, dostavi i veleprodaji — na jednom mestu.",
+    "items": {
+      "shelfLife": {
+        "q": "Koliko dugo traje dehidrirano voće?",
+        "a": "Naše dehidrirano voće ima rok trajanja do 12 meseci od datuma proizvodnje, pod uslovom da se čuva u zatvorenom pakovanju na suvom i tamnom mestu. Tačan rok je naznačen na svakom pakovanju."
+      },
+      "additives": {
+        "q": "Da li proizvodi sadrže konzervanse ili dodati šećer?",
+        "a": "Ne. Naše voće je 100% prirodno — bez konzervansa, dodatog šećera, veštačkih boja i aroma. Sastav je uvek samo voće (npr. „100% jagoda“)."
+      },
+      "storage": {
+        "q": "Kako se čuva dehidrirano voće?",
+        "a": "Posle otvaranja pakovanje držite čvrsto zatvoreno na suvom i tamnom mestu, na sobnoj temperaturi. Izbegavajte direktnu sunčevu svetlost i vlagu. Frižider nije potreban."
+      },
+      "useCases": {
+        "q": "Za šta se koristi dehidrirano voće?",
+        "a": "Najčešće za koktel garniš (džin tonik, viski, limunade, ledeni čaj), dekoraciju pića i deserta, kao zdravu užinu bez aditiva, te za pekarske proizvode — kolače, granole i poklon kombinacije."
+      },
+      "children": {
+        "q": "Da li je pogodno za decu?",
+        "a": "Dehidrirano voće je prirodna užina bez dodatog šećera i aditiva i pogodno je za stariju decu. Za malu decu uvek konsultujte pedijatra zbog opasnosti od gušenja malim komadima i prirodnih kiselina kod citrusa."
+      },
+      "ordering": {
+        "q": "Kako se naručuje za Beograd?",
+        "a": "Porudžbinu pravite direktno na sajtu kroz prodavnicu i korpu. Za Beograd nudimo i dostavu istog dana — za sve narudžbine preko 2500 RSD potvrđene do 10:00, paket stiže do kraja istog radnog dana."
+      },
+      "wholesale": {
+        "q": "Da li postoji veleprodaja za barove i restorane?",
+        "a": "Da. Sarađujemo sa barovima, restoranima, hotelima i ketering timovima u Srbiji. Za veleprodajne uslove i cenovnik pišite nam na vigorfructus@gmail.com ili preko kontakt forme — javljamo se u roku od 24h."
+      },
+      "deliveryTime": {
+        "q": "Koji je rok dostave?",
+        "a": "Beograd: isti dan za porudžbine preko 2500 RSD potvrđene do 10:00, inače sledeći radni dan. Ostatak Srbije: 1–3 radna dana putem kurirske službe. Besplatna dostava za narudžbine preko 2500 RSD."
+      }
+    }
   },
   "admin": {
     "login": "Admin prijava",

@@ -113,6 +113,12 @@ export default async function ProductPageEn({ params }: Props) {
   const resolvedImages = allResolvedProductImageUrls(product.images, product.image, SITE_URL)
   const sku = `VF-${product.id}`
   const productUrl = `${SITE_URL}/en/proizvodi/${slug}`
+
+  // See SR product page for rationale.
+  const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+
   const offerEntries = validPriceEntries(localizedProduct.prices).map((p) => {
     const label = priceEntryLabel(p)
     const grams = parseWeightToGrams(p.weight ?? '') ?? 0
@@ -126,6 +132,7 @@ export default async function ProductPageEn({ params }: Props) {
       name: label,
       price: effectivePrice(p) as number,
       priceCurrency: 'RSD',
+      priceValidUntil,
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
       url: productUrl,
@@ -148,6 +155,7 @@ export default async function ProductPageEn({ params }: Props) {
       name: 'Vigor Fructus',
     },
     manufacturer: {
+      '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
     },
     ...(offerEntries.length > 0 ? { offers: offerEntries } : {}),

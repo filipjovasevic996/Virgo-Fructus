@@ -9,6 +9,14 @@ Vigor Fructus is a Serbian premium dehydrated fruit brand from Belgrade, special
 - Dehidrirana limeta (Dehydrated lime) — /proizvodi/dehidrirana-limeta
 - Dehidrirana crvena pomorandža (Dehydrated blood orange) — /proizvodi/dehidrirana-crvena-pomorandza
 - Dehidrirani limun (Dehydrated lemon) — /proizvodi/dehidrirani-limun
+- Dehidrirana pomorandža (Dehydrated orange) — /proizvodi/dehidrirana-pomorandza
+- Dehidrirana jabuka (Dehydrated apple) — /proizvodi/dehidrirana-jabuka
+- Dehidrirana jagoda (Dehydrated strawberry) — /proizvodi/dehidrirana-jagoda
+- Dehidrirana karambola (Dehydrated starfruit) — /proizvodi/dehidrirana-karambola
+- Dehidrirani crveni grejpfrut (Dehydrated red grapefruit) — /proizvodi/dehidrirani-crveni-grejpfrut
+- Dehidrirani ananas — polovine (Dehydrated pineapple halves) — /proizvodi/dehidrirani-ananas---polovine
+- Dehidrirani ananas — četvrtine (Dehydrated pineapple quarters) — /proizvodi/dehidrirani-ananas---cetvrtine
+- Dehidrirani đumbir (Dehydrated ginger) — /proizvodi/dehidrirani-dumbir
 
 Dostupno u više gramatura. Pogodno za koktele, dekoraciju pića, zdrave užine i poklon kombinacije.
 Available in multiple weight formats. Ideal for cocktails, drink decoration, healthy snacks, and gift sets.
@@ -37,6 +45,7 @@ Free delivery for orders over 2500 RSD. Delivery across Serbia.
 - https://www.vigorfructus.com/prodavnica — Prodavnica dehidriranog voća / Shop
 - https://www.vigorfructus.com/nasa-prica — Naša Priča / About Us
 - https://www.vigorfructus.com/kontakt — Kontakt & B2B / Contact & Wholesale
+- https://www.vigorfructus.com/faq — Česta pitanja / FAQ
 - https://www.vigorfructus.com/sitemap.xml — Mapa sajta / Sitemap
 
 ## English pages (path /en)
@@ -45,9 +54,18 @@ Free delivery for orders over 2500 RSD. Delivery across Serbia.
 - https://www.vigorfructus.com/en/prodavnica — Shop (EN)
 - https://www.vigorfructus.com/en/nasa-prica — Our story (EN)
 - https://www.vigorfructus.com/en/kontakt — Contact (EN)
+- https://www.vigorfructus.com/en/faq — FAQ (EN)
 - https://www.vigorfructus.com/en/proizvodi/dehidrirana-limeta — Dehydrated lime (EN)
-- https://www.vigorfructus.com/en/proizvodi/dehidrirana-crvena-pomorandza — Blood orange (EN)
-- https://www.vigorfructus.com/en/proizvodi/dehidrirani-limun — Lemon (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-crvena-pomorandza — Dehydrated blood orange (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-limun — Dehydrated lemon (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-pomorandza — Dehydrated orange (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-jabuka — Dehydrated apple (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-jagoda — Dehydrated strawberry (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirana-karambola — Dehydrated starfruit (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-crveni-grejpfrut — Dehydrated red grapefruit (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-ananas---polovine — Dehydrated pineapple halves (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-ananas---cetvrtine — Dehydrated pineapple quarters (EN)
+- https://www.vigorfructus.com/en/proizvodi/dehidrirani-dumbir — Dehydrated ginger (EN)
 
 ## Licenca / License
 

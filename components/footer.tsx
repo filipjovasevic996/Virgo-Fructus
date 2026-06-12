@@ -9,6 +9,7 @@ const footerLinkDefs = [
   { href: '/prodavnica', key: 'nav.shop' },
   { href: '/nasa-prica', key: 'nav.ourStory' },
   { href: '/kontakt', key: 'nav.contact' },
+  { href: '/faq', key: 'nav.faq' },
   { href: '/korpa', key: 'nav.cart' },
 ] as const
 
