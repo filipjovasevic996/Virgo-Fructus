@@ -9,6 +9,10 @@ export async function GET() {
       .select({ count: sql<number>`count(*)::int` })
       .from(productsTable)
 
+    // Admin convention (see app/api/admin/orders/route.ts):
+    //   PAID    → naplaceno karticom preko sajta (WSPay)
+    //   SHIPPED → naplaceno pouzecem (kurir predao kes)
+    // Both count as real revenue.
     const [orderStats] = await db
       .select({
         totalOrders: sql<number>`count(*)::int`,
@@ -16,7 +20,7 @@ export async function GET() {
         paidOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'PAID')::int`,
         shippedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'SHIPPED')::int`,
         cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'CANCELLED')::int`,
-        totalRevenue: sql<string>`coalesce(sum(${ordersTable.totalAmount}::numeric) filter (where ${ordersTable.status} = 'PAID'), 0)`,
+        totalRevenue: sql<string>`coalesce(sum(${ordersTable.totalAmount}::numeric) filter (where ${ordersTable.status} in ('PAID','SHIPPED')), 0)`,
       })
       .from(ordersTable)
 

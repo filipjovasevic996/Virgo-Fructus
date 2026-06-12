@@ -7,7 +7,6 @@ import {
   TrendingUp,
   TrendingDown,
   CreditCard,
-  Banknote,
   Wallet,
   ArrowUpRight,
   ArrowDownLeft,
@@ -20,18 +19,27 @@ import type { Transaction } from '@/lib/admin-store'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
+// Only two payment methods are actually supported by the shop:
+//   - `card`             → WSPay (placeno sajt)
+//   - `cash_on_delivery` → courier hands over cash (placeno pouzecem)
+// Anything else coming from the DB falls back to UNKNOWN_METHOD below.
 const paymentMethodConfig = {
   card: { label: 'Kartica', icon: CreditCard },
-  bank_transfer: { label: 'Uplata', icon: Banknote },
   cash_on_delivery: { label: 'Pouzećem', icon: Wallet },
 }
 
+const UNKNOWN_METHOD = { label: 'Nepoznato', icon: Wallet } as const
+
 function formatPrice(price: number) {
-  return new Intl.NumberFormat('sr-RS').format(price) + ' RSD'
+  const safe = Number.isFinite(price) ? price : 0
+  return new Intl.NumberFormat('sr-RS').format(safe) + ' RSD'
 }
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('sr-RS', {
+function formatDate(dateString: string | null | undefined) {
+  if (!dateString) return '—'
+  const d = new Date(dateString)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('sr-RS', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -54,38 +62,45 @@ export function FinancesTab() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [methodFilter, setMethodFilter] = useState<string>('all')
 
-  const transactions: Transaction[] = transactionsData?.transactions || []
+  const transactions: Transaction[] = Array.isArray(transactionsData?.transactions)
+    ? transactionsData.transactions
+    : []
 
   const filteredTransactions = transactions.filter((txn) => {
-    const matchesSearch =
-      txn.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      txn.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+    const q = searchQuery.toLowerCase()
+    const orderNumber = (txn.orderNumber ?? '').toLowerCase()
+    const customerName = (txn.customerName ?? '').toLowerCase()
+    const matchesSearch = orderNumber.includes(q) || customerName.includes(q)
     const matchesType = typeFilter === 'all' || txn.type === typeFilter
-    const matchesMethod = methodFilter === 'all' || txn.paymentMethod === methodFilter
+    const matchesMethod =
+      methodFilter === 'all' || txn.paymentMethod === methodFilter
     return matchesSearch && matchesType && matchesMethod
   })
 
-  // Calculate financial summaries
+  // Coerce in case the API ever returns numeric values as strings (Postgres
+  // `numeric` columns serialize as string by default).
+  const amountOf = (t: Transaction) => {
+    const n = typeof t.amount === 'number' ? t.amount : Number.parseFloat(String(t.amount ?? 0))
+    return Number.isFinite(n) ? n : 0
+  }
+
   const totalPayments = transactions
     .filter((t) => t.type === 'payment' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
+    .reduce((sum, t) => sum + amountOf(t), 0)
 
   const totalRefunds = transactions
     .filter((t) => t.type === 'refund' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
+    .reduce((sum, t) => sum + amountOf(t), 0)
 
   const netRevenue = totalPayments - totalRefunds
 
   const paymentsByMethod = {
     card: transactions
       .filter((t) => t.paymentMethod === 'card' && t.type === 'payment' && t.status === 'completed')
-      .reduce((sum, t) => sum + t.amount, 0),
-    bank_transfer: transactions
-      .filter((t) => t.paymentMethod === 'bank_transfer' && t.type === 'payment' && t.status === 'completed')
-      .reduce((sum, t) => sum + t.amount, 0),
+      .reduce((sum, t) => sum + amountOf(t), 0),
     cash_on_delivery: transactions
       .filter((t) => t.paymentMethod === 'cash_on_delivery' && t.type === 'payment' && t.status === 'completed')
-      .reduce((sum, t) => sum + t.amount, 0),
+      .reduce((sum, t) => sum + amountOf(t), 0),
   }
 
   const isLoading = transactionsLoading || statsLoading
@@ -154,7 +169,7 @@ export function FinancesTab() {
       {/* Payment Methods Breakdown */}
       <div className="bg-bg-hero rounded-lg p-6 border border-border-card">
         <h3 className="text-lg font-serif text-cream mb-4">Pregled po načinu plaćanja</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries(paymentsByMethod).map(([method, amount]) => {
             const config = paymentMethodConfig[method as keyof typeof paymentMethodConfig]
             const Icon = config.icon
@@ -218,7 +233,6 @@ export function FinancesTab() {
             >
               <option value="all">Svi metodi</option>
               <option value="card">Kartica</option>
-              <option value="bank_transfer">Uplata</option>
               <option value="cash_on_delivery">Pouzećem</option>
             </select>
           </div>
@@ -251,7 +265,10 @@ export function FinancesTab() {
             </thead>
             <tbody>
               {filteredTransactions.map((txn) => {
-                const method = paymentMethodConfig[txn.paymentMethod]
+                const method =
+                  paymentMethodConfig[
+                    txn.paymentMethod as keyof typeof paymentMethodConfig
+                  ] ?? UNKNOWN_METHOD
                 const MethodIcon = method.icon
 
                 return (
@@ -279,12 +296,12 @@ export function FinancesTab() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-cream font-medium">
-                        {txn.orderNumber}
+                        {txn.orderNumber ?? '—'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-text-body-light">
-                        {txn.customerName}
+                        {txn.customerName ?? '—'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -305,7 +322,7 @@ export function FinancesTab() {
                         }`}
                       >
                         {txn.type === 'payment' ? '+' : '-'}
-                        {formatPrice(txn.amount)}
+                        {formatPrice(amountOf(txn))}
                       </span>
                     </td>
                   </tr>

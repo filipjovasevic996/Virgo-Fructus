@@ -11,10 +11,10 @@ import {
   DollarSign,
   ArrowLeft,
   TrendingUp,
-  Users,
   Clock,
-  CheckCircle,
-  AlertCircle,
+  CreditCard,
+  Wallet,
+  XCircle,
   Menu,
   X,
 } from 'lucide-react'
@@ -173,11 +173,10 @@ function DashboardContent({
     totalRevenue: number
     totalOrders: number
     pendingOrders: number
-    processingOrders: number
-    completedOrders: number
+    paidOrders: number
+    shippedOrders: number
+    cancelledOrders: number
     totalProducts: number
-    b2bOrders: number
-    b2cOrders: number
   } | undefined
   isLoading: boolean
   onNavigate: (tab: Tab) => void
@@ -185,7 +184,7 @@ function DashboardContent({
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
+        {[...Array(7)].map((_, i) => (
           <div
             key={i}
             className="bg-bg-hero rounded-lg p-6 animate-pulse"
@@ -221,37 +220,30 @@ function DashboardContent({
       bgColor: 'bg-terra/10',
     },
     {
-      label: 'U obradi',
-      value: stats?.processingOrders || 0,
-      icon: AlertCircle,
+      label: 'Plaćeno – sajt',
+      value: stats?.paidOrders || 0,
+      icon: CreditCard,
       color: 'text-lime',
       bgColor: 'bg-lime/10',
     },
     {
-      label: 'Isporučeno',
-      value: stats?.completedOrders || 0,
-      icon: CheckCircle,
+      label: 'Plaćeno – pouzećem',
+      value: stats?.shippedOrders || 0,
+      icon: Wallet,
       color: 'text-lime',
       bgColor: 'bg-lime/10',
+    },
+    {
+      label: 'Otkazano',
+      value: stats?.cancelledOrders || 0,
+      icon: XCircle,
+      color: 'text-terra',
+      bgColor: 'bg-terra/10',
     },
     {
       label: 'Ukupno proizvoda',
       value: stats?.totalProducts || 0,
       icon: Package,
-      color: 'text-cream',
-      bgColor: 'bg-cream/10',
-    },
-    {
-      label: 'B2B porudžbine',
-      value: stats?.b2bOrders || 0,
-      icon: Users,
-      color: 'text-lime',
-      bgColor: 'bg-lime/10',
-    },
-    {
-      label: 'B2C porudžbine',
-      value: stats?.b2cOrders || 0,
-      icon: Users,
       color: 'text-cream',
       bgColor: 'bg-cream/10',
     },

@@ -1,14 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ComponentType } from 'react'
 import useSWR, { mutate } from 'swr'
 import {
   Search,
   ChevronDown,
   ChevronUp,
   Package,
-  Truck,
-  CheckCircle,
   XCircle,
   Clock,
   Loader2,
@@ -17,6 +15,9 @@ import {
   Phone,
   Mail,
   CreditCard,
+  Banknote,
+  Building2,
+  DollarSign,
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -29,6 +30,9 @@ interface OrderItem {
   price: string
 }
 
+type OrderStatus = 'PENDING' | 'PAID' | 'FAILED' | 'SHIPPED' | 'CANCELLED'
+type PaymentMethod = 'card' | 'cash_on_delivery' | 'bank_transfer'
+
 interface DBOrder {
   id: string
   customerName: string
@@ -38,18 +42,61 @@ interface DBOrder {
   address: string
   postalCode: string
   totalAmount: string
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'SHIPPED' | 'CANCELLED'
+  status: OrderStatus
   notes: string | null
   createdAt: string
   items: OrderItem[]
+  /** Most recent payment method for this order, joined server-side. */
+  paymentMethod: PaymentMethod | string | null
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-  PENDING: { label: 'Na čekanju', color: 'bg-terra/20 text-terra', icon: Clock },
-  PAID: { label: 'Plaćeno', color: 'bg-lime/20 text-lime', icon: CreditCard },
-  SHIPPED: { label: 'Isporučeno', color: 'bg-cream/20 text-cream', icon: Truck },
-  FAILED: { label: 'Neuspešno', color: 'bg-terra/20 text-terra', icon: XCircle },
-  CANCELLED: { label: 'Otkazano', color: 'bg-terra/20 text-terra', icon: XCircle },
+type StatusDisplay = {
+  label: string
+  color: string
+  icon: ComponentType<{ className?: string }>
+}
+
+const PAID_BY_METHOD: Record<string, StatusDisplay> = {
+  card: { label: 'Plaćeno – sajt', color: 'bg-lime/20 text-lime', icon: CreditCard },
+  cash_on_delivery: { label: 'Plaćeno – pouzećem', color: 'bg-lime/20 text-lime', icon: Banknote },
+  bank_transfer: { label: 'Plaćeno – uplata', color: 'bg-lime/20 text-lime', icon: Building2 },
+}
+
+/**
+ * Combines `orders.status` with the joined `payments.payment_method` to
+ * derive what the admin actually wants to see. PAID and SHIPPED both render
+ * as "paid" — they only differ by method (sajt = card, pouzećem = COD).
+ *
+ * Falls back gracefully when no payment row exists yet by inferring the
+ * method from the status itself (PAID ⇒ card, SHIPPED ⇒ COD), matching the
+ * auto-create logic in the orders API.
+ */
+function resolveStatusDisplay(
+  status: OrderStatus,
+  paymentMethod: DBOrder['paymentMethod'],
+): StatusDisplay {
+  if (status === 'PAID' || status === 'SHIPPED') {
+    const inferred =
+      paymentMethod ??
+      (status === 'PAID' ? 'card' : 'cash_on_delivery')
+    return (
+      PAID_BY_METHOD[inferred] ?? {
+        label: 'Plaćeno',
+        color: 'bg-lime/20 text-lime',
+        icon: DollarSign,
+      }
+    )
+  }
+  if (status === 'PENDING') {
+    return { label: 'Na čekanju', color: 'bg-terra/20 text-terra', icon: Clock }
+  }
+  if (status === 'CANCELLED') {
+    return { label: 'Otkazano', color: 'bg-terra/20 text-terra', icon: XCircle }
+  }
+  if (status === 'FAILED') {
+    return { label: 'Neuspešno', color: 'bg-terra/20 text-terra', icon: XCircle }
+  }
+  return { label: String(status), color: 'bg-cream/20 text-cream', icon: Package }
 }
 
 function formatPrice(price: number | string) {
@@ -98,6 +145,9 @@ export function OrdersTab() {
       })
       mutate('/api/admin/orders')
       mutate('/api/admin/stats')
+      // Status changes can auto-create a payment row, so the Finances tab
+      // must re-fetch to show the new transaction.
+      mutate('/api/admin/transactions')
     } catch (error) {
       console.error('Status update error:', error)
     }
@@ -126,12 +176,12 @@ export function OrdersTab() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 input-vigor min-w-[140px]"
+          className="px-3 py-2 input-vigor min-w-[180px]"
         >
           <option value="all">Svi statusi</option>
           <option value="PENDING">Na čekanju</option>
-          <option value="PAID">Plaćeno</option>
-          <option value="SHIPPED">Isporučeno</option>
+          <option value="PAID">Plaćeno – sajt</option>
+          <option value="SHIPPED">Plaćeno – pouzećem</option>
           <option value="FAILED">Neuspešno</option>
           <option value="CANCELLED">Otkazano</option>
         </select>
@@ -143,7 +193,7 @@ export function OrdersTab() {
 
       <div className="space-y-4">
         {filteredOrders.map((order) => {
-          const status = statusConfig[order.status] || statusConfig.PENDING
+          const status = resolveStatusDisplay(order.status, order.paymentMethod)
           const StatusIcon = status.icon
           const isExpanded = expandedOrder === order.id
           const shortId = order.id.slice(0, 8).toUpperCase()
@@ -236,10 +286,13 @@ export function OrdersTab() {
                         className="w-full px-3 py-2 input-vigor"
                       >
                         <option value="PENDING">Na čekanju</option>
-                        <option value="PAID">Plaćeno</option>
-                        <option value="SHIPPED">Isporučeno</option>
+                        <option value="PAID">Plaćeno (sajt)</option>
+                        <option value="SHIPPED">Plaćeno (pouzećem)</option>
                         <option value="CANCELLED">Otkazano</option>
                       </select>
+                      <p className="text-xs text-text-muted">
+                        Postavljanje na "Plaćeno" automatski beleži uplatu u Finansijama ako još nije zabeležena.
+                      </p>
                     </div>
                   </div>
 
