@@ -29,3 +29,8 @@ export function stripLocalePath(pathname: string): string {
   if (pathname.startsWith('/en/')) return pathname.slice(3) || '/'
   return pathname
 }
+
+export function isBlogPath(pathname: string) {
+  const neutral = stripLocalePath(pathname)
+  return neutral === '/blog' || neutral.startsWith('/blog/')
+}

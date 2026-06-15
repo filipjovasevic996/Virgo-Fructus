@@ -14,6 +14,7 @@
     "home": "Naslovna",
     "shop": "Prodavnica",
     "ourStory": "Naša Priča",
+    "blog": "Blog",
     "contact": "Kontakt",
     "faq": "Česta pitanja",
     "cart": "Korpa",
@@ -368,6 +369,20 @@
         "a": "Beograd: isti dan za porudžbine preko 2500 RSD potvrđene do 10:00, inače sledeći radni dan. Ostatak Srbije: 1–3 radna dana putem kurirske službe. Besplatna dostava za narudžbine preko 2500 RSD."
       }
     }
+  },
+  "blog": {
+    "label": "Žurnal",
+    "title": "Iz naše kuhinje",
+    "lead": "Recepti, vodiči i priče iza brenda. Kratko, primenljivo i napisano iz prve ruke — bez puniva.",
+    "searchPlaceholder": "Pretraži po naslovu...",
+    "allCategories": "Sve teme",
+    "featured": "Izdvojeno",
+    "readMore": "Pročitaj",
+    "readingTime": "{minutes} min čitanja",
+    "backToBlog": "← Nazad na blog",
+    "relatedTitle": "Možda vas zanima",
+    "noResults": "Nema rezultata za vaš upit.",
+    "empty": "Uskoro stiže prvi tekst."
   },
   "admin": {
     "login": "Admin prijava",

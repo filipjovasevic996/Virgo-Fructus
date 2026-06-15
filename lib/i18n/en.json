@@ -14,6 +14,7 @@
     "home": "Home",
     "shop": "Shop",
     "ourStory": "Our Story",
+    "blog": "Blog",
     "contact": "Contact",
     "faq": "FAQ",
     "cart": "Cart",
@@ -369,7 +370,21 @@
       }
     }
   },
-    "admin": {
+    "blog": {
+    "label": "Journal",
+    "title": "From our kitchen",
+    "lead": "Recipes, guides, and stories from behind the brand. Short, practical, and written first-hand — no filler.",
+    "searchPlaceholder": "Search by title...",
+    "allCategories": "All topics",
+    "featured": "Featured",
+    "readMore": "Read",
+    "readingTime": "{minutes} min read",
+    "backToBlog": "← Back to blog",
+    "relatedTitle": "You might also like",
+    "noResults": "No results match your search.",
+    "empty": "The first post is on its way."
+  },
+  "admin": {
     "login": "Admin login",
     "loginDesc": "Sign in to access the admin area.",
     "identifier": "Username or email",

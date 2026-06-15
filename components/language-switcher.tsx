@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useI18n, type Locale } from '@/lib/i18n'
-import { localizePath, stripLocalePath } from '@/lib/i18n/routing'
+import { localizePath, stripLocalePath, isBlogPath } from '@/lib/i18n/routing'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 const locales: { value: Locale; label: string; flag: string }[] = [
@@ -15,11 +15,27 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
   const { locale } = useI18n()
   const router = useRouter()
 
-  const neutralPath = stripLocalePath(pathname ?? '/')
+  const switchTo = async (target: Locale) => {
+    if (target === locale) return
 
-  const switchTo = (target: Locale) => {
-    const next = localizePath(neutralPath, target)
-    router.push(next)
+    const currentPath = pathname ?? '/'
+
+    if (isBlogPath(currentPath)) {
+      try {
+        const res = await fetch(
+          `/api/blog/locale-path?path=${encodeURIComponent(currentPath)}&locale=${target}`,
+        )
+        if (res.ok) {
+          const data = (await res.json()) as { path: string }
+          router.push(data.path)
+          return
+        }
+      } catch {
+        // fall through to default path swap
+      }
+    }
+
+    router.push(localizePath(stripLocalePath(currentPath), target))
   }
 
   return (

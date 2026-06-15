@@ -7,6 +7,7 @@ import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 
 const footerLinkDefs = [
   { href: '/prodavnica', key: 'nav.shop' },
+  { href: '/blog', key: 'nav.blog' },
   { href: '/nasa-prica', key: 'nav.ourStory' },
   { href: '/kontakt', key: 'nav.contact' },
   { href: '/faq', key: 'nav.faq' },

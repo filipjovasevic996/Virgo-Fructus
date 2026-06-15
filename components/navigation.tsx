@@ -15,6 +15,7 @@ import { stripLocalePath } from '@/lib/i18n/routing'
 const navLinkDefs = [
   { href: '/', key: 'nav.home' },
   { href: '/prodavnica', key: 'nav.shop' },
+  { href: '/blog', key: 'nav.blog' },
   { href: '/nasa-prica', key: 'nav.ourStory' },
   { href: '/kontakt', key: 'nav.contact' },
 ] as const

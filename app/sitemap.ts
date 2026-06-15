@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { productsTable } from '@/lib/db/schema'
 import { firstResolvedProductImage } from '@/lib/resolve-product-image-url'
 import { desc, eq } from 'drizzle-orm'
+import { getAllBilingualSlugPairs } from '@/lib/blog/strapi'
 
 /** Cache sitemap generation (reduces DB hits when crawlers poll /sitemap.xml often) */
 export const revalidate = 3600
@@ -24,6 +25,7 @@ type StaticEntry = {
 const STATIC_DEFS: StaticEntry[] = [
   { path: '', frequency: 'weekly', priority: 1 },
   { path: '/prodavnica', frequency: 'weekly', priority: 0.9 },
+  { path: '/blog', frequency: 'weekly', priority: 0.8 },
   { path: '/nasa-prica', frequency: 'monthly', priority: 0.7 },
   { path: '/kontakt', frequency: 'monthly', priority: 0.6 },
   { path: '/faq', frequency: 'monthly', priority: 0.6 },
@@ -115,5 +117,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // DB may not be available during build
   }
 
-  return [...staticPages, ...productPages]
+  let blogPages: MetadataRoute.Sitemap = []
+  try {
+    const pairs = await getAllBilingualSlugPairs()
+    blogPages = pairs.flatMap((pair) => {
+      const srUrl = `${SITE_URL}/blog/${encodeURIComponent(pair.sr)}`
+      const enUrl = `${SITE_URL}/en/blog/${encodeURIComponent(pair.en)}`
+      const languages = languageMap(srUrl, enUrl)
+      const lastMod = pair.publishedAt ? new Date(pair.publishedAt) : now
+      return [
+        {
+          url: srUrl,
+          lastModified: lastMod,
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+          alternates: { languages },
+        },
+        {
+          url: enUrl,
+          lastModified: lastMod,
+          changeFrequency: 'monthly' as const,
+          priority: 0.55,
+          alternates: { languages },
+        },
+      ]
+    })
+  } catch {
+    // Strapi may be unreachable during build
+  }
+
+  return [...staticPages, ...productPages, ...blogPages]
 }
