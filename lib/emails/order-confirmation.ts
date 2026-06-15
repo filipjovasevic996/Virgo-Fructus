@@ -16,6 +16,8 @@ interface OrderEmailData {
   items: OrderItem[]
   subtotal: number
   deliveryFee: number
+  /** Human-readable delivery line for emails (includes Post Express label). */
+  deliveryLabel: string
   total: number
   paymentMethod: string
 }
@@ -124,7 +126,7 @@ export function customerOrderEmail(data: OrderEmailData): string {
               <tr>
                 <td style="padding: 6px 0; font-family: sans-serif; font-size: 14px; color: #666;">Dostava</td>
                 <td style="padding: 6px 0; font-family: sans-serif; font-size: 14px; color: #1a1a1a; text-align: right;">
-                  ${data.deliveryFee === 0 ? 'Besplatna' : `${data.deliveryFee.toLocaleString('sr-RS')} RSD`}
+                  ${escapeHtml(data.deliveryLabel)}
                 </td>
               </tr>
               <tr>
@@ -284,7 +286,7 @@ export function supplierOrderEmail(data: OrderEmailData): string {
               </tr>
               <tr>
                 <td style="padding: 6px 0; font-family: sans-serif; font-size: 14px; color: #666;">Dostava</td>
-                <td style="padding: 6px 0; font-family: sans-serif; font-size: 14px; color: #1a1a1a; text-align: right;">${data.deliveryFee === 0 ? 'Besplatna' : `${data.deliveryFee.toLocaleString('sr-RS')} RSD`}</td>
+                <td style="padding: 6px 0; font-family: sans-serif; font-size: 14px; color: #1a1a1a; text-align: right;">${escapeHtml(data.deliveryLabel)}</td>
               </tr>
               <tr>
                 <td colspan="2" style="padding-top: 12px; border-top: 2px solid #e0e0e0;"></td>

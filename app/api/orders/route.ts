@@ -10,6 +10,7 @@ import { priceEntryLabel, type PriceEntryLike } from '@/lib/price-entry-label'
 import { kgToDecigrams, parseStockKg } from '@/lib/stock-kg'
 import { resend, FROM_EMAIL, SUPPLIER_EMAIL } from '@/lib/resend'
 import { customerOrderEmail, supplierOrderEmail } from '@/lib/emails/order-confirmation'
+import { getDeliveryQuote } from '@/lib/delivery'
 
 function generateOrderNumber(): string {
   const now = new Date()
@@ -32,11 +33,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { customer, items, paymentMethod, deliveryFee } = body as {
+    const { customer, items, paymentMethod } = body as {
       customer: Record<string, unknown>
       items: OrderItemInput[]
       paymentMethod?: string
-      deliveryFee?: number
     }
 
     if (!customer?.name || !customer?.email || !customer?.phone || !customer?.city || !customer?.address) {
@@ -51,8 +51,26 @@ export async function POST(request: NextRequest) {
       (sum: number, item: OrderItemInput) => sum + item.price * item.quantity,
       0,
     )
-    const total = subtotal + (deliveryFee ?? 0)
+
+    const deliveryQuote = getDeliveryQuote(subtotal, String(customer.city))
+    const deliveryFee = deliveryQuote.includedInTotal ? deliveryQuote.fee : 0
+    const total = subtotal + deliveryFee
     const orderNumber = generateOrderNumber()
+
+    const customerNote = customer.note ? String(customer.note).trim() : ''
+    const orderNotes =
+      deliveryQuote.kind === 'postexpress'
+        ? [customerNote, 'Dostava: Post Express (van Beograda, po cenovniku kurira)']
+            .filter(Boolean)
+            .join('\n')
+        : customerNote || null
+
+    const deliveryLabel =
+      deliveryQuote.kind === 'postexpress'
+        ? 'Post Express (po cenovniku kurira)'
+        : deliveryFee === 0
+          ? 'Besplatna'
+          : `${deliveryFee.toLocaleString('sr-RS')} RSD`
 
     const emailData = {
       orderNumber,
@@ -61,10 +79,11 @@ export async function POST(request: NextRequest) {
       customerPhone: String(customer.phone),
       city: String(customer.city),
       address: String(customer.address),
-      note: customer.note ? String(customer.note) : undefined,
+      note: orderNotes ?? undefined,
       items,
       subtotal,
-      deliveryFee: deliveryFee ?? 0,
+      deliveryFee,
+      deliveryLabel,
       total,
       paymentMethod: paymentMethod || 'cash',
     }
@@ -170,7 +189,7 @@ export async function POST(request: NextRequest) {
             city: String(customer.city),
             address: String(customer.address),
             postalCode: customer.postalCode ? String(customer.postalCode) : '',
-            notes: customer.note ? String(customer.note) : null,
+            notes: orderNotes,
             totalAmount: total.toString(),
             status: 'PENDING',
           })

@@ -11,15 +11,16 @@ import { cn } from '@/lib/utils'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { priceEntryLabel } from '@/lib/price-entry-label'
 import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
+import {
+  FREE_DELIVERY_THRESHOLD,
+  getDeliveryQuote,
+} from '@/lib/delivery'
 
 type StockInfo = {
   stock: number
   mode: 'weight' | 'quantity'
   perUnit: number
 }
-
-const FREE_DELIVERY_THRESHOLD = 2500
-const DELIVERY_FEE = 450
 
 type CheckoutStep = 'cart' | 'details' | 'payment' | 'confirmation'
 
@@ -128,11 +129,19 @@ export default function CartPageClient() {
     if (adjusted) setCartNotice(t('cart.cartAdjusted'))
   }, [items, stockMap, updateQuantity, t])
 
-  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD
-  const deliveryFee = isFreeDelivery ? 0 : DELIVERY_FEE
-  const total = subtotal + deliveryFee
+  const deliveryQuote = getDeliveryQuote(subtotal, formData.city || null)
+  const deliveryFee = deliveryQuote.fee
+  const isFreeDelivery = deliveryQuote.kind === 'free'
+  const showFreeDeliveryProgress = subtotal < FREE_DELIVERY_THRESHOLD
+  const total = subtotal + (deliveryQuote.includedInTotal ? deliveryFee : 0)
   const progressToFree = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)
   const amountUntilFree = FREE_DELIVERY_THRESHOLD - subtotal
+
+  const deliveryLineLabel = () => {
+    if (deliveryQuote.kind === 'postexpress') return t('cart.deliveryPostExpress')
+    if (isFreeDelivery) return t('cart.freeDelivery')
+    return `${deliveryFee} ${t('common.currency')}`
+  }
 
   const handleProceedToDetails = () => {
     if (!acceptedTerms) return
@@ -416,7 +425,7 @@ export default function CartPageClient() {
                     <span>{subtotal} {t('common.currency')}</span>
                   </div>
 
-                  {subtotal < FREE_DELIVERY_THRESHOLD && (
+                  {showFreeDeliveryProgress && (
                     <div className="py-3">
                       <div className="h-2 bg-bg-dark rounded-full overflow-hidden">
                         <div
@@ -432,12 +441,16 @@ export default function CartPageClient() {
 
                   <div className="flex justify-between text-text-body-light">
                     <span>{t('cart.delivery')}</span>
-                    {isFreeDelivery ? (
-                      <span className="text-lime">{t('cart.freeDelivery')}</span>
-                    ) : (
-                      <span>{deliveryFee} {t('common.currency')}</span>
-                    )}
+                    <span className={isFreeDelivery ? 'text-lime' : undefined}>
+                      {deliveryLineLabel()}
+                    </span>
                   </div>
+
+                  {!formData.city.trim() && (
+                    <p className="text-xs text-text-body-light/80 leading-relaxed">
+                      {t('cart.deliveryZoneHint')}
+                    </p>
+                  )}
 
                   <div className="pt-4 border-t border-border-card flex justify-between">
                     <span className="text-cream font-semibold">{t('cart.total')}</span>
@@ -748,8 +761,15 @@ export default function CartPageClient() {
                 </div>
                 <div className="flex justify-between font-sans text-sm text-text-body-light mb-4">
                   <span>{t('cart.delivery')}</span>
-                  <span>{isFreeDelivery ? t('common.free') : `${deliveryFee} ${t('common.currency')}`}</span>
+                  <span className={isFreeDelivery ? 'text-lime' : undefined}>
+                    {deliveryLineLabel()}
+                  </span>
                 </div>
+                {deliveryQuote.kind === 'postexpress' && (
+                  <p className="mb-4 text-xs text-text-body-light/70 leading-relaxed">
+                    {t('cart.deliveryPostExpressNote')}
+                  </p>
+                )}
                 <div className="flex justify-between">
                   <span className="font-sans font-semibold text-cream">{t('cart.total')}</span>
                   <span className="font-bold text-xl text-lime">{total} {t('common.currency')}</span>
