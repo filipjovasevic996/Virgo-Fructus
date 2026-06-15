@@ -7,7 +7,6 @@ const FAQ_ITEM_KEYS = [
   'additives',
   'storage',
   'useCases',
-  'children',
   'ordering',
   'wholesale',
   'deliveryTime',

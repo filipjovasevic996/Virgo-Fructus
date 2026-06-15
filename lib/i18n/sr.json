@@ -342,7 +342,7 @@
       },
       "additives": {
         "q": "Da li proizvodi sadrže konzervanse ili dodati šećer?",
-        "a": "Ne. Naše voće je 100% prirodno — bez konzervansa, dodatog šećera, veštačkih boja i aroma. Sastav je uvek samo voće (npr. „100% jagoda“)."
+        "a": "Ne. Naše voće je 100% prirodno — bez konzervansa, dodatog šećera, veštačkih boja i aroma. Sastav je uvek samo voće."
       },
       "storage": {
         "q": "Kako se čuva dehidrirano voće?",
@@ -351,10 +351,6 @@
       "useCases": {
         "q": "Za šta se koristi dehidrirano voće?",
         "a": "Najčešće za koktel garniš (džin tonik, viski, limunade, ledeni čaj), dekoraciju pića i deserta, kao zdravu užinu bez aditiva, te za pekarske proizvode — kolače, granole i poklon kombinacije."
-      },
-      "children": {
-        "q": "Da li je pogodno za decu?",
-        "a": "Dehidrirano voće je prirodna užina bez dodatog šećera i aditiva i pogodno je za stariju decu. Za malu decu uvek konsultujte pedijatra zbog opasnosti od gušenja malim komadima i prirodnih kiselina kod citrusa."
       },
       "ordering": {
         "q": "Kako se naručuje za Beograd?",

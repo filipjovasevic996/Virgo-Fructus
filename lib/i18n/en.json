@@ -342,7 +342,7 @@
       },
       "additives": {
         "q": "Do the products contain preservatives or added sugar?",
-        "a": "No. Our fruit is 100% natural — no preservatives, no added sugar, no artificial colors or flavors. The ingredient list is always just the fruit itself (e.g. \"100% strawberry\")."
+        "a": "No. Our fruit is 100% natural — no preservatives, no added sugar, no artificial colors or flavors. The ingredient list is always just the fruit itself."
       },
       "storage": {
         "q": "How should I store dehydrated fruit?",
@@ -351,10 +351,6 @@
       "useCases": {
         "q": "What is dehydrated fruit used for?",
         "a": "Most often as a cocktail garnish (gin & tonic, whisky, lemonades, iced tea), drink and dessert decoration, a healthy additive-free snack, and for baking — cakes, granola and gift sets."
-      },
-      "children": {
-        "q": "Is it suitable for children?",
-        "a": "Dehydrated fruit is a natural snack with no added sugar or additives and is suitable for older children. For toddlers, always consult your pediatrician — small hard pieces can be a choking hazard and citrus is naturally acidic."
       },
       "ordering": {
         "q": "How do I order in Belgrade?",
@@ -370,7 +366,7 @@
       }
     }
   },
-  "admin": {
+    "admin": {
     "login": "Admin login",
     "loginDesc": "Sign in to access the admin area.",
     "identifier": "Username or email",
