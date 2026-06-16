@@ -1,12 +1,12 @@
 /**
  * Delivery pricing rules:
- *   - Subtotal ≥ 2500 RSD: free delivery anywhere in Serbia.
- *   - Subtotal < 2500 RSD:
+ *   - Subtotal ≥ 4000 RSD: free delivery anywhere in Serbia.
+ *   - Subtotal < 4000 RSD:
  *       • Belgrade territory → 450 RSD (included in checkout total)
  *       • Rest of Serbia → Post Express rates (not included in total)
  */
 
-export const FREE_DELIVERY_THRESHOLD = 2500
+export const FREE_DELIVERY_THRESHOLD = 4000
 export const BELGRADE_DELIVERY_FEE = 450
 
 export type DeliveryKind = 'free' | 'belgrade' | 'postexpress'

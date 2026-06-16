@@ -447,7 +447,7 @@ export default function CartPageClient() {
                   </div>
 
                   {!formData.city.trim() && (
-                    <p className="text-xs text-text-body-light/80 leading-relaxed">
+                    <p className="text-xs text-text-body-light/80 leading-relaxed whitespace-pre-line">
                       {t('cart.deliveryZoneHint')}
                     </p>
                   )}

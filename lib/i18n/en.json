@@ -3,7 +3,7 @@
     "addToCart": "Add to cart",
     "addedToCart": "Added to cart",
     "backToShop": "← Back to the shop",
-    "freeDeliveryNote": "Free delivery for orders over 2500 RSD",
+    "freeDeliveryNote": "Free delivery for orders over 4000 RSD",
     "currency": "RSD",
     "from": "from",
     "loading": "Loading...",
@@ -21,7 +21,7 @@
     "closeMenu": "Close menu"
   },
   "footer": {
-    "description": "Natural dehydrated fruit of the highest quality. Free delivery for orders over 2500 RSD.",
+    "description": "Natural dehydrated fruit of the highest quality. Free delivery for orders over 4000 RSD.",
     "copyright": "© 2026 Vigor Fructus. All rights reserved.",
     "usefulLinks": "Useful links"
   },
@@ -171,7 +171,7 @@
     "premium": "Catering & decoration",
     "premiumDesc": "Ideal for decoration and creative projects.",
     "ctaHeadline": "Ready to take your cocktails up a notch?",
-    "ctaDescription": "Free delivery on all orders over 2500 RSD."
+    "ctaDescription": "Free delivery on all orders over 4000 RSD."
   },
   "shop": {
     "title": "Fruit shop",
@@ -269,8 +269,8 @@
     "delivery": "Delivery",
     "freeDelivery": "Free same-day delivery",
     "deliveryPostExpress": "Post Express",
-    "deliveryZoneHint": "Free delivery over 2500 RSD anywhere in Serbia. Under 2500: Belgrade 450 RSD, elsewhere at Post Express rates.",
-    "deliveryPostExpressNote": "Shipping is charged separately at Post Express courier rates and is not included in the order total.",
+    "deliveryZoneHint": "For orders in Belgrade under 4000 RSD, delivery is 450 RSD, for other cities at Post Express courier service rates.",
+    "deliveryPostExpressNote": "Shipping is charged separately at Post Express courier service rates and is not included in the order total.",
     "total": "Total",
     "proceedToPayment": "Continue to payment",
     "deliveryDetails": "Delivery details",
@@ -281,7 +281,7 @@
     "cityLabel": "City / municipality *",
     "cityPlaceholder": "Belgrade",
     "addressLabel": "Address *",
-    "addressPlaceholder": "Knez Mihailova 10",
+    "addressPlaceholder": "Knez Mihailova 10, floor 5",
     "noteLabel": "Note (optional)",
     "notePlaceholder": "Extra notes for delivery...",
     "backToCart": "← Back to cart",
@@ -320,7 +320,7 @@
     "philosophyLabel": "Philosophy",
     "philosophyTitle": "Our mission",
     "philosophyP1": "We are not a factory and we don’t want to become one. Each batch is limited, every piece of fruit is prepared by hand. Every package carries hours of work and a genuine intention for you to enjoy it.",
-    "philosophyP2": "Since we are eager to get our product to you as quickly as possible, orders in Belgrade over 2500 RSD placed before 10 AM are delivered the same day. For other cities in Serbia, we ship our product via courier service.",
+    "philosophyP2": "Since we are eager to get our product to you as quickly as possible, orders in Belgrade over 4000 RSD placed before 10 AM are delivered the same day. For other cities in Serbia, we ship our product via courier service.",
     "philosophyP3": "Thank you for being here!",
     "processLabel": "Process",
     "processTitle": "From the orchard to your table",
@@ -331,7 +331,6 @@
     "step3Title": "Packaging",
     "step3Desc": "Eco-friendly packaging that protects the product and the environment.",
     "ctaHeadline": "Try our products",
-    "ctaDesc": "Discover why top bartenders and cocktail enthusiasts across Serbia choose us.",
     "viewShop": "View the shop"
   },
   "faq": {
@@ -357,7 +356,7 @@
       },
       "ordering": {
         "q": "How do I order in Belgrade?",
-        "a": "Place your order directly on the website through the shop and cart. In Belgrade we also offer same-day delivery — for any order over 2500 RSD confirmed before 10:00, the package arrives by the end of the same business day."
+        "a": "Place your order directly on the website through the shop and cart. In Belgrade we also offer same-day delivery — for any order over 4000 RSD confirmed before 10:00, the package arrives by the end of the same business day."
       },
       "wholesale": {
         "q": "Do you offer wholesale for bars and restaurants?",
@@ -365,7 +364,7 @@
       },
       "deliveryTime": {
         "q": "What is the delivery time?",
-        "a": "Belgrade: same day for orders over 2500 RSD confirmed before 10:00, otherwise next business day. Rest of Serbia: 1–3 business days via courier. Free delivery on all orders over 2500 RSD."
+        "a": "Belgrade: same day for orders over 4000 RSD confirmed before 10:00, otherwise next business day. Rest of Serbia: 1–3 business days via courier. Free delivery on all orders over 4000 RSD."
       }
     }
   },

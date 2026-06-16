@@ -30,7 +30,7 @@ function shortProductName(name: string): string {
 export async function generateMetadata(): Promise<Metadata> {
   const products = await loadShopProducts()
   const lead =
-    'Kupite premium dehidrirano voće iz Beograda — 100% prirodno, bez aditiva i konzervansa. Besplatna dostava u Srbiji za narudžbine preko 2500 RSD.'
+    'Kupite premium dehidrirano voće iz Beograda — 100% prirodno, bez aditiva i konzervansa. Besplatna dostava u Srbiji za narudžbine preko 4000 RSD.'
   const description = products.length
     ? `${lead} U ponudi: ${products.map((p) => shortProductName(p.name)).join(', ')}.`
     : lead

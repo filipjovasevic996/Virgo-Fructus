@@ -58,16 +58,11 @@ export async function POST(request: NextRequest) {
     const orderNumber = generateOrderNumber()
 
     const customerNote = customer.note ? String(customer.note).trim() : ''
-    const orderNotes =
-      deliveryQuote.kind === 'postexpress'
-        ? [customerNote, 'Dostava: Post Express (van Beograda, po cenovniku kurira)']
-            .filter(Boolean)
-            .join('\n')
-        : customerNote || null
+    const orderNotes = customerNote || null
 
     const deliveryLabel =
       deliveryQuote.kind === 'postexpress'
-        ? 'Post Express (po cenovniku kurira)'
+        ? 'Iznos po cenovniku Post Express kurirske službe'
         : deliveryFee === 0
           ? 'Besplatna'
           : `${deliveryFee.toLocaleString('sr-RS')} RSD`

@@ -27,7 +27,7 @@ function shortProductName(name: string): string {
 export async function generateMetadata(): Promise<Metadata> {
   const products = await loadShopProductsEn()
   const lead =
-    'Buy premium dehydrated fruit from Belgrade — 100% natural, additive-free, no preservatives. Free delivery across Serbia for orders over 2500 RSD.'
+    'Buy premium dehydrated fruit from Belgrade — 100% natural, additive-free, no preservatives. Free delivery across Serbia for orders over 4000 RSD.'
   const description = products.length
     ? `${lead} Available: ${products.map((p) => shortProductName(p.name)).join(', ')}.`
     : lead

@@ -87,17 +87,14 @@ export default function AboutPageClient() {
         </div>
       </section>
 
-      <section className="bg-bg-hero py-10 sm:py-16">
+      <section className="bg-bg-hero py-6 sm:py-8">
         <div className="mx-auto max-w-[1200px] px-5 sm:px-6 text-center">
-          <h2 className="font-serif font-semibold text-2xl sm:text-3xl text-cream">
+          <h2 className="font-serif font-semibold text-xl sm:text-2xl text-cream">
             {t('story.ctaHeadline')}
           </h2>
-          <p className="mt-3 sm:mt-4 font-sans text-sm sm:text-base text-text-body-light max-w-md mx-auto">
-            {t('story.ctaDesc')}
-          </p>
           <Link
             href={withLocale('/prodavnica')}
-            className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"
+            className="mt-5 sm:mt-6 inline-flex items-center px-7 py-3 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors"
           >
             {t('story.viewShop')}
           </Link>

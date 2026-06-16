@@ -3,7 +3,7 @@
     "addToCart": "Dodaj u korpu",
     "addedToCart": "Dodato u korpu",
     "backToShop": "← Vrati se u prodavnicu",
-    "freeDeliveryNote": "Besplatna dostava za narudžbine preko 2500 RSD",
+    "freeDeliveryNote": "Besplatna dostava za narudžbine preko 4000 RSD",
     "currency": "RSD",
     "from": "od",
     "loading": "Učitavanje...",
@@ -21,7 +21,7 @@
     "closeMenu": "Zatvori meni"
   },
   "footer": {
-    "description": "100% prirodno dehidrirano voće. Besplatna dostava za narudžbine preko 2500 RSD.",
+    "description": "100% prirodno dehidrirano voće. Besplatna dostava za narudžbine preko 4000 RSD.",
     "copyright": "© 2026 Vigor Fructus. Sva prava zadržana.",
     "usefulLinks": "Korisni linkovi"
   },
@@ -171,7 +171,7 @@
     "premium": "Ketering i dekoracija",
     "premiumDesc": "Idealno za ketering, dekoraciju i kreativne projekte.",
     "ctaHeadline": "Spremni da unapredite svoje koktele?",
-    "ctaDescription": "Besplatna dostava za sve narudžbine preko 2500 RSD."
+    "ctaDescription": "Besplatna dostava za sve narudžbine preko 4000 RSD."
   },
   "shop": {
     "title": "Prodavnica voća",
@@ -269,8 +269,8 @@
     "delivery": "Dostava",
     "freeDelivery": "Besplatna dostava",
     "deliveryPostExpress": "Post Express",
-    "deliveryZoneHint": "Besplatna dostava preko 2500 RSD širom Srbije. Ispod 2500: Beograd 450 RSD, ostatak po tarifi Post Express.",
-    "deliveryPostExpressNote": "Dostava se naplaćuje posebno po tarifi Post Express kurira i nije uključena u iznos porudžbine.",
+    "deliveryZoneHint": "Za porudžbine u Beogradu ispod 4000 RSD cena dostave je 450 RSD, a za ostale gradove dostava se naplaćuje po tarifi Post Express kurirske službe.",
+    "deliveryPostExpressNote": "Dostava se naplaćuje posebno po tarifi Post Express kurirske službe i nije uključena u iznos porudžbine.",
     "total": "Ukupno",
     "proceedToPayment": "Nastavi na plaćanje",
     "deliveryDetails": "Podaci za dostavu",
@@ -281,7 +281,7 @@
     "cityLabel": "Grad / Opština *",
     "cityPlaceholder": "Beograd",
     "addressLabel": "Adresa *",
-    "addressPlaceholder": "Knez Mihailova 10",
+    "addressPlaceholder": "Knez Mihailova 10, stan 5",
     "noteLabel": "Napomena (opciono)",
     "notePlaceholder": "Dodatne napomene za dostavu...",
     "backToCart": "← Nazad na korpu",
@@ -320,7 +320,7 @@
     "philosophyLabel": "Filozofija",
     "philosophyTitle": "Naša misija",
     "philosophyP1": "Nismo fabrika niti to želimo da postanemo. Svaka serija je ograničena, svaki komad voća ručno pripreman. Svako naše pakovanje nosi u sebi sate rada i iskrenu nameru da budete zadovoljni.",  
-    "philosophyP2": "Kako smo nestrpljivi da vam što pre predstavimo naš proizvod, porudžbine u Beogradu iznad 2500 RSD i napravljene do 10:00h dostavljamo isti dan! Za ostale gradove u Srbiji, porudžbine šaljemo kurirskom službom.",
+    "philosophyP2": "Kako smo nestrpljivi da vam što pre predstavimo naš proizvod, porudžbine u Beogradu iznad 4000 RSD i napravljene do 10:00h dostavljamo isti dan! Za ostale gradove u Srbiji, porudžbine šaljemo kurirskom službom.",
     "philosophyP3": "Hvala vam što ste ovde!",
     "processLabel": "Proces",
     "processTitle": "Od voćnjaka do vašeg stola",
@@ -331,8 +331,7 @@
     "step3Title": "Pakovanje",
     "step3Desc": "Ekološko pakovanje koje štiti proizvod i čuva životnu sredinu.",
     "ctaHeadline": "Pogledajte našu ponudu",
-    "ctaDesc": "Otkrijte zašto nas biraju najbolji barmeni i entuzijasti koktela širom Srbije.",
-    "viewShop": "Prodavnica"
+        "viewShop": "Prodavnica"
   },
   "faq": {
     "label": "Pomoć i informacije",
@@ -357,7 +356,7 @@
       },
       "ordering": {
         "q": "Kako se naručuje za Beograd?",
-        "a": "Porudžbinu pravite direktno na sajtu kroz prodavnicu i korpu. Za Beograd nudimo i dostavu istog dana — za sve narudžbine preko 2500 RSD potvrđene do 10:00, paket stiže do kraja istog radnog dana."
+        "a": "Porudžbinu pravite direktno na sajtu kroz prodavnicu i korpu. Za Beograd nudimo i dostavu istog dana — za sve narudžbine preko 4000 RSD potvrđene do 10:00, paket stiže do kraja istog radnog dana."
       },
       "wholesale": {
         "q": "Da li postoji veleprodaja za barove i restorane?",
@@ -365,7 +364,7 @@
       },
       "deliveryTime": {
         "q": "Koji je rok dostave?",
-        "a": "Beograd: isti dan za porudžbine preko 2500 RSD potvrđene do 10:00, inače sledeći radni dan. Ostatak Srbije: 1–3 radna dana putem kurirske službe. Besplatna dostava za narudžbine preko 2500 RSD."
+        "a": "Beograd: isti dan za porudžbine preko 4000 RSD potvrđene do 10:00, inače sledeći radni dan. Ostatak Srbije: 1–3 radna dana putem kurirske službe. Besplatna dostava za narudžbine preko 4000 RSD."
       }
     }
   },
