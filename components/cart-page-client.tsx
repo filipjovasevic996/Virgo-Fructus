@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, Check, Loader2, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
+import { trackBeginCheckout, trackPurchase } from '@/lib/analytics/ga'
 import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
@@ -145,6 +146,15 @@ export default function CartPageClient() {
 
   const handleProceedToDetails = () => {
     if (!acceptedTerms) return
+    trackBeginCheckout(
+      items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      subtotal,
+    )
     setStep('details')
   }
 
@@ -205,6 +215,16 @@ export default function CartPageClient() {
       }
 
       setOrderNumber(data.orderNumber || '')
+      trackPurchase(
+        data.orderNumber || '',
+        items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        subtotal + deliveryFee,
+      )
       setStep('confirmation')
       clearCart()
     } catch {

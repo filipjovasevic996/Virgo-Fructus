@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { trackAddToCart } from '@/lib/analytics/ga'
 
 export interface CartItem {
   id: string
@@ -86,6 +87,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       allowed = true
       return [...prev, { ...item, quantity: Math.min(1, max) }]
     })
+    if (allowed) {
+      trackAddToCart({ id: item.id, name: item.name, price: item.price, quantity: 1 })
+    }
     return allowed
   }
 

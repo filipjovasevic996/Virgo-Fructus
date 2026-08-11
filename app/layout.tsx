@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Jost } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { CartProvider } from '@/components/cart-context'
+import { GoogleAnalytics } from '@/components/google-analytics'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
 
@@ -176,6 +177,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <CartProvider>{children}</CartProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' && <GoogleAnalytics />}
       </body>
     </html>
   )
