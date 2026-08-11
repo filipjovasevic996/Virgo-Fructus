@@ -35,12 +35,12 @@ type PaymentMethod = 'card' | 'cash_on_delivery' | 'bank_transfer'
 
 interface DBOrder {
   id: string
-  customerName: string
-  customerEmail: string
-  phone: string
+  customerName: string | null
+  customerEmail: string | null
+  phone: string | null
   city: string
-  address: string
-  postalCode: string
+  address: string | null
+  postalCode: string | null
   totalAmount: string
   status: OrderStatus
   notes: string | null
@@ -222,7 +222,7 @@ export function OrdersTab() {
                         </span>
                       </div>
                       <p className="text-sm text-text-body-light">
-                        {order.customerName} — {formatDate(order.createdAt)}
+                        {order.customerName ?? 'Podaci obrisani (GDPR)'} — {formatDate(order.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -248,15 +248,23 @@ export function OrdersTab() {
                         Podaci o kupcu
                       </h4>
                       <div className="space-y-2 text-sm">
-                        <p className="text-cream">{order.customerName}</p>
-                        <p className="text-text-body-light flex items-center gap-2">
-                          <Mail className="w-3 h-3" />
-                          {order.customerEmail}
-                        </p>
-                        <p className="text-text-body-light flex items-center gap-2">
-                          <Phone className="w-3 h-3" />
-                          {order.phone}
-                        </p>
+                        {order.customerEmail ? (
+                          <>
+                            <p className="text-cream">{order.customerName}</p>
+                            <p className="text-text-body-light flex items-center gap-2">
+                              <Mail className="w-3 h-3" />
+                              {order.customerEmail}
+                            </p>
+                            <p className="text-text-body-light flex items-center gap-2">
+                              <Phone className="w-3 h-3" />
+                              {order.phone}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-text-muted italic">
+                            Podaci o kupcu obrisani nakon {'>'}90 dana (GDPR)
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -266,8 +274,14 @@ export function OrdersTab() {
                         Adresa dostave
                       </h4>
                       <div className="text-sm text-text-body-light space-y-1">
-                        <p>{order.address}</p>
-                        <p>{order.postalCode ? `${order.postalCode} ` : ''}{order.city}</p>
+                        {order.address ? (
+                          <>
+                            <p>{order.address}</p>
+                            <p>{order.postalCode ? `${order.postalCode} ` : ''}{order.city}</p>
+                          </>
+                        ) : (
+                          <p>{order.city}</p>
+                        )}
                       </div>
                       {order.notes && (
                         <p className="text-xs text-terra italic mt-2">

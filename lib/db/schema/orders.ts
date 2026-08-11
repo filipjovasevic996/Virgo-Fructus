@@ -6,12 +6,12 @@ export const orderStatusEnum = pgEnum("order_status", ["PENDING", "PAID", "FAILE
 
 export const ordersTable = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
-  customerEmail: text("customer_email").notNull(),
-  customerName: text("customer_name").notNull(),
-  address: text("address").notNull(),
+  customerEmail: text("customer_email"),
+  customerName: text("customer_name"),
+  address: text("address"),
   city: text("city").notNull(),
-  postalCode: text("postal_code").notNull(),
-  phone: text("phone").notNull(),
+  postalCode: text("postal_code"),
+  phone: text("phone"),
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: orderStatusEnum("status").notNull().default("PENDING"),
   notes: text("notes"),
