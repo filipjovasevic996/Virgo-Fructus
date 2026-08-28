@@ -4,7 +4,7 @@ import { ShopPageClient } from '@/components/shop-page-client'
 import { getStorefrontProducts } from '@/lib/storefront-products'
 import { buildLanguageAlternates } from '@/lib/hreflang'
 
-export const revalidate = 120
+export const revalidate = false
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com').replace(/\/+$/, '')
 
 /**
