@@ -10,7 +10,6 @@ import {  Leaf, CheckCircle, Truck, Martini, Apple, PartyPopper } from 'lucide-r
 import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { HERO_VIDEO_URL } from '@/app/constants/constants'
-import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Spinner } from '@/components/ui/spinner'
 
 const fetcher = async (url: string) => {
@@ -166,7 +165,6 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
           <Link href={withLocale('/prodavnica')} className="mt-8 inline-flex items-center px-7 py-3.5 bg-bg-page text-bg-dark font-sans text-[12px] font-semibold uppercase tracking-[0.08em] rounded hover:bg-cream transition-colors">{t('home.orderNow')}</Link>
         </div>
       </section>
-      <SpeedInsights />
     </>
   )
 }

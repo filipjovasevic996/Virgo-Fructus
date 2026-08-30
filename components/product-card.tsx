@@ -29,6 +29,13 @@ function isImageUrl(src: string | null | undefined) {
 interface ProductCardProps {
   product: Product
   featuredImageLift?: boolean
+  /**
+   * Set when at least one product in the same grid has `isRegular === false`.
+   * That artwork is clipped to the card frame, so nothing else may scale out
+   * of it: every image in the row is pinned to exactly that box instead. With
+   * no such product in the grid the artwork keeps its lifted treatment.
+   */
+  matchFilledImageBox?: boolean
   imagePriority?: boolean
 }
 
@@ -38,12 +45,17 @@ const badgeKeys: Record<string, string> = {
   sale: 'product.badgeSale',
 }
 
-export function ProductCard({ product, featuredImageLift = false, imagePriority = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  featuredImageLift = false,
+  matchFilledImageBox = false,
+  imagePriority = false,
+}: ProductCardProps) {
   // `isRegular === false` marks artwork that has no transparent background:
   // it fills the card frame and stays clipped to it instead of being scaled
   // up and lifted out of the card on large screens.
   const fillsCard = product.isRegular === false
-  const liftImage = featuredImageLift && !fillsCard
+  const liftImage = featuredImageLift && !fillsCard && !matchFilledImageBox
   // Initial selected index must point at a variant with a real (>0) price so
   // SSR never renders "0 RSD" (Google flags this as a price-data bug). If a
   // product has no priced variant we still default to 0 — the `hasPricedOptions`
@@ -180,26 +192,26 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
   }
 
   return (
-    <div
-      className={cn(
-        'group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-visible bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20',
-        liftImage && 'pt-1 lg:pt-2',
-      )}
-    >
+    <div className="group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-visible bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20">
       <Link
         href={withLocale(`/proizvodi/${product.slug}`)}
         className={cn(
+          // The frame itself is identical on every card of a grid — same aspect
+          // ratio, same position, never pulled up by a negative margin — so the
+          // panels and everything below them line up across a row. Artwork that
+          // does not fill the frame is what spills out of it, via the transform
+          // on the <Image> below.
           'relative block w-full aspect-[4/3] rounded-t-md',
           liftImage ? 'overflow-visible' : 'overflow-hidden',
-          liftImage &&
-            'lg:-mt-8 -mx-px w-[calc(100%+2px)] rounded-t-md shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
+          featuredImageLift &&
+            '-mx-px w-[calc(100%+2px)] shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
         )}
       >
         <span
           aria-hidden
           className={cn(
             'absolute inset-0 z-0 rounded-t-md',
-            liftImage ? 'bg-cream' : 'bg-bg-card',
+            featuredImageLift && !fillsCard ? 'bg-cream' : 'bg-bg-card',
           )}
         />
         {imageSrc ? (
@@ -237,104 +249,108 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
 
       <div className="flex flex-1 flex-col bg-bg-hero p-4 rounded-b-md">
         <Link href={withLocale(`/proizvodi/${product.slug}`)}>
-          <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors">
+          <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors line-clamp-2 min-h-[3.5rem]">
             {product.name}
           </h3>
         </Link>
-        <div className="mt-2 min-h-[5.75rem] sm:min-h-[6.5rem]">
-          <p className="text-[13px] leading-relaxed text-text-body-light/85 line-clamp-4 sm:line-clamp-5">
-            {product.shortDescription || ''}
-          </p>
-        </div>
+        <p className="mt-2 text-[13px] leading-relaxed text-text-body-light/85 line-clamp-4 sm:line-clamp-5">
+          {product.shortDescription || ''}
+        </p>
         {/* <p className="text-[13px] text-text-body-light mt-1">
           {t('common.from')} {product.prices[0].price} {t('common.currency')}
         </p> */}
 
-        <div
-          className={cn(
-            'mt-3 flex min-h-[30px] flex-wrap gap-2',
-            (isQuantityMode || !hasPricedOptions) && 'invisible',
-          )}
-        >
-          {!isQuantityMode &&
-            product.prices.map((priceOption, index) => {
-              const optMax = weightMaxQty[index] ?? 0
-              const unavailable = optMax < 1
-              return priceOption.price ? (
-                <button
-                  key={`${priceOption.weight ?? index}-${index}`}
-                  type="button"
-                  disabled={unavailable}
-                  onClick={() => !unavailable && setSelectedWeight(index)}
-                  className={cn(
-                    'px-2 py-1 text-[11px] font-medium rounded border transition-colors',
-                    unavailable &&
-                      'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
-                    !unavailable &&
-                      safeIdx === index &&
-                      'bg-lime text-bg-dark border-lime cursor-pointer',
-                    !unavailable &&
-                      safeIdx !== index &&
-                      'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
-                  )}
-                >
-                  {priceOption.weight ?? ''}
-                </button>
-              ) : null
-            })}
-        </div>
-
-        {hasPricedOptions && displayPrice > 0 && (
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="font-sans font-bold text-lg text-lime animate-price-fade">
-              {displayPrice} {t('common.currency')}
-            </span>
-            {hasSalePrice && currentPrice.price > 0 && (
-              <span className="text-sm text-text-body-light/50 line-through">
-                {currentPrice.price} {t('common.currency')}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="mt-4 relative">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={isAdded || !hasPricedOptions || maxQty < 1}
+        {/* Pinned to the foot of the card so the weight options, price and
+            CTA line up across a row; the gap above absorbs descriptions of
+            differing length. */}
+        <div className="mt-auto pt-4">
+          <div
             className={cn(
-              'w-full py-2.5 px-4 text-xs font-semibold uppercase tracking-wider border rounded transition-all duration-300 flex items-center justify-center gap-2',
-              isAdded &&
-                'bg-lime text-bg-dark border-lime cursor-default',
-              !isAdded &&
-                maxQty >= 1 &&
-                'cursor-pointer text-text-body-light bg-transparent border-border-card hover:border-lime hover:text-lime hover:bg-lime/[0.08]',
-              !isAdded &&
-                maxQty < 1 &&
-                'cursor-not-allowed opacity-50 text-text-body-light/50 border-border-card',
+              'mt-3 flex min-h-[30px] flex-wrap gap-2',
+              (isQuantityMode || !hasPricedOptions) && 'invisible',
             )}
           >
-            {isAdded ? (
+            {!isQuantityMode &&
+              product.prices.map((priceOption, index) => {
+                const optMax = weightMaxQty[index] ?? 0
+                const unavailable = optMax < 1
+                return priceOption.price ? (
+                  <button
+                    key={`${priceOption.weight ?? index}-${index}`}
+                    type="button"
+                    disabled={unavailable}
+                    onClick={() => !unavailable && setSelectedWeight(index)}
+                    className={cn(
+                      'px-2 py-1 text-[11px] font-medium rounded border transition-colors',
+                      unavailable &&
+                        'cursor-not-allowed border-border-card/40 bg-bg-dark/40 text-text-body-light/35',
+                      !unavailable &&
+                        safeIdx === index &&
+                        'bg-lime text-bg-dark border-lime cursor-pointer',
+                      !unavailable &&
+                        safeIdx !== index &&
+                        'cursor-pointer bg-bg-dark border-border-card text-text-body-light hover:border-lime/50',
+                    )}
+                  >
+                    {priceOption.weight ?? ''}
+                  </button>
+                ) : null
+              })}
+          </div>
+          <div className="mt-3 flex min-h-[1.75rem] items-baseline gap-2">
+            {hasPricedOptions && displayPrice > 0 && (
               <>
-                <Check className="w-4 h-4 shrink-0" />
-                <span>{t('common.addedToCart')}</span>
+                <span className="font-sans font-bold text-lg text-lime animate-price-fade">
+                  {displayPrice} {t('common.currency')}
+                </span>
+                {hasSalePrice && currentPrice.price > 0 && (
+                  <span className="text-sm text-text-body-light/50 line-through">
+                    {currentPrice.price} {t('common.currency')}
+                  </span>
+                )}
               </>
-            ) : !hasPricedOptions ? (
-              t('product.noPrice')
-            ) : maxQty < 1 ? (
-              t('product.outOfStock')
-            ) : (
-              t('common.addToCart')
             )}
-          </button>
-          {isAdded && (
-            <div
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime rounded-full flex items-center justify-center animate-bounce shadow-lg pointer-events-none"
-              aria-hidden
+          </div>
+
+          <div className="mt-4 relative">
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isAdded || !hasPricedOptions || maxQty < 1}
+              className={cn(
+                'w-full py-2.5 px-4 text-xs font-semibold uppercase tracking-wider border rounded transition-all duration-300 flex items-center justify-center gap-2',
+                isAdded &&
+                  'bg-lime text-bg-dark border-lime cursor-default',
+                !isAdded &&
+                  maxQty >= 1 &&
+                  'cursor-pointer text-text-body-light bg-transparent border-border-card hover:border-lime hover:text-lime hover:bg-lime/[0.08]',
+                !isAdded &&
+                  maxQty < 1 &&
+                  'cursor-not-allowed opacity-50 text-text-body-light/50 border-border-card',
+              )}
             >
-              <Check className="w-3 h-3 text-bg-dark" />
-            </div>
-          )}
+              {isAdded ? (
+                <>
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span>{t('common.addedToCart')}</span>
+                </>
+              ) : !hasPricedOptions ? (
+                t('product.noPrice')
+              ) : maxQty < 1 ? (
+                t('product.outOfStock')
+              ) : (
+                t('common.addToCart')
+              )}
+            </button>
+            {isAdded && (
+              <div
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-lime rounded-full flex items-center justify-center animate-bounce shadow-lg pointer-events-none"
+                aria-hidden
+              >
+                <Check className="w-3 h-3 text-bg-dark" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
