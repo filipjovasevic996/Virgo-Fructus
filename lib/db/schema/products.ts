@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, jsonb, boolean, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, jsonb, boolean, numeric, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -23,6 +23,18 @@ export const productsTable = pgTable("products", {
   status: text("status").notNull().default("active"),
   prices: jsonb("prices").notNull().default([]),
   isFavorite: boolean("is_favorite").notNull().default(false),
+  /**
+   * `true` (default) keeps the storefront card's "lifted" presentation: the
+   * artwork is contained and allowed to break out of the card on large
+   * screens. `false` is for regular photography that has no transparent
+   * background — the image then fills the card frame and is clipped to it.
+   */
+  isRegular: boolean("is_regular").notNull().default(true),
+  /**
+   * Manual storefront ordering, ascending. Maintained from the admin panel
+   * (drag & drop); ties fall back to newest-first.
+   */
+  sortOrder: integer("sort_order").notNull().default(0),
   stockKg: numeric("stock_kg", { precision: 14, scale: 4 })
     .notNull()
     .default("0"),

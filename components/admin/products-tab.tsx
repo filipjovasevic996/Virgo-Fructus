@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import type { DragEvent } from 'react'
 import Image from 'next/image'
 import useSWR, { useSWRConfig, mutate } from 'swr'
@@ -140,6 +140,8 @@ function createImageItemKey() {
   return `img_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`
 }
 
+const ROW_REORDER_MIME = 'application/x-vf-product-reorder'
+
 export function ProductsTab() {
   const { mutate: revalidateByKey } = useSWRConfig()
   const { data, isLoading } = useSWR('/api/admin/products', fetcher)
@@ -147,8 +149,99 @@ export function ProductsTab() {
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [togglingFavoriteId, setTogglingFavoriteId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState('')
+  // Optimistic ordering override; the server is the source of truth once the
+  // PATCH round-trip lands and SWR revalidates.
+  const [orderedIds, setOrderedIds] = useState<string[] | null>(null)
+  const [draggingRowId, setDraggingRowId] = useState<string | null>(null)
+  const [dropTargetRowId, setDropTargetRowId] = useState<string | null>(null)
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderError, setOrderError] = useState('')
 
-  const products: AdminProduct[] = data?.products || []
+  const serverProducts: AdminProduct[] = useMemo(
+    () => data?.products || [],
+    [data],
+  )
+
+  // Products the admin has dragged come first, in the dragged order; anything
+  // added/removed server-side since the drag keeps its own relative position.
+  const products: AdminProduct[] = useMemo(() => {
+    if (!orderedIds) return serverProducts
+    const byId = new Map(serverProducts.map((p) => [p.id, p]))
+    const listed = orderedIds
+      .map((id) => byId.get(id))
+      .filter((p): p is AdminProduct => Boolean(p))
+    const listedIds = new Set(listed.map((p) => p.id))
+    return [...listed, ...serverProducts.filter((p) => !listedIds.has(p.id))]
+  }, [serverProducts, orderedIds])
+
+  const persistOrder = async (ids: string[]) => {
+    setSavingOrder(true)
+    setOrderError('')
+    try {
+      const response = await fetch('/api/admin/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: ids }),
+      })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        setOrderError(payload.error || 'Čuvanje redosleda nije uspelo')
+        return
+      }
+      await mutate('/api/admin/products')
+      await revalidateByKey(
+        (key) => typeof key === 'string' && key.startsWith('/api/products'),
+        undefined,
+        { revalidate: true },
+      )
+    } catch (error) {
+      console.error('Reorder error:', error)
+      setOrderError('Greška u mreži pri čuvanju redosleda')
+    } finally {
+      setSavingOrder(false)
+    }
+  }
+
+  const moveRow = (fromId: string, toId: string) => {
+    if (fromId === toId) return
+    const ids = products.map((p) => p.id)
+    const from = ids.indexOf(fromId)
+    const to = ids.indexOf(toId)
+    if (from < 0 || to < 0) return
+    ids.splice(to, 0, ids.splice(from, 1)[0])
+    setOrderedIds(ids)
+    void persistOrder(ids)
+  }
+
+  const handleRowDragStart = (id: string, e: DragEvent) => {
+    setDraggingRowId(id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData(ROW_REORDER_MIME, id)
+    e.dataTransfer.setData('text/plain', id)
+  }
+
+  const handleRowDragEnd = () => {
+    setDraggingRowId(null)
+    setDropTargetRowId(null)
+  }
+
+  const handleRowDragOver = (id: string, e: DragEvent) => {
+    if (!draggingRowId) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDropTargetRowId(id)
+  }
+
+  const handleRowDrop = (id: string, e: DragEvent) => {
+    e.preventDefault()
+    const fromId =
+      e.dataTransfer.getData(ROW_REORDER_MIME) ||
+      e.dataTransfer.getData('text/plain')
+    handleRowDragEnd()
+    if (!fromId) return
+    moveRow(fromId, id)
+  }
 
   const handleEdit = (product: AdminProduct) => {
     setEditingProduct(product)
@@ -161,13 +254,23 @@ export function ProductsTab() {
   }
 
   const handleDelete = async (id: string) => {
+    setDeleteError('')
     try {
-      await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/products?id=${id}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        setDeleteError(payload.error || 'Brisanje proizvoda nije uspelo')
+        return
+      }
+      setOrderedIds((prev) => (prev ? prev.filter((v) => v !== id) : prev))
       mutate('/api/admin/products')
       mutate('/api/admin/stats')
       setDeleteConfirm(null)
     } catch (error) {
       console.error('Delete error:', error)
+      setDeleteError('Greška u mreži pri brisanju proizvoda')
     }
   }
 
@@ -221,20 +324,45 @@ export function ProductsTab() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-text-body-light text-sm sm:text-base">
-          Ukupno {products.length} proizvoda
-        </p>
+        <div className="min-w-0">
+          <p className="text-text-body-light text-sm sm:text-base">
+            Ukupno {products.length} proizvoda
+          </p>
+          <p className="mt-1 flex items-center gap-2 text-xs text-text-body-light/70">
+            {savingOrder ? (
+              <>
+                <Loader2 className="w-3 h-3 animate-spin text-lime" />
+                Čuvanje redosleda…
+              </>
+            ) : (
+              <>
+                <GripVertical className="w-3 h-3 shrink-0" />
+                Prevucite red da promenite redosled prikaza na sajtu
+              </>
+            )}
+          </p>
+        </div>
         <Button onClick={handleAdd} className="bg-lime text-bg-dark hover:bg-lime/90 w-full sm:w-auto shrink-0">
           <Plus className="w-4 h-4 mr-2" />
           Dodaj proizvod
         </Button>
       </div>
 
+      {orderError && (
+        <p className="flex items-start gap-2 rounded-md border border-terra/40 bg-terra/10 px-3 py-2 text-sm text-terra">
+          <AlertCircle className="mt-0.5 w-4 h-4 shrink-0" />
+          <span>{orderError}</span>
+        </p>
+      )}
+
       <div className="bg-bg-hero rounded-lg border border-border-card overflow-hidden -mx-1 sm:mx-0">
         <div className="overflow-x-auto [&_th]:px-3 [&_th]:py-3 [&_td]:px-3 [&_td]:py-3 sm:[&_th]:px-6 sm:[&_th]:py-4 sm:[&_td]:px-6 sm:[&_td]:py-4">
-        <table className="w-full min-w-[980px]">
+        <table className="w-full min-w-[1030px]">
           <thead>
             <tr className="border-b border-border-card">
+              <th className="w-10 px-6 py-4">
+                <span className="sr-only">Redosled</span>
+              </th>
               <th className="text-center px-6 py-4 text-sm font-medium text-text-body-light">
                 Slika
               </th>
@@ -272,8 +400,29 @@ export function ProductsTab() {
               return (
                 <tr
                   key={product.id}
-                  className="border-b border-border-card last:border-b-0"
+                  draggable
+                  onDragStart={(e) => handleRowDragStart(product.id, e)}
+                  onDragEnd={handleRowDragEnd}
+                  onDragOver={(e) => handleRowDragOver(product.id, e)}
+                  onDragLeave={() => setDropTargetRowId(null)}
+                  onDrop={(e) => handleRowDrop(product.id, e)}
+                  className={cn(
+                    'border-b border-border-card last:border-b-0 transition-colors',
+                    draggingRowId === product.id && 'opacity-50',
+                    dropTargetRowId === product.id &&
+                      draggingRowId !== product.id &&
+                      'bg-lime/10',
+                  )}
                 >
+                  <td className="px-6 py-4">
+                    <span
+                      className="flex cursor-grab items-center justify-center text-text-muted active:cursor-grabbing"
+                      title="Prevucite da promenite redosled prikaza"
+                      aria-hidden
+                    >
+                      <GripVertical className="w-4 h-4" />
+                    </span>
+                  </td>
                   <td className="px-6 py-4">
                     {productThumbSrc ? (
                       <div className="w-12 h-12 rounded-md overflow-hidden bg-bg-card">
@@ -462,11 +611,20 @@ export function ProductsTab() {
                 </p>
               </div>
             </div>
+            {deleteError && (
+              <p className="mb-4 flex items-start gap-2 rounded-md border border-terra/40 bg-terra/10 px-3 py-2 text-sm text-terra">
+                <AlertCircle className="mt-0.5 w-4 h-4 shrink-0" />
+                <span>{deleteError}</span>
+              </p>
+            )}
             <div className="flex justify-end gap-3">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setDeleteConfirm(null)}
+                onClick={() => {
+                  setDeleteConfirm(null)
+                  setDeleteError('')
+                }}
                 className="min-w-[7rem] border-2 border-cream/55 bg-bg-page text-bg-dark hover:bg-cream hover:border-cream hover:text-bg-dark font-semibold shadow-sm"
               >
                 Otkaži
@@ -532,6 +690,7 @@ function ProductModal({
     badge: product?.badge || '',
     status: product?.status || 'active',
     isFavorite: Boolean(product?.isFavorite),
+    isRegular: product?.isRegular ?? true,
     images: product?.images || [],
     pricingMode: initialPricingMode,
     prices: initialPrices,
@@ -1000,6 +1159,51 @@ function ProductModal({
                     className="size-4 shrink-0 accent-lime border-border-card bg-bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-hero"
                   />
                   Ne
+                </label>
+              </fieldset>
+            </div>
+          </div>
+
+          <div className="rounded-xl border-2 border-lime/35 bg-bg-dark/50 px-4 py-3.5 ring-1 ring-lime/10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p id="regular-image-heading" className="text-sm font-semibold text-cream">
+                  Prikaz slike na kartici
+                </p>
+                <p className="text-xs text-text-body-light/80 mt-0.5">
+                  „Standardno“ — slika izlazi izvan kartice na velikim ekranima
+                  (za slike sa providnom pozadinom). „Popuni karticu“ — slika
+                  ostaje u okviru kartice i popunjava njen prostor.
+                </p>
+              </div>
+              <fieldset
+                aria-labelledby="regular-image-heading"
+                className="shrink-0 border-0 p-0 m-0 flex flex-row flex-nowrap items-center gap-4 sm:gap-6"
+              >
+                <legend className="sr-only">Prikaz slike na kartici</legend>
+                <label className="inline-flex items-center gap-2.5 cursor-pointer text-sm text-cream select-none whitespace-nowrap">
+                  <input
+                    type="radio"
+                    name="product-is-regular"
+                    checked={formData.isRegular}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isRegular: true }))
+                    }
+                    className="size-4 shrink-0 accent-lime border-border-card bg-bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-hero"
+                  />
+                  Standardno
+                </label>
+                <label className="inline-flex items-center gap-2.5 cursor-pointer text-sm text-text-body-light select-none whitespace-nowrap">
+                  <input
+                    type="radio"
+                    name="product-is-regular"
+                    checked={!formData.isRegular}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, isRegular: false }))
+                    }
+                    className="size-4 shrink-0 accent-lime border-border-card bg-bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-hero"
+                  />
+                  Popuni karticu
                 </label>
               </fieldset>
             </div>

@@ -56,7 +56,11 @@ export default function ProductDetail({
 
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-6 lg:gap-10 lg:items-start">
-          <ProductGallery images={productImages} productName={product.name} />
+          <ProductGallery
+            images={productImages}
+            productName={product.name}
+            fillFrame={product.isRegular === false}
+          />
 
           <div className="lg:sticky lg:top-6 self-start">
             <div className="bg-bg-hero rounded-xl p-5 sm:p-6 lg:p-8">

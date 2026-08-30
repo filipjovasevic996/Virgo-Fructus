@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { productsTable, resolveLocalized, type SupportedLocale, supportedLocales } from '@/lib/db/schema'
 import { parseStockKg } from '@/lib/stock-kg'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, asc, desc } from 'drizzle-orm'
 
 function localizeProduct(product: typeof productsTable.$inferSelect, locale: SupportedLocale) {
   const prices =
@@ -20,6 +20,7 @@ function localizeProduct(product: typeof productsTable.$inferSelect, locale: Sup
     shortDescription: resolveLocalized(product.shortDescription, locale),
     prices,
     pricingMode: prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight',
+    isRegular: product.isRegular ?? true,
     stockKg: parseStockKg(product.stockKg),
   }
 }
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
         .where(
           and(eq(productsTable.status, 'active'), eq(productsTable.isFavorite, true)),
         )
-        .orderBy(desc(productsTable.createdAt))
+        .orderBy(asc(productsTable.sortOrder), desc(productsTable.createdAt))
         .limit(4)
 
       return NextResponse.json(
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
               eq(productsTable.category, product.category),
             ),
           )
-          .orderBy(desc(productsTable.createdAt))
+          .orderBy(asc(productsTable.sortOrder), desc(productsTable.createdAt))
           .limit(5)
       }
 
@@ -96,7 +97,10 @@ export async function GET(request: Request) {
       query = query.where(eq(productsTable.status, 'active'))
     }
 
-    const products = await query.orderBy(productsTable.createdAt)
+    const products = await query.orderBy(
+      asc(productsTable.sortOrder),
+      desc(productsTable.createdAt),
+    )
     return NextResponse.json(
       { products: products.map((p) => localizeProduct(p, locale)) },
       { headers: CACHE_HEADERS },

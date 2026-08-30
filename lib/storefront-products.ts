@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import {
   productsTable,
@@ -41,6 +41,7 @@ function localizeProduct(
     pricingMode,
     badge: product.badge as Product['badge'],
     isFavorite: product.isFavorite,
+    isRegular: product.isRegular ?? true,
     stockKg: parseStockKg(product.stockKg),
   }
 }
@@ -59,7 +60,7 @@ export async function getStorefrontProducts(
     .select()
     .from(productsTable)
     .where(whereClause)
-    .orderBy(desc(productsTable.createdAt))
+    .orderBy(asc(productsTable.sortOrder), desc(productsTable.createdAt))
     .$dynamic()
 
   const rows = typeof limit === 'number' ? await query.limit(limit) : await query

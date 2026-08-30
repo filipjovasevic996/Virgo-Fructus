@@ -6,7 +6,7 @@ import {
 } from '@/lib/db/schema'
 import type { Product } from '@/lib/products'
 import { parseStockKg } from '@/lib/stock-kg'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq } from 'drizzle-orm'
 
 export async function getProductRow(slug: string) {
   try {
@@ -58,6 +58,7 @@ export function localizeProductRow(
     pricingMode: prices[0]?.pricingMode === 'quantity' ? 'quantity' : 'weight',
     badge: product.badge as Product['badge'],
     isFavorite: product.isFavorite,
+    isRegular: product.isRegular ?? true,
     stockKg: parseStockKg(product.stockKg),
   }
 }
@@ -72,7 +73,7 @@ export async function getSimilarLocalizedProducts(
     .where(
       and(eq(productsTable.status, 'active'), eq(productsTable.category, product.category)),
     )
-    .orderBy(desc(productsTable.createdAt))
+    .orderBy(asc(productsTable.sortOrder), desc(productsTable.createdAt))
     .limit(5)
 
   return rows

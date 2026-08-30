@@ -7,7 +7,12 @@ import { productsTable } from "./products";
 export const orderItemsTable = pgTable("order_items", {
   id: uuid("id").primaryKey().defaultRandom(),
   orderId: uuid("order_id").notNull().references(() => ordersTable.id, { onDelete: "cascade" }),
-  productId: uuid("product_id").notNull().references(() => productsTable.id),
+  // Nullable + ON DELETE SET NULL: a product can be removed from the catalog
+  // without destroying order history. `productName`/`price` below are the
+  // snapshot the order actually needs.
+  productId: uuid("product_id").references(() => productsTable.id, {
+    onDelete: "set null",
+  }),
   productName: text("product_name").notNull(),
   quantity: integer("quantity").notNull(),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),

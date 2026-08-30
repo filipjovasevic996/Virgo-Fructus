@@ -17,5 +17,7 @@ export interface Product {
   }[]
   pricingMode?: 'weight' | 'quantity'
   isFavorite: boolean
+  /** false = card image fills the frame instead of breaking out of the card */
+  isRegular: boolean
   stockKg: number
 }

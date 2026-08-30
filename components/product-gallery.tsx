@@ -14,9 +14,11 @@ function isImageUrl(src: string) {
 interface ProductGalleryProps {
   images: string[]
   productName: string
+  /** Photography without a transparent background: fill the frame, don't letterbox. */
+  fillFrame?: boolean
 }
 
-export function ProductGallery({ images, productName }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, fillFrame = false }: ProductGalleryProps) {
   const { t } = useI18n()
   const [currentImage, setCurrentImage] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -88,7 +90,10 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                   src={cloudinaryProductImageUrl(img)}
                   alt={`${productName} - ${index + 1}`}
                   fill
-                  className="object-contain pointer-events-none"
+                  className={cn(
+                    'pointer-events-none',
+                    fillFrame ? 'object-cover' : 'object-contain',
+                  )}
                   priority={index === 0}
                   loading="eager"
                   draggable={false}

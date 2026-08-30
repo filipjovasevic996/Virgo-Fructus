@@ -39,6 +39,11 @@ const badgeKeys: Record<string, string> = {
 }
 
 export function ProductCard({ product, featuredImageLift = false, imagePriority = false }: ProductCardProps) {
+  // `isRegular === false` marks artwork that has no transparent background:
+  // it fills the card frame and stays clipped to it instead of being scaled
+  // up and lifted out of the card on large screens.
+  const fillsCard = product.isRegular === false
+  const liftImage = featuredImageLift && !fillsCard
   // Initial selected index must point at a variant with a real (>0) price so
   // SSR never renders "0 RSD" (Google flags this as a price-data bug). If a
   // product has no priced variant we still default to 0 — the `hasPricedOptions`
@@ -178,15 +183,15 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
     <div
       className={cn(
         'group flex h-full w-full min-h-0 flex-col border border-border-card rounded-md overflow-visible bg-bg-hero animate-card-hover hover:shadow-lg hover:shadow-bg-dark/20',
-        featuredImageLift && 'pt-1 lg:pt-2',
+        liftImage && 'pt-1 lg:pt-2',
       )}
     >
       <Link
         href={withLocale(`/proizvodi/${product.slug}`)}
         className={cn(
           'relative block w-full aspect-[4/3] rounded-t-md',
-          featuredImageLift ? 'overflow-visible' : 'overflow-hidden',
-          featuredImageLift &&
+          liftImage ? 'overflow-visible' : 'overflow-hidden',
+          liftImage &&
             'lg:-mt-8 -mx-px w-[calc(100%+2px)] rounded-t-md shadow-[0_14px_34px_-12px_rgba(0,0,0,0.56)] ring-1 ring-black/15',
         )}
       >
@@ -194,7 +199,7 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
           aria-hidden
           className={cn(
             'absolute inset-0 z-0 rounded-t-md',
-            featuredImageLift ? 'bg-cream' : 'bg-bg-card',
+            liftImage ? 'bg-cream' : 'bg-bg-card',
           )}
         />
         {imageSrc ? (
@@ -205,9 +210,9 @@ export function ProductCard({ product, featuredImageLift = false, imagePriority 
             priority={imagePriority}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={cn(
-              'z-[1] object-contain object-center transition-transform duration-300',
-              featuredImageLift &&
-                'lg:scale-[1.13] lg:-translate-y-12',
+              'z-[1] object-center transition-transform duration-300',
+              fillsCard ? 'object-cover rounded-t-md' : 'object-contain',
+              liftImage && 'lg:scale-[1.13] lg:-translate-y-12',
             )}
           />
         ) : (

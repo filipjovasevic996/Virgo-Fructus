@@ -25,6 +25,10 @@ export interface AdminProduct {
   createdAt: string
   updatedAt: string
   isFavorite: boolean
+  /** false = storefront card image fills the card instead of breaking out of it */
+  isRegular?: boolean
+  /** Manual storefront position, ascending */
+  sortOrder?: number
   /** Available inventory in kg (API may return numeric as string) */
   stockKg?: number | string
 }
