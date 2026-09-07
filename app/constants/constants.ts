@@ -1,1 +1,1 @@
-export const HERO_VIDEO_URL = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/v1787908451/gemini_generated_video_34F07CA2_phmeea-compressed_uy3gqw.mp4`
+export const HERO_VIDEO_URL = `https://images.vigorfructus.com/vigor-fructus/static/hero-video.mp4`
