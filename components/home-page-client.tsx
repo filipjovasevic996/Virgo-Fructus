@@ -130,7 +130,7 @@ export function HomePageClient({ initialBestSellers }: { initialBestSellers: Pro
       <div className="flex justify-center lg:justify-end min-w-0">
         <div className="relative w-full max-w-[400px] h-[300px] rounded-lg overflow-hidden">
           <Image
-            src="https://images.vigorfructus.com/vigor-fructus/static/paket-voca.webp"
+            src="https://res.cloudinary.com/dfpdrglba/image/upload/v1777040620/Paket_voca_hmnanr.webp"
             alt="Our offer of fruit"
             fill
             sizes="(max-width: 1024px) 100vw, 400px"

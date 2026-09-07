@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
 
     // Novi upload-i idu na R2 čim su kredencijali podešeni u env-u (vidi lib/r2.ts).
     // Dok R2 nije konfigurisan, ponašanje ostaje identično kao pre — sve ide na Cloudinary.
-    if (isR2Configured()) {
+    // FORCE_CLOUDINARY_UPLOADS=true privremeno zaobilazi R2 (npr. dok se čeka DNS propagacija) —
+    // obrišite tu env promenljivu da se vratite na R2 bez ikakve druge izmene.
+    if (isR2Configured() && process.env.FORCE_CLOUDINARY_UPLOADS !== 'true') {
       const key = `vigor-fructus/products/${crypto.randomUUID()}.${EXTENSION_BY_TYPE[file.type]}`
 
       await r2Client.send(

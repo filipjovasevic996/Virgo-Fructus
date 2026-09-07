@@ -164,7 +164,7 @@ export default function RootLayout({
   return (
     <html lang="sr" className={`${cormorant.variable} ${jost.variable} bg-bg-page`}>
       <head>
-        <link rel="preconnect" href="https://images.vigorfructus.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
