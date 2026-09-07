@@ -1,8 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import cloudinary from '@/lib/cloudinary'
+import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL, isR2Configured } from '@/lib/r2'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+
+const EXTENSION_BY_TYPE: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,6 +37,30 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await file.arrayBuffer()
+
+    // Novi upload-i idu na R2 čim su kredencijali podešeni u env-u (vidi lib/r2.ts).
+    // Dok R2 nije konfigurisan, ponašanje ostaje identično kao pre — sve ide na Cloudinary.
+    if (isR2Configured()) {
+      const key = `vigor-fructus/products/${crypto.randomUUID()}.${EXTENSION_BY_TYPE[file.type]}`
+
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: key,
+          Body: new Uint8Array(bytes),
+          ContentType: file.type,
+          // Ključ je UUID i nikad se ne menja/prepisuje — bezbedno za trajno keširanje na CDN-u,
+          // što drži Class B read-ove ka R2-u na minimumu.
+          CacheControl: 'public, max-age=31536000, immutable',
+        }),
+      )
+
+      return NextResponse.json({
+        url: `${R2_PUBLIC_URL}/${key}`,
+        publicId: key,
+      })
+    }
+
     const base64 = `data:${file.type};base64,${Buffer.from(bytes).toString('base64')}`
 
     // Nemoj raditi fetch_format/auto na uploadu — može PNG/WebP alfu pretvoriti u JPEG (bela pozadina).
@@ -52,6 +85,18 @@ export async function DELETE(request: NextRequest) {
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'URL required' }, { status: 400 })
+    }
+
+    // Stare slike (pre migracije) su na Cloudinary-ju, nove na R2 — briši sa odgovarajućeg izvora.
+    if (isR2Configured() && R2_PUBLIC_URL && url.startsWith(R2_PUBLIC_URL)) {
+      const key = url.slice(R2_PUBLIC_URL.length).replace(/^\/+/, '')
+      if (!key) {
+        return NextResponse.json({ error: 'Could not determine object key' }, { status: 400 })
+      }
+
+      await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET_NAME, Key: key }))
+
+      return NextResponse.json({ success: true })
     }
 
     const publicId = extractPublicId(url)
