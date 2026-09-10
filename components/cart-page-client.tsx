@@ -11,7 +11,6 @@ import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { priceEntryLabel } from '@/lib/price-entry-label'
-import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import {
   FREE_DELIVERY_THRESHOLD,
   getDeliveryQuote,
@@ -32,8 +31,7 @@ function resolveRenderableImageSrc(src: string | null | undefined): string | nul
   if (!normalized.startsWith('http://') && !normalized.startsWith('https://') && !normalized.startsWith('/')) {
     return null
   }
-  const cloudinarySrc = cloudinaryProductImageUrl(normalized).trim()
-  return cloudinarySrc || null
+  return normalized || null
 }
 
 export default function CartPageClient() {

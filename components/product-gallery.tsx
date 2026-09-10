@@ -4,7 +4,6 @@ import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { useI18n } from '@/lib/i18n'
 
 function isImageUrl(src: string) {
@@ -87,7 +86,7 @@ export function ProductGallery({ images, productName, fillFrame = false }: Produ
             <div key={index} className="shrink-0 w-full h-full relative">
               {isImageUrl(img) ? (
                 <Image
-                  src={cloudinaryProductImageUrl(img)}
+                  src={img}
                   alt={`${productName} - ${index + 1}`}
                   fill
                   className={cn(
@@ -170,7 +169,7 @@ export function ProductGallery({ images, productName, fillFrame = false }: Produ
             >
               {isImageUrl(img) ? (
                 <Image
-                  src={cloudinaryProductImageUrl(img)}
+                  src={img}
                   alt=""
                   width={96}
                   height={96}

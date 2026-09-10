@@ -8,7 +8,6 @@ import { useCart } from './cart-context'
 import { useI18n } from '@/lib/i18n'
 import { useLocalizedPath } from '@/lib/i18n/use-localized-path'
 import { cn } from '@/lib/utils'
-import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 import { maxQuantityForCartLine } from '@/lib/product-stock'
 import { parseWeightToGrams } from '@/lib/parse-weight-grams'
 import { priceEntryLabel } from '@/lib/price-entry-label'
@@ -76,7 +75,7 @@ export function ProductCard({
   const { t } = useI18n()
   const { withLocale } = useLocalizedPath()
   const productImage = typeof product.image === 'string' ? product.image.trim() : ''
-  const imageSrc = isImageUrl(productImage) ? cloudinaryProductImageUrl(productImage) : null
+  const imageSrc = isImageUrl(productImage) ? productImage : null
 
   const safeIdx = Math.min(selectedWeight, Math.max(0, product.prices.length - 1))
   const currentPrice = product.prices[safeIdx]

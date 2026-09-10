@@ -23,7 +23,6 @@ import { Input } from '@/components/ui/input'
 import type { AdminProduct, LocalizedField } from '@/lib/admin-store'
 import { cn } from '@/lib/utils'
 import { formatKgFixed4, parseStockKg, roundKgUp4 } from '@/lib/stock-kg'
-import { cloudinaryProductImageUrl } from '@/lib/cloudinary-delivery-url'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -132,8 +131,7 @@ function resolveRenderableImageSrc(src: string | null | undefined): string | nul
   ) {
     return null
   }
-  const cloudinarySrc = cloudinaryProductImageUrl(normalized).trim()
-  return cloudinarySrc || null
+  return normalized || null
 }
 
 function createImageItemKey() {

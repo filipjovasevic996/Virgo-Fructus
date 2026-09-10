@@ -51,7 +51,7 @@ export default function AboutPageClient() {
             <div className="w-full">
             <div className="w-full h-[300px] sm:h-[400px] lg:h-[300px] bg-cream rounded-lg overflow-hidden">
               <img
-                src="https://res.cloudinary.com/dfpdrglba/image/upload/v1777127621/ChatGPT_Image_Apr_25_2026_04_33_04_PM_khfslm.webp"
+                src="https://images.vigorfructus.com/vigor-fructus/static/about-1.webp"
                 alt="Cocktail"
                 className="w-full h-full object-cover"
               />
@@ -67,7 +67,7 @@ export default function AboutPageClient() {
             <div className="order-2 lg:order-1 flex justify-start">
             <div className="w-full h-[300px] sm:h-[400px] lg:h-[300px] bg-cream rounded-lg overflow-hidden">
               <img
-                src="https://res.cloudinary.com/dfpdrglba/image/upload/v1777115798/IMG_6982_mt67bg.webp"
+                src="https://images.vigorfructus.com/vigor-fructus/static/about-2.webp"
                 alt="Dehydrated fruit"
                 className="w-full h-full object-cover"
               />
