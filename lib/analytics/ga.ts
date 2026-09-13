@@ -1,4 +1,6 @@
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID
+const GOOGLE_ADS_PURCHASE_CONVERSION_LABEL = '7r_CCO7ylvUcELLZ5bVE'
 
 declare global {
   interface Window {
@@ -55,4 +57,13 @@ export function trackPurchase(
     value,
     items: toGaItems(items),
   })
+
+  if (GOOGLE_ADS_ID) {
+    gtag('event', 'conversion', {
+      send_to: `${GOOGLE_ADS_ID}/${GOOGLE_ADS_PURCHASE_CONVERSION_LABEL}`,
+      transaction_id: orderNumber,
+      currency: 'RSD',
+      value,
+    })
+  }
 }
