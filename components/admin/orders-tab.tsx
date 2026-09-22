@@ -46,8 +46,13 @@ interface DBOrder {
   notes: string | null
   createdAt: string
   items: OrderItem[]
-  /** Most recent payment method for this order, joined server-side. */
+  /** Most recent (confirmed) payment method for this order, joined server-side. */
   paymentMethod: PaymentMethod | string | null
+  /** What the customer selected at checkout (cash/card/predracun) — set before any payment is confirmed. */
+  checkoutPaymentMethod: string | null
+  companyName: string | null
+  pib: string | null
+  maticniBroj: string | null
 }
 
 type StatusDisplay = {
@@ -220,6 +225,12 @@ export function OrdersTab() {
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${status.color}`}>
                           {status.label}
                         </span>
+                        {order.status === 'PENDING' && order.checkoutPaymentMethod === 'predracun' && (
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-terra/20 text-terra flex items-center gap-1">
+                            <Building2 className="w-3 h-3" />
+                            Predračun — čeka uplatu
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-text-body-light">
                         {order.customerName ?? 'Podaci obrisani (GDPR)'} — {formatDate(order.createdAt)}
@@ -259,6 +270,12 @@ export function OrdersTab() {
                               <Phone className="w-3 h-3" />
                               {order.phone}
                             </p>
+                            {order.companyName && (
+                              <p className="text-text-body-light flex items-center gap-2">
+                                <Building2 className="w-3 h-3" />
+                                {order.companyName} (PIB {order.pib}, MB {order.maticniBroj})
+                              </p>
+                            )}
                           </>
                         ) : (
                           <p className="text-text-muted italic">
@@ -300,7 +317,9 @@ export function OrdersTab() {
                         className="w-full px-3 py-2 input-vigor"
                       >
                         <option value="PENDING">Na čekanju</option>
-                        <option value="PAID">Plaćeno (sajt)</option>
+                        <option value="PAID">
+                          {order.checkoutPaymentMethod === 'predracun' ? 'Plaćeno (uplata na račun)' : 'Plaćeno (sajt)'}
+                        </option>
                         <option value="SHIPPED">Plaćeno (pouzećem)</option>
                         <option value="CANCELLED">Otkazano</option>
                       </select>

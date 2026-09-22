@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, Check, Loader2, Trash2 } from 'lucide-react'
+import { Minus, Plus, ShoppingBasket, CreditCard, Banknote, FileText, Check, Loader2, Trash2 } from 'lucide-react'
 import { useCart } from '@/components/cart-context'
 import { trackBeginCheckout, trackPurchase } from '@/lib/analytics/ga'
 import { useI18n } from '@/lib/i18n'
@@ -47,8 +47,12 @@ export default function CartPageClient() {
     city: '',
     address: '',
     note: '',
+    companyName: '',
+    pib: '',
+    maticniBroj: '',
   })
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash')
+  const [isCompany, setIsCompany] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'predracun'>('cash')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderError, setOrderError] = useState('')
@@ -163,6 +167,11 @@ export default function CartPageClient() {
     if (!formData.email.trim()) newErrors.email = t('cart.errorEmail')
     if (!formData.city.trim()) newErrors.city = t('cart.errorCity')
     if (!formData.address.trim()) newErrors.address = t('cart.errorAddress')
+    if (isCompany) {
+      if (!formData.companyName.trim()) newErrors.companyName = t('cart.errorCompanyName')
+      if (!formData.pib.trim()) newErrors.pib = t('cart.errorPib')
+      if (!formData.maticniBroj.trim()) newErrors.maticniBroj = t('cart.errorMaticniBroj')
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -170,6 +179,9 @@ export default function CartPageClient() {
   const handleSubmitDetails = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
+      if (!isCompany && paymentMethod === 'predracun') {
+        setPaymentMethod('cash')
+      }
       setStep('payment')
     }
   }
@@ -190,6 +202,13 @@ export default function CartPageClient() {
             city: formData.city,
             address: formData.address,
             note: formData.note,
+            ...(isCompany
+              ? {
+                  companyName: formData.companyName,
+                  pib: formData.pib,
+                  maticniBroj: formData.maticniBroj,
+                }
+              : {}),
           },
           items: items.map((item) => ({
             id: item.id,
@@ -648,6 +667,95 @@ export default function CartPageClient() {
                 </div>
 
                 <div>
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={isCompany}
+                      onChange={(e) => setIsCompany(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <span className="font-sans text-sm font-medium text-cream">
+                      {t('cart.orderAsCompany')}
+                    </span>
+                  </label>
+                </div>
+
+                {isCompany && (
+                  <>
+                    <div>
+                      <label htmlFor="companyName" className="block font-sans text-sm font-medium text-cream mb-2">
+                        {t('cart.companyNameLabel')}
+                      </label>
+                      <input
+                        id="companyName"
+                        type="text"
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        onBlur={() => {
+                          if (!formData.companyName.trim()) {
+                            setErrors({ ...errors, companyName: t('cart.errorCompanyName') })
+                          } else {
+                            const { companyName: _, ...rest } = errors
+                            setErrors(rest)
+                          }
+                        }}
+                        className="input-vigor w-full px-4 py-3"
+                        placeholder={t('cart.companyNamePlaceholder')}
+                      />
+                      {errors.companyName && <p className="mt-1 text-sm text-terra">{errors.companyName}</p>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="pib" className="block font-sans text-sm font-medium text-cream mb-2">
+                          {t('cart.pibLabel')}
+                        </label>
+                        <input
+                          id="pib"
+                          type="text"
+                          value={formData.pib}
+                          onChange={(e) => setFormData({ ...formData, pib: e.target.value })}
+                          onBlur={() => {
+                            if (!formData.pib.trim()) {
+                              setErrors({ ...errors, pib: t('cart.errorPib') })
+                            } else {
+                              const { pib: _, ...rest } = errors
+                              setErrors(rest)
+                            }
+                          }}
+                          className="input-vigor w-full px-4 py-3"
+                          placeholder={t('cart.pibPlaceholder')}
+                        />
+                        {errors.pib && <p className="mt-1 text-sm text-terra">{errors.pib}</p>}
+                      </div>
+
+                      <div>
+                        <label htmlFor="maticniBroj" className="block font-sans text-sm font-medium text-cream mb-2">
+                          {t('cart.maticniBrojLabel')}
+                        </label>
+                        <input
+                          id="maticniBroj"
+                          type="text"
+                          value={formData.maticniBroj}
+                          onChange={(e) => setFormData({ ...formData, maticniBroj: e.target.value })}
+                          onBlur={() => {
+                            if (!formData.maticniBroj.trim()) {
+                              setErrors({ ...errors, maticniBroj: t('cart.errorMaticniBroj') })
+                            } else {
+                              const { maticniBroj: _, ...rest } = errors
+                              setErrors(rest)
+                            }
+                          }}
+                          className="input-vigor w-full px-4 py-3"
+                          placeholder={t('cart.maticniBrojPlaceholder')}
+                        />
+                        {errors.maticniBroj && <p className="mt-1 text-sm text-terra">{errors.maticniBroj}</p>}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div>
                   <label htmlFor="note" className="block font-sans text-sm font-medium text-cream mb-2">
                     {t('cart.noteLabel')}
                   </label>
@@ -709,6 +817,30 @@ export default function CartPageClient() {
                     </p>
                   </div>
                 </button>
+
+                {isCompany && (
+                  <button
+                    onClick={() => setPaymentMethod('predracun')}
+                    className={cn(
+                      'w-full p-4 rounded-lg border-2 flex items-center gap-4 transition-colors',
+                      paymentMethod === 'predracun'
+                        ? 'border-lime bg-bg-card'
+                        : 'border-border-card hover:border-border-muted'
+                    )}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-bg-dark flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-lime" />
+                    </div>
+                    <div className="text-left">
+                      <span className="font-sans font-semibold text-cream">
+                        {t('cart.predracun')}
+                      </span>
+                      <p className="font-sans text-sm text-text-body-light">
+                        {t('cart.predracunDesc')}
+                      </p>
+                    </div>
+                  </button>
+                )}
 
                 <div
                   className="w-full p-4 rounded-lg border-2 border-border-card flex items-center gap-4 opacity-50 relative"

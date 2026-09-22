@@ -6,6 +6,7 @@ export const orderStatusEnum = pgEnum("order_status", ["PENDING", "PAID", "FAILE
 
 export const ordersTable = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
+  orderNumber: text("order_number"),
   customerEmail: text("customer_email"),
   customerName: text("customer_name"),
   address: text("address"),
@@ -15,6 +16,11 @@ export const ordersTable = pgTable("orders", {
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: orderStatusEnum("status").notNull().default("PENDING"),
   notes: text("notes"),
+  paymentMethod: text("payment_method").notNull().default("cash"),
+  // Popunjeno samo kad kupac naruči kao firma (predračun).
+  companyName: text("company_name"),
+  pib: text("pib"),
+  maticniBroj: text("maticni_broj"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

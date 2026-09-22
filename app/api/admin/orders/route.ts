@@ -31,8 +31,14 @@ async function syncPaymentForOrder(
   orderId: string,
   status: string,
   totalAmount: string,
+  checkoutPaymentMethod: string | null,
 ) {
-  const method = STATUS_TO_METHOD[status]
+  // Predračun se plaća uplatom na račun, ne karticom — kad admin označi
+  // takvu porudžbinu kao PAID, to je bank_transfer, ne card.
+  const method =
+    status === 'PAID' && checkoutPaymentMethod === 'predracun'
+      ? 'bank_transfer'
+      : STATUS_TO_METHOD[status]
 
   // Most recent row for this order — that's the one Finances surfaces and
   // the one the orders-tab joins against.
@@ -137,6 +143,11 @@ export async function GET() {
     const ordersWithItems = orders.map((order) => ({
       ...order,
       items: itemsByOrderId.get(order.id) ?? [],
+      // Šta je kupac izabrao na checkout-u (cash/card/predracun) — postoji i
+      // pre nego što je bilo šta stvarno plaćeno.
+      checkoutPaymentMethod: order.paymentMethod,
+      // Potvrđen način plaćanja, spojen iz payments tabele — postoji tek kad
+      // admin obradi/potvrdi uplatu.
       paymentMethod: methodByOrderId.get(order.id) ?? null,
     }))
 
@@ -173,7 +184,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    await syncPaymentForOrder(order.id, order.status, String(order.totalAmount))
+    await syncPaymentForOrder(order.id, order.status, String(order.totalAmount), order.paymentMethod)
 
     return NextResponse.json({ order })
   } catch (error) {

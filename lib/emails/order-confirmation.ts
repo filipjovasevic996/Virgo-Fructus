@@ -1,3 +1,5 @@
+import { PREDRACUN_SELLER } from '@/app/constants/constants'
+
 interface OrderItem {
   name: string
   weight: string
@@ -20,6 +22,15 @@ interface OrderEmailData {
   deliveryLabel: string
   total: number
   paymentMethod: string
+  companyName?: string
+  pib?: string
+  maticniBroj?: string
+}
+
+function paymentMethodLabel(paymentMethod: string): string {
+  if (paymentMethod === 'predracun') return 'Predračun (uplata na račun)'
+  if (paymentMethod === 'card') return 'Karticom'
+  return 'Pouzećem'
 }
 
 function escapeHtml(value: unknown): string {
@@ -68,7 +79,7 @@ export function customerOrderEmail(data: OrderEmailData): string {
   const address = escapeHtml(data.address)
   const city = escapeHtml(data.city)
   const note = data.note ? escapeHtml(data.note) : ''
-  const paymentLabel = data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'
+  const paymentLabel = paymentMethodLabel(data.paymentMethod)
 
   return `
 <!DOCTYPE html>
@@ -162,6 +173,11 @@ export function customerOrderEmail(data: OrderEmailData): string {
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Adresa</td>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${address}, ${city}</td>
                 </tr>
+                ${data.companyName ? `
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Firma</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${escapeHtml(data.companyName)} (PIB ${escapeHtml(data.pib ?? '')}, MB ${escapeHtml(data.maticniBroj ?? '')})</td>
+                </tr>` : ''}
                 <tr>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Plaćanje</td>
                   <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${paymentLabel}</td>
@@ -173,6 +189,43 @@ export function customerOrderEmail(data: OrderEmailData): string {
                 </tr>` : ''}
               </table>
             </div>
+
+            ${data.paymentMethod === 'predracun' ? `
+            <!-- Predračun — podaci za uplatu -->
+            <div style="background-color: #fff8e6; border: 1px solid #f0dca0; border-radius: 6px; padding: 20px; margin-bottom: 24px;">
+              <h3 style="margin: 0 0 12px; font-family: Georgia, serif; font-size: 16px; color: #1a1a1a;">
+                Predračun — podaci za uplatu
+              </h3>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999; width: 140px;">Primalac</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${escapeHtml(PREDRACUN_SELLER.companyName)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Adresa</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${escapeHtml(PREDRACUN_SELLER.address)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">PIB / MB</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${escapeHtml(PREDRACUN_SELLER.pib)} / ${escapeHtml(PREDRACUN_SELLER.maticniBroj)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Tekući račun</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 14px; color: #1a1a1a; font-weight: 700;">${escapeHtml(PREDRACUN_SELLER.bankAccount)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Poziv na broj</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #1a1a1a;">${escapeHtml(data.orderNumber)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 13px; color: #999;">Iznos za uplatu</td>
+                  <td style="padding: 4px 0; font-family: sans-serif; font-size: 14px; color: #1a1a1a; font-weight: 700;">${data.total.toLocaleString('sr-RS')} RSD</td>
+                </tr>
+              </table>
+              <p style="margin: 12px 0 0; font-family: sans-serif; font-size: 12px; color: #999;">
+                ${escapeHtml(PREDRACUN_SELLER.vatNote)} Porudžbina se šalje po prijemu uplate.
+              </p>
+            </div>` : ''}
 
             <p style="margin: 0; font-family: sans-serif; font-size: 13px; color: #999; text-align: center;">
               Kontaktirajte nas na vigorfructus@gmail.com za sva pitanja.
@@ -203,7 +256,7 @@ export function supplierOrderEmail(data: OrderEmailData): string {
   const address = escapeHtml(data.address)
   const city = escapeHtml(data.city)
   const note = data.note ? escapeHtml(data.note) : ''
-  const paymentLabel = data.paymentMethod === 'cash' ? 'Pouzećem' : 'Karticom'
+  const paymentLabel = paymentMethodLabel(data.paymentMethod)
   const telHref = safeTelHref(data.customerPhone)
   const mailHref = safeMailHref(data.customerEmail)
 
@@ -253,9 +306,14 @@ export function supplierOrderEmail(data: OrderEmailData): string {
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Adresa</td>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${address}, ${city}</td>
               </tr>
+              ${data.companyName ? `
+              <tr>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Firma</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a; font-weight: 600;">${escapeHtml(data.companyName)} (PIB ${escapeHtml(data.pib ?? '')}, MB ${escapeHtml(data.maticniBroj ?? '')})</td>
+              </tr>` : ''}
               <tr>
                 <td style="padding: 4px 16px; font-family: sans-serif; font-size: 13px; color: #999;">Plaćanje</td>
-                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a;">${paymentLabel}</td>
+                <td style="padding: 4px 16px; font-family: sans-serif; font-size: 14px; color: #1a1a1a; ${data.paymentMethod === 'predracun' ? 'font-weight: 700; color: #b8860b;' : ''}">${paymentLabel}</td>
               </tr>
               ${data.note ? `
               <tr>

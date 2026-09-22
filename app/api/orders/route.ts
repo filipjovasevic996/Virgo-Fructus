@@ -67,6 +67,10 @@ export async function POST(request: NextRequest) {
           ? 'Besplatna'
           : `${deliveryFee.toLocaleString('sr-RS')} RSD`
 
+    const companyName = customer.companyName ? String(customer.companyName).trim() : ''
+    const pib = customer.pib ? String(customer.pib).trim() : ''
+    const maticniBroj = customer.maticniBroj ? String(customer.maticniBroj).trim() : ''
+
     const emailData = {
       orderNumber,
       customerName: String(customer.name),
@@ -81,6 +85,9 @@ export async function POST(request: NextRequest) {
       deliveryLabel,
       total,
       paymentMethod: paymentMethod || 'cash',
+      companyName: companyName || undefined,
+      pib: pib || undefined,
+      maticniBroj: maticniBroj || undefined,
     }
 
     let orderId: string | undefined
@@ -178,6 +185,7 @@ export async function POST(request: NextRequest) {
         const [order] = await tx
           .insert(ordersTable)
           .values({
+            orderNumber,
             customerName: String(customer.name),
             customerEmail: String(customer.email),
             phone: String(customer.phone),
@@ -187,6 +195,10 @@ export async function POST(request: NextRequest) {
             notes: orderNotes,
             totalAmount: total.toString(),
             status: 'PENDING',
+            paymentMethod: paymentMethod || 'cash',
+            companyName: companyName || null,
+            pib: pib || null,
+            maticniBroj: maticniBroj || null,
           })
           .returning()
 
@@ -260,7 +272,10 @@ export async function POST(request: NextRequest) {
       resend.emails.send({
         from: FROM_EMAIL,
         to: String(customer.email),
-        subject: `Potvrda porudžbine #${orderNumber} — Vigor Fructus`,
+        subject:
+          paymentMethod === 'predracun'
+            ? `Predračun #${orderNumber} — Vigor Fructus`
+            : `Potvrda porudžbine #${orderNumber} — Vigor Fructus`,
         html: customerOrderEmail(emailData),
       }),
     )
