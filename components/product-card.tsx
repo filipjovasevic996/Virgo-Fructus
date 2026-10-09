@@ -248,11 +248,11 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col bg-bg-hero p-4 rounded-b-md">
         <Link href={withLocale(`/proizvodi/${product.slug}`)}>
-          <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors line-clamp-2 min-h-[3.5rem]">
+          <h3 className="font-serif font-semibold text-lg text-cream hover:text-lime transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
-        <p className="mt-2 text-[13px] leading-relaxed text-text-body-light/85 line-clamp-4 sm:line-clamp-5">
+        <p className="mt-2 text-[13px] leading-relaxed text-text-body-light/85 line-clamp-8">
           {product.shortDescription || ''}
         </p>
         {/* <p className="text-[13px] text-text-body-light mt-1">
@@ -265,7 +265,7 @@ export function ProductCard({
         <div className="mt-auto pt-4">
           <div
             className={cn(
-              'mt-3 flex min-h-[30px] flex-wrap gap-2',
+              'flex min-h-[30px] flex-wrap gap-2',
               (isQuantityMode || !hasPricedOptions) && 'invisible',
             )}
           >
