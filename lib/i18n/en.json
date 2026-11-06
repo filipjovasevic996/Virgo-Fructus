@@ -176,16 +176,20 @@
   "shop": {
     "title": "Fruit shop",
     "heading": "Dehydrated fruit shop",
-    "allCategories": "All categories",
-    "citrus": "Citrus",
-    "berries": "Berries",
-    "exotic": "Exotic",
     "sortPopular": "Popularity",
-    "sortPriceAsc": "Price ↑",
-    "sortPriceDesc": "Price ↓",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
     "noProducts": "No products in this category.",
     "loadingProducts": "Loading products...",
-    "searchPlaceholder": "Search products..."
+    "searchPlaceholder": "Search products...",
+    "allProducts": "All products",
+    "categoriesLabel": "Categories",
+    "paginationLabel": "Product pages",
+    "pagePrev": "Previous page",
+    "pageNext": "Next page",
+    "pageN": "Page {page}",
+    "showing": "{from}–{to} of {total} products",
+    "noSearchResults": "No products match your search."
   },
   "product": {
     "loading": "Loading product...",
@@ -368,7 +372,7 @@
       }
     }
   },
-    "admin": {
+  "admin": {
     "login": "Admin login",
     "loginDesc": "Sign in to access the admin area.",
     "identifier": "Username or email",

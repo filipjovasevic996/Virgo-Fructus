@@ -158,7 +158,7 @@
     "aboutUs": "O Nama",
     "aboutSubtitle": "Kako je nastao Vigor Fructus?",
     "aboutParagraph1": "Vigor Fructus je beogradski brend premium dehidriranog voća, nastao u maloj, domaćoj radionici. Zahvaljujući odličnim reakcijama naših prvih klijenata, vrlo brzo je prerastao u ideju koju sa vama danas ovde razvijamo.",
-    "aboutParagraph2": "Naši proizvodi su potpuno prirodno, ručno birano, sporo dehidrirano i pažljivo upakovano voće, bez dodatog šećera, boja i konzervansa. Svaki komad prolazi kroz naše ruke i naša misija je da vam ponudimo kvalitetan i prirodan proizvod, atraktivnog izgleda.", 
+    "aboutParagraph2": "Naši proizvodi su potpuno prirodno, ručno birano, sporo dehidrirano i pažljivo upakovano voće, bez dodatog šećera, boja i konzervansa. Svaki komad prolazi kroz naše ruke i naša misija je da vam ponudimo kvalitetan i prirodan proizvod, atraktivnog izgleda.",
     "aboutParagraph3": "Pročitajte više",
     "bestSellers": "Najprodavanije",
     "bestSellersSubtitle": "Izdvajamo iz ponude",
@@ -176,16 +176,20 @@
   "shop": {
     "title": "Prodavnica voća",
     "heading": "Prodavnica dehidriranog voća",
-    "allCategories": "Sve kategorije",
-    "citrus": "Citrus",
-    "berries": "Jagodičasto",
-    "exotic": "Egzotično",
     "sortPopular": "Popularnost",
-    "sortPriceAsc": "Cena ↑",
-    "sortPriceDesc": "Cena ↓",
+    "sortPriceAsc": "Cena rastuće",
+    "sortPriceDesc": "Cena opadajuće",
     "noProducts": "Nema proizvoda u ovoj kategoriji.",
     "loadingProducts": "Učitavamo proizvode...",
-    "searchPlaceholder": "Pretraži proizvode..."
+    "searchPlaceholder": "Pretraži proizvode...",
+    "allProducts": "Svi proizvodi",
+    "categoriesLabel": "Kategorije",
+    "paginationLabel": "Stranice proizvoda",
+    "pagePrev": "Prethodna stranica",
+    "pageNext": "Sledeća stranica",
+    "pageN": "Stranica {page}",
+    "showing": "{from}–{to} od {total} proizvoda",
+    "noSearchResults": "Nema proizvoda koji odgovaraju pretrazi."
   },
   "product": {
     "loading": "Učitavanje proizvoda...",
@@ -319,7 +323,7 @@
     "beginningP2": "Rezultat je hrskavo, dehidrirano voće, koje izgleda kao sa Pinteresta i odmah je spremno za upotrebu.",
     "philosophyLabel": "Filozofija",
     "philosophyTitle": "Naša misija",
-    "philosophyP1": "Nismo fabrika niti to želimo da postanemo. Svaka serija je ograničena, svaki komad voća ručno pripreman. Svako naše pakovanje nosi u sebi sate rada i iskrenu nameru da budete zadovoljni.",  
+    "philosophyP1": "Nismo fabrika niti to želimo da postanemo. Svaka serija je ograničena, svaki komad voća ručno pripreman. Svako naše pakovanje nosi u sebi sate rada i iskrenu nameru da budete zadovoljni.",
     "philosophyP2": "Kako smo nestrpljivi da vam što pre predstavimo naš proizvod, porudžbine u Beogradu iznad 4000 RSD i napravljene do 10:00h dostavljamo isti dan! Za ostale gradove u Srbiji, porudžbine šaljemo kurirskom službom.",
     "philosophyP3": "Hvala vam što ste ovde!",
     "processLabel": "Proces",
@@ -331,7 +335,7 @@
     "step3Title": "Pakovanje",
     "step3Desc": "Ekološko pakovanje koje štiti proizvod i čuva životnu sredinu.",
     "ctaHeadline": "Pogledajte našu ponudu",
-        "viewShop": "Prodavnica"
+    "viewShop": "Prodavnica"
   },
   "faq": {
     "label": "Pomoć i informacije",

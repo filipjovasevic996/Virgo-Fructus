@@ -1,3 +1,4 @@
+import type { ProductCategory } from '@/lib/categories'
 // In-memory store for admin data (in production, this would be a database)
 // This simulates persistence across API routes
 
@@ -10,7 +11,7 @@ export interface AdminProduct {
   id: string
   slug: string
   name: LocalizedField
-  category: 'citrus' | 'jagodičasto' | 'egzotično'
+  category: ProductCategory
   description: LocalizedField
   shortDescription: LocalizedField
   images: string[]

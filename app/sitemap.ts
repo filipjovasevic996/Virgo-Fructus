@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { productsTable } from '@/lib/db/schema'
 import { firstResolvedProductImage } from '@/lib/resolve-product-image-url'
 import { desc, eq } from 'drizzle-orm'
+import { PRODUCT_CATEGORIES, categoryPath } from '@/lib/categories'
 
 /** Cache sitemap generation (reduces DB hits when crawlers poll /sitemap.xml often) */
 export const revalidate = 3600
@@ -72,10 +73,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   })
 
   let productPages: MetadataRoute.Sitemap = []
+  let categoryPages: MetadataRoute.Sitemap = []
   try {
     const products = await db
       .select({
         slug: productsTable.slug,
+        category: productsTable.category,
         updatedAt: productsTable.updatedAt,
         images: productsTable.images,
         image: productsTable.image,
@@ -111,9 +114,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
       return [srEntry, enEntry]
     })
+
+    // Samo kategorije koje trenutno imaju aktivne proizvode (npr. novogodišnja
+    // kolekcija van sezone ne ulazi u sitemap dok je prazna).
+    categoryPages = PRODUCT_CATEGORIES.flatMap((category) => {
+      const inCategory = products.filter((p) => p.category === category.slug)
+      if (inCategory.length === 0) return []
+      const lastModified = inCategory[0].updatedAt ?? now
+      const path = categoryPath(category.slug)
+      const srUrl = `${SITE_URL}${path}`
+      const enUrl = `${SITE_URL}/en${path}`
+      const languages = languageMap(srUrl, enUrl)
+      return [
+        { url: srUrl, lastModified, changeFrequency: 'weekly' as const, priority: 0.85, alternates: { languages } },
+        { url: enUrl, lastModified, changeFrequency: 'weekly' as const, priority: 0.8, alternates: { languages } },
+      ]
+    })
   } catch {
     // DB may not be available during build
   }
 
-  return [...staticPages, ...productPages]
+  return [...staticPages, ...categoryPages, ...productPages]
 }

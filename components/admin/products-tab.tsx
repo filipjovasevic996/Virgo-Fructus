@@ -18,21 +18,22 @@ import {
   Star,
   GripVertical,
   Crop,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ImageCropDialog, type ImageCropSource } from '@/components/admin/image-crop-dialog'
+import { PRODUCT_CATEGORIES, categoryLabel, isProductCategory } from '@/lib/categories'
 import type { AdminProduct, LocalizedField } from '@/lib/admin-store'
 import { cn } from '@/lib/utils'
 import { formatKgFixed4, parseStockKg, roundKgUp4 } from '@/lib/stock-kg'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
-const categories = [
-  { value: 'citrus', label: 'Citrus' },
-  { value: 'jagodičasto', label: 'Jagodičasto voće' },
-  { value: 'egzotično', label: 'Egzotično voće' },
-]
+const categories = PRODUCT_CATEGORIES.map((c) => ({ value: c.slug, label: c.label.sr }))
+
+const ADMIN_PAGE_SIZE = 10
 
 const badges = [
   { value: '', label: 'Bez oznake' },
@@ -157,6 +158,9 @@ export function ProductsTab() {
   const [dropTargetRowId, setDropTargetRowId] = useState<string | null>(null)
   const [savingOrder, setSavingOrder] = useState(false)
   const [orderError, setOrderError] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [adminPage, setAdminPage] = useState(1)
+  const [showAllRows, setShowAllRows] = useState(false)
 
   const serverProducts: AdminProduct[] = useMemo(
     () => data?.products || [],
@@ -174,6 +178,22 @@ export function ProductsTab() {
     const listedIds = new Set(listed.map((p) => p.id))
     return [...listed, ...serverProducts.filter((p) => !listedIds.has(p.id))]
   }, [serverProducts, orderedIds])
+
+  const filteredProducts = useMemo(
+    () =>
+      categoryFilter === 'all'
+        ? products
+        : products.filter((p) => p.category === categoryFilter),
+    [products, categoryFilter],
+  )
+  const adminTotalPages = Math.max(1, Math.ceil(filteredProducts.length / ADMIN_PAGE_SIZE))
+  const safeAdminPage = Math.min(adminPage, adminTotalPages)
+  const tableProducts = showAllRows
+    ? filteredProducts
+    : filteredProducts.slice(
+        (safeAdminPage - 1) * ADMIN_PAGE_SIZE,
+        safeAdminPage * ADMIN_PAGE_SIZE,
+      )
 
   const persistOrder = async (ids: string[]) => {
     setSavingOrder(true)
@@ -327,6 +347,7 @@ export function ProductsTab() {
         <div className="min-w-0">
           <p className="text-text-body-light text-sm sm:text-base">
             Ukupno {products.length} proizvoda
+            {categoryFilter !== 'all' && ` · prikazano ${filteredProducts.length}`}
           </p>
           <p className="mt-1 flex items-center gap-2 text-xs text-text-body-light/70">
             {savingOrder ? (
@@ -354,6 +375,39 @@ export function ProductsTab() {
           <span>{orderError}</span>
         </p>
       )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <label htmlFor="admin-category-filter" className="text-sm text-text-body-light">
+            Kategorija
+          </label>
+          <select
+            id="admin-category-filter"
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value)
+              setAdminPage(1)
+            }}
+            className="px-3 py-2 input-vigor text-sm"
+          >
+            <option value="all">Sve kategorije</option>
+            {categories.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label} ({products.filter((p) => p.category === cat.value).length})
+              </option>
+            ))}
+          </select>
+        </div>
+        {filteredProducts.length > ADMIN_PAGE_SIZE && (
+          <button
+            type="button"
+            onClick={() => setShowAllRows((v) => !v)}
+            className="self-start cursor-pointer text-sm text-text-body-light underline-offset-4 hover:text-lime hover:underline sm:self-auto"
+          >
+            {showAllRows ? `Prikaži po ${ADMIN_PAGE_SIZE}` : 'Prikaži sve (za sređivanje redosleda)'}
+          </button>
+        )}
+      </div>
 
       <div className="bg-bg-hero rounded-lg border border-border-card overflow-hidden -mx-1 sm:mx-0">
         <div className="overflow-x-auto [&_th]:px-3 [&_th]:py-3 [&_td]:px-3 [&_td]:py-3 sm:[&_th]:px-6 sm:[&_th]:py-4 sm:[&_td]:px-6 sm:[&_td]:py-4">
@@ -390,7 +444,7 @@ export function ProductsTab() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => {
+            {tableProducts.map((product) => {
               const productName = resolveField(product.name)
               const productShortDesc = resolveField(product.shortDescription)
               const statusVal = product.status || 'active'
@@ -447,8 +501,8 @@ export function ProductsTab() {
                     </p> */}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-text-body-light capitalize">
-                      {product.category}
+                    <span className="text-text-body-light whitespace-nowrap">
+                      {categoryLabel(product.category, 'sr') || product.category}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -570,6 +624,12 @@ export function ProductsTab() {
         </table>
         </div>
 
+        {products.length > 0 && filteredProducts.length === 0 && (
+          <p className="py-10 text-center text-text-body-light">
+            Nema proizvoda u ovoj kategoriji
+          </p>
+        )}
+
         {products.length === 0 && (
           <div className="py-12 text-center">
             <ImageIcon className="w-12 h-12 mx-auto text-text-muted mb-4" />
@@ -584,6 +644,52 @@ export function ProductsTab() {
           </div>
         )}
       </div>
+
+      {!showAllRows && adminTotalPages > 1 && (
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <p className="text-xs text-text-body-light/70">
+            {(safeAdminPage - 1) * ADMIN_PAGE_SIZE + 1}–
+            {(safeAdminPage - 1) * ADMIN_PAGE_SIZE + tableProducts.length} od{' '}
+            {filteredProducts.length}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setAdminPage(safeAdminPage - 1)}
+              disabled={safeAdminPage === 1}
+              aria-label="Prethodna stranica"
+              className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border-card text-text-body-light hover:text-cream disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            {Array.from({ length: adminTotalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setAdminPage(page)}
+                aria-current={page === safeAdminPage ? 'page' : undefined}
+                className={cn(
+                  'inline-flex h-9 min-w-9 cursor-pointer items-center justify-center rounded-md border px-3 text-sm transition-colors',
+                  page === safeAdminPage
+                    ? 'border-lime bg-lime text-bg-dark'
+                    : 'border-border-card text-text-body-light hover:text-cream',
+                )}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setAdminPage(safeAdminPage + 1)}
+              disabled={safeAdminPage === adminTotalPages}
+              aria-label="Sledeća stranica"
+              className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border-card text-text-body-light hover:text-cream disabled:opacity-40 disabled:pointer-events-none"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <ProductModal
@@ -684,7 +790,7 @@ function ProductModal({
   const [formData, setFormData] = useState({
     name: toLocalizedField(product?.name),
     slug: product?.slug || '',
-    category: product?.category || 'citrus',
+    category: isProductCategory(product?.category) ? product.category : PRODUCT_CATEGORIES[0].slug,
     shortDescription: toLocalizedField(product?.shortDescription),
     description: toLocalizedField(product?.description),
     badge: product?.badge || '',
@@ -1253,10 +1359,11 @@ function ProductModal({
             <label className="text-sm text-text-body-light">
               Kratak opis {activeLocale === 'en' && <span className="text-xs text-terra">(EN)</span>}
             </label>
-            <Input
+            <textarea
               value={formData.shortDescription[activeLocale]}
               onChange={(e) => setLocalizedField('shortDescription', e.target.value)}
-              className="input-vigor"
+              rows={3}
+              className="w-full px-3 py-2 input-vigor resize-y"
               placeholder={activeLocale === 'en' ? formData.shortDescription.sr || 'Short description in English…' : ''}
             />
           </div>

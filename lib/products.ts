@@ -1,8 +1,9 @@
+import type { ProductCategory } from '@/lib/categories'
 export interface Product {
   id: string
   slug: string
   name: string
-  category: 'citrus' | 'jagodičasto' | 'egzotično'
+  category: ProductCategory
   description: string
   shortDescription: string
   image: string

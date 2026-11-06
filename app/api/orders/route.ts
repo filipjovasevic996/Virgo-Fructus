@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
+import { PRODUCT_CATEGORY_SLUGS, categoryPath } from '@/lib/categories'
 import { eq, inArray, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { ordersTable } from '@/lib/db/schema/orders'
@@ -253,6 +254,10 @@ export async function POST(request: NextRequest) {
     revalidatePath('/')
     revalidatePath('/en/prodavnica')
     revalidatePath('/en')
+    for (const slug of PRODUCT_CATEGORY_SLUGS) {
+      revalidatePath(categoryPath(slug))
+      revalidatePath(`/en${categoryPath(slug)}`)
+    }
 
     const emailPromises: Promise<unknown>[] = []
 

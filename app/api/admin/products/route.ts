@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { orderItemsTable, productsTable } from '@/lib/db/schema'
 import { asc, desc, eq, notInArray, sql } from 'drizzle-orm'
+import { PRODUCT_CATEGORY_SLUGS, categoryPath, isProductCategory } from '@/lib/categories'
 
 /**
  * Bust ISR for listing pages, the product detail page when slug is known,
@@ -15,6 +16,10 @@ function revalidateStorefront(productSlug?: string | null) {
   revalidatePath('/en')
   revalidatePath('/en/prodavnica')
   revalidatePath('/sitemap.xml')
+  for (const slug of PRODUCT_CATEGORY_SLUGS) {
+    revalidatePath(categoryPath(slug))
+    revalidatePath(`/en${categoryPath(slug)}`)
+  }
   if (productSlug) {
     revalidatePath(`/proizvodi/${productSlug}`)
     revalidatePath(`/en/proizvodi/${productSlug}`)
@@ -66,6 +71,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!isProductCategory(body.category)) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
+    }
+
     // New products go to the top of the manual ordering, matching the
     // newest-first behaviour the admin list had before ordering existed.
     const [{ minSortOrder }] = await db
@@ -112,7 +121,12 @@ export async function PUT(request: NextRequest) {
     const updates: Record<string, unknown> = { updatedAt: new Date() }
     if (body.name !== undefined) updates.name = ensureLocalized(body.name)
     if (body.slug !== undefined) updates.slug = body.slug
-    if (body.category !== undefined) updates.category = body.category
+    if (body.category !== undefined) {
+      if (!isProductCategory(body.category)) {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 })
+      }
+      updates.category = body.category
+    }
     if (body.description !== undefined) updates.description = ensureLocalized(body.description)
     if (body.shortDescription !== undefined) updates.shortDescription = ensureLocalized(body.shortDescription)
     if (body.image !== undefined) updates.image = body.image

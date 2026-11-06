@@ -18,6 +18,7 @@ import {
   validPriceEntries,
 } from '@/lib/product-offers'
 import { buildLanguageAlternates } from '@/lib/hreflang'
+import { categoryPath, getProductCategory } from '@/lib/categories'
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.vigorfructus.com'
@@ -158,8 +159,13 @@ export default async function ProductPageEn({ params }: Props) {
       '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
     },
+    ...(getProductCategory(product.category)
+      ? { category: getProductCategory(product.category)!.schemaCategory }
+      : {}),
     ...(offerEntries.length > 0 ? { offers: offerEntries } : {}),
   }
+
+  const category = getProductCategory(product.category)
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -171,9 +177,19 @@ export default async function ProductPageEn({ params }: Props) {
         name: 'Shop',
         item: `${SITE_URL}/en/prodavnica`,
       },
+      ...(category
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: category.label.en,
+              item: `${SITE_URL}/en${categoryPath(category.slug)}`,
+            },
+          ]
+        : []),
       {
         '@type': 'ListItem',
-        position: 2,
+        position: category ? 3 : 2,
         name,
         item: productUrl,
       },

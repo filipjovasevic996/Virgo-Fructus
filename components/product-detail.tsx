@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { categoryPath, getProductCategory } from '@/lib/categories'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/lib/products'
 import { ProductCard } from '@/components/product-card'
@@ -35,6 +36,7 @@ export default function ProductDetail({
   const fullDescription = (product.description ?? '').trim()
   const initialPreferredIndex = preferredPriceIndex(product)
   const shopPath = localizePath('/prodavnica', locale)
+  const productCategory = getProductCategory(product.category)
 
   return (
     <div className="bg-bg-page min-h-screen">
@@ -47,6 +49,19 @@ export default function ProductDetail({
               </Link>
             </li>
             <li aria-hidden="true">/</li>
+            {productCategory && (
+              <>
+                <li>
+                  <Link
+                    href={localizePath(categoryPath(productCategory.slug), locale)}
+                    className="hover:underline"
+                  >
+                    {productCategory.label[locale]}
+                  </Link>
+                </li>
+                <li aria-hidden="true">/</li>
+              </>
+            )}
             <li className="text-text-nav" aria-current="page">
               {product.name}
             </li>
