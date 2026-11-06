@@ -9,7 +9,7 @@
 export const PRODUCT_CATEGORY_SLUGS = [
   'dehidrirano-voce',
   'novogodisnja-kolekcija',
-  'poklon-setovi',
+  'box-paketi',
 ] as const
 
 export type ProductCategory = (typeof PRODUCT_CATEGORY_SLUGS)[number]
@@ -44,18 +44,18 @@ export const PRODUCT_CATEGORIES: readonly ProductCategoryDef[] = [
     label: { sr: 'Novogodišnja kolekcija', en: 'New Year collection' },
     heading: { sr: 'Novogodišnja kolekcija', en: 'New Year collection' },
     description: {
-      sr: 'Ručno rađeni novogodišnji ukrasi od dehidrirane pomorandže i limuna — prirodna dekoracija za jelku i praznični sto, i lep poklon za praznike.',
-      en: "Handmade New Year's ornaments from dehydrated orange and lemon — natural decoration for the tree and the holiday table, and a lovely holiday gift.",
+      sr: 'Ručno rađena novogodišnja dekoracija od dehidriranog voća. Napravljena od prirodnih materijala, bez plastike — originalan detalj koji vašem domu daje toplinu i miris praznika.',
+      en: 'Handmade New Year decorations from dehydrated fruit. Made from natural materials, plastic-free — an original touch that fills your home with the warmth and scent of the holidays.',
     },
     schemaCategory: 'Home & Garden > Decor > Seasonal & Holiday Decorations > Christmas Tree Ornaments',
   },
   {
-    slug: 'poklon-setovi',
-    label: { sr: 'Poklon setovi', en: 'Gift sets' },
-    heading: { sr: 'Poklon setovi', en: 'Gift sets' },
+    slug: 'box-paketi',
+    label: { sr: 'Box paketi', en: 'Box sets' },
+    heading: { sr: 'Box paketi', en: 'Box sets' },
     description: {
-      sr: 'Poklon setovi i boxevi sa dehidriranim voćem — gift box za koktele, snack box za zdravu užinu i premium box sa barmenskom opremom. Spremni za poklon.',
-      en: 'Gift sets and boxes with dehydrated fruit — a cocktail gift box, a healthy snack box and a premium box with bar tools. Ready to give.',
+      sr: 'Dehidrirano voće i pažljivo odabrani dodaci, spakovani u jednu kraft kutiju — za koktele kod kuće, malo drugačiju užinu ili kao gotov poklon koji oduševljava na prvi pogled.',
+      en: 'Dehydrated fruit and carefully chosen extras, packed in one kraft box — for cocktails at home, a slightly different snack, or as a ready-to-give gift that delights at first sight.',
     },
     schemaCategory: 'Food, Beverages & Tobacco > Food Items > Food Gift Baskets',
   },
