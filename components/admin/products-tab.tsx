@@ -17,9 +17,11 @@ import {
   EyeOff,
   Star,
   GripVertical,
+  Crop,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ImageCropDialog, type ImageCropSource } from '@/components/admin/image-crop-dialog'
 import type { AdminProduct, LocalizedField } from '@/lib/admin-store'
 import { cn } from '@/lib/utils'
 import { formatKgFixed4, parseStockKg, roundKgUp4 } from '@/lib/stock-kg'
@@ -709,51 +711,90 @@ function ProductModal({
     setStockInput(String(formData.stockKg))
   }, [formData.stockKg])
 
-  const uploadFiles = async (files: File[]) => {
+  // Svaka nova slika prvo prolazi kroz sečenje na 4:3, jednu po jednu.
+  const [cropQueue, setCropQueue] = useState<File[]>([])
+  const [cropQueueTotal, setCropQueueTotal] = useState(0)
+  // Indeks postojeće slike koja se ponovo seče (dugme „Iseci“ na sličici).
+  const [recropIndex, setRecropIndex] = useState<number | null>(null)
+
+  const recropUrl = recropIndex !== null ? formData.images[recropIndex] : null
+  const cropFile = cropQueue[0] ?? null
+  const cropSource = useMemo<ImageCropSource | null>(() => {
+    if (recropUrl) return { kind: 'url', url: recropUrl }
+    if (cropFile) return { kind: 'file', file: cropFile }
+    return null
+  }, [recropUrl, cropFile])
+
+  /** Uploaduje jednu (već isečenu) sliku i vraća njen javni URL. */
+  const uploadSingle = async (file: File): Promise<string> => {
     setUploadingImages(true)
     setUploadError('')
-    const newImages: string[] = []
-
-    for (const file of files) {
+    try {
       const fd = new FormData()
       fd.append('file', file)
-
-      try {
-        const response = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: fd,
-        })
-        const data = await response.json()
-        if (!response.ok) {
-          setUploadError(data.error || 'Upload failed')
-          continue
-        }
-        if (data.url) {
-          newImages.push(data.url)
-        }
-      } catch (error) {
-        console.error('Upload error:', error)
-        setUploadError('Network error during upload')
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: fd,
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || 'Upload failed')
       }
+      return data.url as string
+    } catch (error) {
+      if (error instanceof TypeError) {
+        throw new Error('Network error during upload')
+      }
+      throw error
+    } finally {
+      setUploadingImages(false)
     }
-
-    if (newImages.length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newImages],
-      }))
-      setImageItemKeys((prev) => [
-        ...prev,
-        ...newImages.map(() => createImageItemKey()),
-      ])
-    }
-    setUploadingImages(false)
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const enqueueFilesForCrop = (files: File[]) => {
+    if (files.length === 0) return
+    setUploadError('')
+    setCropQueueTotal(cropQueue.length === 0 ? files.length : cropQueueTotal + files.length)
+    setCropQueue((prev) => [...prev, ...files])
+  }
+
+  const advanceCropQueue = () => {
+    if (cropQueue.length <= 1) setCropQueueTotal(0)
+    setCropQueue((prev) => prev.slice(1))
+  }
+
+  const handleCropConfirm = async (croppedFile: File) => {
+    const url = await uploadSingle(croppedFile)
+
+    if (recropIndex !== null) {
+      // Stari fajl ostaje na R2 dok se proizvod ne sačuva — ako se forma
+      // zatvori bez čuvanja, proizvod i dalje pokazuje na staru sliku.
+      const index = recropIndex
+      setFormData((prev) => ({
+        ...prev,
+        images: prev.images.map((img, i) => (i === index ? url : img)),
+      }))
+      setRecropIndex(null)
+      return
+    }
+
+    setFormData((prev) => ({ ...prev, images: [...prev.images, url] }))
+    setImageItemKeys((prev) => [...prev, createImageItemKey()])
+    advanceCropQueue()
+  }
+
+  const handleCropCancel = () => {
+    if (recropIndex !== null) {
+      setRecropIndex(null)
+      return
+    }
+    advanceCropQueue()
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-    await uploadFiles(Array.from(files))
+    enqueueFilesForCrop(Array.from(files))
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -822,7 +863,7 @@ function ProductModal({
     const files = Array.from(e.dataTransfer.files).filter((f) =>
       f.type.startsWith('image/')
     )
-    if (files.length > 0) await uploadFiles(files)
+    enqueueFilesForCrop(files)
   }
 
   const handleRemoveImage = async (index: number) => {
@@ -1265,7 +1306,7 @@ function ProductModal({
                     onDragLeave={handleThumbnailDragLeave}
                     onDrop={(e) => handleThumbnailDrop(index, e)}
                     className={cn(
-                      'relative aspect-square rounded-md overflow-hidden bg-bg-card group cursor-grab active:cursor-grabbing border-2 transition-colors',
+                      'relative aspect-[4/3] rounded-md overflow-hidden bg-bg-card group cursor-grab active:cursor-grabbing border-2 transition-colors',
                       draggingImageIndex === index && 'opacity-50 ring-2 ring-lime/60',
                       dropTargetImageIndex === index &&
                         draggingImageIndex !== index &&
@@ -1282,7 +1323,7 @@ function ProductModal({
                         alt={`Product ${index + 1}`}
                         fill
                         draggable={false}
-                        className="object-cover pointer-events-none select-none"
+                        className="object-contain pointer-events-none select-none"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center bg-bg-card text-text-muted">
@@ -1295,6 +1336,19 @@ function ProductModal({
                     >
                       <GripVertical className="w-3.5 h-3.5 shrink-0" />
                     </div>
+                    {imageSrc && (
+                      <button
+                        type="button"
+                        onClick={() => setRecropIndex(index)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        disabled={uploadingImages}
+                        title="Iseci na 4:3"
+                        aria-label="Iseci na 4:3"
+                        className="absolute top-2 left-2 p-1 bg-bg-dark/80 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer z-10 disabled:opacity-50"
+                      >
+                        <Crop className="w-4 h-4 text-cream" />
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
@@ -1317,7 +1371,7 @@ function ProductModal({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingImages}
-                  className="aspect-square rounded-md border-2 border-dashed border-border-card flex flex-col items-center justify-center gap-2 text-text-body-light hover:border-lime hover:text-lime transition-colors disabled:opacity-50"
+                  className="aspect-[4/3] rounded-md border-2 border-dashed border-border-card flex flex-col items-center justify-center gap-2 text-text-body-light hover:border-lime hover:text-lime transition-colors disabled:opacity-50"
                 >
                   {uploadingImages ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
@@ -1353,9 +1407,23 @@ function ProductModal({
               className="hidden"
             />
             <p className="text-xs text-text-body-light/50">
-              JPEG, PNG, WebP, AVIF · Maks. 5MB po slici · Prva slika je glavna ·
-              prevucite slike da promenite redosled
+              JPEG, PNG, WebP, AVIF · Slike se seku na 4:3 pre uploada · Prva slika
+              je glavna · prevucite slike da promenite redosled
             </p>
+
+            {cropSource && (
+              <ImageCropDialog
+                source={cropSource}
+                subtitle={
+                  recropIndex === null && cropQueueTotal > 1
+                    ? `Slika ${cropQueueTotal - cropQueue.length + 1} od ${cropQueueTotal}`
+                    : undefined
+                }
+                confirmLabel={recropIndex !== null ? 'Iseci i zameni' : 'Iseci i dodaj'}
+                onCancel={handleCropCancel}
+                onConfirm={handleCropConfirm}
+              />
+            )}
           </div>
 
           {/* Prices */}
